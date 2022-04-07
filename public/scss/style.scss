@@ -1,0 +1,86 @@
+@import 'reset';
+@import 'global';
+@import 'fonts';
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700;900&display=swap');
+
+
+.all-links {
+    background: #f2f2f2;
+    ol {
+        padding: 20px 20px 20px 30px;
+        display: flex;
+        flex-direction: column;
+        row-gap: 10px;
+        color: #b12e4c;
+        li {
+            display: list-item;
+            list-style: inherit !important;
+            .main-link {
+                color: #b12e4c;
+                font-weight: 600;
+            }
+        }
+    }
+}
+
+@keyframes pulse {
+    0%{
+        box-shadow: 0 0 0 0 #FFD172;
+    }
+    20%{
+        box-shadow: 0 0 0 7.5px #ffdf9e;
+    }
+    100%{
+        box-shadow: 0 0 0 0 #FFD172;
+    }
+}
+
+@keyframes pulseGray {
+    0%{
+        box-shadow: 0 0 0 0 #A6A6A6;
+    }
+    20%{
+        box-shadow: 0 0 0 7.5px #D2D2D2;
+    }
+    100%{
+        box-shadow: 0 0 0 0 #A6A6A6;
+    }
+} 
+
+
+
+@import 'blocks/qr-code';
+@import 'blocks/cashback';
+@import 'blocks/main-page';
+@import 'blocks/review';
+@import 'blocks/not-given-prize';
+@import 'blocks/list-reviews';
+@import 'blocks/about-partner';
+@import 'blocks/about-partner-statistic';
+@import 'blocks/cabinet-qr-code';
+@import 'blocks/mypromo-prise';
+@import 'blocks/mypromo-discount';
+@import 'blocks/mypromo-cashback';
+@import 'blocks/mypromo-promocode';
+@import 'blocks/partdescr';
+@import 'blocks/mypromo-promo';
+@import 'blocks/mypromo-promocodes';
+@import 'blocks/clients-users';
+@import 'blocks/clients-marketing-prize';
+@import 'blocks/clients-marketing-discount';
+@import 'blocks/clients-marketing-money';
+@import 'blocks/profile';
+@import 'blocks/profile-settings';
+@import 'blocks/profile-earn';
+@import 'blocks/aboutApp';
+@import 'blocks/biznes';
+@import 'blocks/about-us';
+@import 'blocks/franchise';
+@import 'blocks/loading';
+@import 'blocks/how-it-works';
+@import 'blocks/new-promocode';
+@import 'blocks/ap-users.scss';
+@import 'blocks/ap-agents.scss';
+@import 'blocks/admin-panel';
+@import 'blocks/ap-partners';

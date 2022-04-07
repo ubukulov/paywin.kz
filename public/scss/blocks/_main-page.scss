@@ -1,0 +1,105 @@
+.main-page {
+    width: 100%;
+    height: 100vh;
+    background: url(../images/bg.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: cover;
+    position: relative;
+    &__title {
+        padding-top: 242px;
+        font-size: 50px;
+        font-weight: 500;
+        line-height: 61px;
+        font-family: 'Masque';
+        background: -webkit-linear-gradient(180deg, #FFBA10 0%, #FC7712 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center;
+    }
+    &__subtitle {
+        font-size: 19px;
+        font-weight: 700;
+        line-height: 24px;
+        color: #8E8E8E;
+        padding-top: 1px;
+        text-align: center;
+    }
+    &__btn {
+        position: absolute;
+        bottom: 54px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #FD9B11;
+        border: none;
+        border-radius: 28px;
+        color: #fff;
+        font-weight: 700;
+        font-size: 16px;
+        line-height: 20px;
+        box-shadow: #FD9B11 28px;
+        padding: 15px 110px 15px 95px;
+        cursor: pointer;
+        display: flex;
+        column-gap: 7.5px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .main-page {
+        width: 100%;
+        height: 100vh;
+        background: url(../images/bg.svg);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: cover;
+        position: relative;
+        &__title {
+            padding-top: 242px;
+            font-size: 50px;
+            font-weight: 500;
+            line-height: 61px;
+            font-family: 'Masque';
+            background: -webkit-linear-gradient(180deg, #FFBA10 0%, #FC7712 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+        &__subtitle {
+            font-size: 19px;
+            font-weight: 700;
+            line-height: 24px;
+            color: #8E8E8E;
+            padding-top: 1px;
+            text-align: center;
+        }
+        &__btn {
+            position: absolute;
+            bottom: 54px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #FD9B11;
+            border: none;
+            border-radius: 28px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+            line-height: 20px;
+            box-shadow: #FD9B11 28px;
+            padding: 15px 110px 15px 95px;
+            cursor: pointer;
+            display: flex;
+            column-gap: 7.5px;
+        }
+    }
+};
+
+
+@media only screen and (max-width: 320px) {
+    .main-page__title {
+        font-size: 43px;
+    }
+    .main-page__subtitle {
+        font-size: 18px;
+    }
+}
