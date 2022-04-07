@@ -18,11 +18,8 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
-<<<<<<< HEAD
-	
+
 	RewriteCond %{HTTP_HOST} ^paywin\.kz [NC]
 	RewriteCond %{SERVER_PORT} 80
 	RewriteRule ^(.*)$ https://paywin.kz/$1 [R,L]
-=======
->>>>>>> cf346eb8bbc120b1a75ec77d843517becf62fc7c
 </IfModule>
