@@ -1,4 +1,12 @@
 @extends('user.user')
+@push('user_styles')
+    <style>
+        .hbalance__replenish-btn, .hbalance__output-btn {
+            height: 16px !important;
+            text-align: center;
+        }
+    </style>
+@endpush
 @section('content')
     <div class="hbalance">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
