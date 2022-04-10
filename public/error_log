@@ -1,0 +1,1 @@
+[28-Feb-2022 11:13:43 UTC] PHP Fatal error:  Trait 'Cviebrock\EloquentSluggable\Sluggable' not found in /home/optpric3/public_html/www/app/Models/Category.php on line 8
