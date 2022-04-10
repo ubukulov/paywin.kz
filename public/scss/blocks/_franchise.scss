@@ -1,0 +1,267 @@
+.franchise {
+    padding-top: 30px;
+    &__back-btn {
+        width: 80px;
+        margin-left: 30px;
+        display: flex;
+        align-items: center;
+        column-gap: 13px;
+        font-weight: 700;
+        color: #C1C1C1;
+    }
+    &__title {
+        width: 100%;
+        padding-top: 45px;
+        font-size: 39px;
+        font-family: 'Masque';
+        background: -webkit-linear-gradient(180deg, #FFBA10 0%, #FC7712 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center;
+    }
+    &__subtitle {
+        padding-top: 14.5px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6F6F6F;
+        text-align: center;
+    }
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-bottom: 88px;
+    }
+    &__prize {
+        margin-top: 17px;
+        display: inline-block;
+        padding: 16px 22px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #FFBA10 0%, #FC7712 100%);
+        font-size: 26px;
+        font-weight: 700;
+        color: #fff;
+        box-shadow: 0 0 12px #FC7712;
+    }
+    &__info-block {
+        margin-top: 28px;
+        display: flex;
+        flex-direction: column;
+        row-gap: 20px;
+    }
+    &__info-item {
+        display: flex;
+        align-items: center;
+        column-gap: 15px;
+    }
+    &__info-icon {
+        min-width: 45px;
+        min-height: 45px;
+        background: linear-gradient(180deg, #FFBA10 0%, #FC7712 100%);
+        box-shadow: 0 0 12px #FC7712;
+        border-radius: 50%;
+    }
+    &__info-text {
+        width: 275px;
+        font-weight: 600;
+        color: #565656;
+    }
+    &__link {
+        margin-top: 48px;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        border-radius: 20px;
+        padding: 5px 25px 8px;
+        background: linear-gradient(270deg, #FFBA10 0%, #FC7712 100%);
+    }
+    &__footer {
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        padding-bottom: 10px;
+        background: #fff;
+        &-wrapper {
+            display: flex;
+            align-items: flex-end;
+            column-gap: 62px;
+            justify-content: center;
+        }
+        .franchise__profile {
+            position: relative;
+            width: 46px;
+            display: flex;
+            justify-content: center;
+            &-active {
+                position: absolute;
+                top: -18px;
+                right: 0;
+            }
+        }
+        .franchise__prizes {
+            width: 46px;
+            display: flex;
+            justify-content: center;
+        }
+        .franchise__scanner {
+            display: flex;  
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border: 4px solid #A6A6A6;
+            border-radius: 50%;
+            position: relative;
+            animation: pulseGray 5s infinite;
+            &-border {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                border: 4px solid #838383;
+                border-radius: 50%;
+            }
+        }       
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .franchise {
+        padding-top: 30px;
+        &__back-btn {
+            width: 80px;
+            margin-left: 30px;
+            display: flex;
+            align-items: center;
+            column-gap: 13px;
+            font-weight: 700;
+            color: #C1C1C1;
+        }
+        &__title {
+            width: 100%;
+            padding-top: 45px;
+            font-size: 39px;
+            font-family: 'Masque';
+            background: -webkit-linear-gradient(180deg, #FFBA10 0%, #FC7712 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+        &__subtitle {
+            padding-top: 14.5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6F6F6F;
+            text-align: center;
+        }
+        &__wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 88px;
+        }
+        &__prize {
+            margin-top: 17px;
+            display: inline-block;
+            padding: 16px 22px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #FFBA10 0%, #FC7712 100%);
+            font-size: 26px;
+            font-weight: 700;
+            color: #fff;
+            box-shadow: 0 0 12px #FC7712;
+        }
+        &__info-block {
+            margin-top: 28px;
+            display: flex;
+            flex-direction: column;
+            row-gap: 20px;
+        }
+        &__info-item {
+            display: flex;
+            align-items: center;
+            column-gap: 15px;
+        }
+        &__info-icon {
+            min-width: 45px;
+            min-height: 45px;
+            background: linear-gradient(180deg, #FFBA10 0%, #FC7712 100%);
+            box-shadow: 0 0 12px #FC7712;
+            border-radius: 50%;
+        }
+        &__info-text {
+            width: 275px;
+            font-weight: 600;
+            color: #565656;
+        }
+        &__link {
+            margin-top: 48px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 20px;
+            padding: 5px 25px 8px;
+            background: linear-gradient(270deg, #FFBA10 0%, #FC7712 100%);
+        }
+        &__footer {
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            padding-bottom: 10px;
+            background: #fff;
+            &-wrapper {
+                display: flex;
+                align-items: flex-end;
+                column-gap: 62px;
+                justify-content: center;
+            }
+            .franchise__profile {
+                position: relative;
+                width: 46px;
+                display: flex;
+                justify-content: center;
+                &-active {
+                    position: absolute;
+                    top: -18px;
+                    right: 0;
+                }
+            }
+            .franchise__prizes {
+                width: 46px;
+                display: flex;
+                justify-content: center;
+            }
+            .franchise__scanner {
+                display: flex;  
+                align-items: center;
+                justify-content: center;
+                width: 48px;
+                height: 48px;
+                border: 4px solid #A6A6A6;
+                border-radius: 50%;
+                position: relative;
+                animation: pulseGray 5s infinite;
+                &-border {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 40px;
+                    height: 40px;
+                    border: 4px solid #838383;
+                    border-radius: 50%;
+                }
+            }       
+        }
+    }
+}
+
+
+@media (min-width: 320px) and (max-width: 374px) {
+    .franchise__info-text {
+        width: 250px;
+    }
+    .franchise__info-item {
+        column-gap: 10px;
+    }
+}

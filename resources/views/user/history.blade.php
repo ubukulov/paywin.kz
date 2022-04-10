@@ -1,4 +1,12 @@
 @extends('user.user')
+@push('user_styles')
+    <style>
+        .hbalance__replenish-btn, .hbalance__output-btn {
+            height: 16px !important;
+            text-align: center;
+        }
+    </style>
+@endpush
 @section('content')
     <div class="hbalance">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -20,11 +28,11 @@
                 @include('user.partials._balance')
             </div>
 
-            <div class="tab-pane fade show active" id="shop" role="tabpanel" aria-labelledby="shop-tab">
+            <div class="tab-pane fade show" id="shop" role="tabpanel" aria-labelledby="shop-tab">
                 @include('user.partials._shopping')
             </div>
 
-            <div class="tab-pane fade show active" id="income" role="tabpanel" aria-labelledby="income-tab">
+            <div class="tab-pane fade show" id="income" role="tabpanel" aria-labelledby="income-tab">
                 @include('user.partials._income')
             </div>
         </div>
