@@ -30,7 +30,8 @@ class IndexController extends BaseController
 
     public function paymentPage($slug, $id)
     {
-        return view('payment2', compact('slug', 'id'));
+        $partner = User::findOrFail($id);
+        return view('payment2', compact('slug', 'id', 'partner'));
     }
 
     public function payment(Request $request)
