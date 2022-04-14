@@ -24,7 +24,7 @@
                 </div>
                 <div class="swiper-pagination"></div>
             </div>
-            <a href="#" class="partdescr__back-btn">
+            <a href="{{ route('category.show', ['slug' => $slug]) }}" class="partdescr__back-btn">
                 <img src="/images/partner-description/left-arrow.svg" alt="back">
             </a>
             <a href="#" class="partdescr__share">
