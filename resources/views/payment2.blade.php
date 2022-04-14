@@ -79,21 +79,13 @@
         <div>
             <h2 class="slider__title">Выиграйте один из призов</h2>
             <div class="slider">
+
+                @foreach($partner->shares as $share)
                 <div class="slide slider__item">
-                    <p class="slide__text">Пицца<br>до 50000₸</p>
+                    <p class="slide__text">{{ \Illuminate\Support\Str::limit($share->title, 14) }}<br>до {{ $share->to_order }}₸</p>
                 </div>
-                <div class="slide slider__item">
-                    <p class="slide__text">Пицца<br>до 50000₸</p>
-                </div>
-                <div class="slide slider__item">
-                    <p class="slide__text">Пицца<br>до 50000₸</p>
-                </div>
-                <div class="slide slider__item">
-                    <p class="slide__text">Пицца<br>до 50000₸</p>
-                </div>
-                <div class="slide slider__item">
-                    <p class="slide__text">Пицца<br>до 50000₸</p>
-                </div>
+                @endforeach
+
             </div>
         </div>
         <div class="payment-page__buttons">

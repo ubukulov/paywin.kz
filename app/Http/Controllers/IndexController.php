@@ -22,15 +22,21 @@ class IndexController extends BaseController
 
     public function prizes()
     {
-        $prizes = Prize::where(['user_id' => Auth::user()->id])
-            ->with('user', 'payment', 'share')
+        $shares = Share::where('cnt', '>', 0)
+            ->with('user')
             ->get();
-        return view('prizes', compact('prizes'));
+
+        $prizes = Prize::where(['user_id' => Auth::user()->id])
+            ->with('user', 'share')
+            ->get();
+
+        return view('prizes', compact('shares', 'prizes'));
     }
 
     public function paymentPage($slug, $id)
     {
-        return view('payment2', compact('slug', 'id'));
+        $partner = User::findOrFail($id);
+        return view('payment2', compact('slug', 'id', 'partner'));
     }
 
     public function payment(Request $request)
