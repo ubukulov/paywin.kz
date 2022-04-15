@@ -1,6 +1,7 @@
 @php
     $partner = \App\Models\User::find($share->user->id);
     $partner_profile = $partner->profile;
+    $category = $partner_profile->category;
 @endphp
 <div class="prize prize--1 prizes__item">
     <div class="company prize__company">
@@ -12,6 +13,9 @@
         <div class="prize__slider">
             <div class="slider__item">
                 <p class="slide__text">{{ $share->title }}<br>при заказе от {{ $share->from_order }}₸</p>
+            </div>
+            <div>
+                <a href="{{ route('showPartner', ['slug' => $category->slug, 'id' => $partner->id]) }}" class="review__form-btn btn btn-success">подробнее</a>
             </div>
         </div>
     </div>

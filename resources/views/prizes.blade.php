@@ -19,6 +19,31 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/swiper-boundle.min.css">
     <link rel="stylesheet" href="/css/style.min.css">
+    <style>
+        .review__form-btn {
+            display: block;
+            margin: 30px auto 0;
+            background: #FD9B11;
+            border: none;
+            border-radius: 28px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+            line-height: 20px;
+            -webkit-box-shadow: #FD9B11 28px;
+            box-shadow: #FD9B11 28px;
+            padding: 6px 55px 8px 42px;
+            cursor: pointer;
+            -webkit-box-shadow: 0px 0px 23px #fd9b11;
+            box-shadow: 0px 0px 23px #fd9b11;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-column-gap: 7.5px;
+            -moz-column-gap: 7.5px;
+            column-gap: 7.5px;
+        }
+    </style>
 </head>
 <body class="container prizes-page">
     {{--<header class="header prizes-page__header">

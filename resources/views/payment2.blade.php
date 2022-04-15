@@ -23,7 +23,7 @@
     @csrf
     <input type="hidden" name="partner_id" value="{{ $id }}">
     <div class="actions">
-        <h2 class="offer animate__animated animate__fadeIn">Сумма оплаты</h2>
+        <h2 style="margin-top: 0px;" class="offer animate__animated animate__fadeIn">Сумма оплаты</h2>
         <p class="payment-page__number">
             <input style="width: 200px;
             max-width: 100%;
@@ -60,7 +60,7 @@
             </div>
         </div>
     </div>
-    <div class="keyboard keyboard__wrapper animate__animated animate__fadeIn">
+    {{--<div class="keyboard keyboard__wrapper animate__animated animate__fadeIn">
         <button class="keyboard__item">1</button> <button class="keyboard__item">2</button>
         <button class="keyboard__item">3</button>
         <button class="keyboard__item">4</button>
@@ -74,7 +74,7 @@
         <button class="keyboard__item keyboard__item--delete">
             <img src="/b5/img/icons/delete.svg" alt="Удалить">
         </button>
-    </div>
+    </div>--}}
     <div class="payment-page__slider-buttons animate__animated animate__fadeIn">
         <div>
             <h2 class="slider__title">Выиграйте один из призов</h2>

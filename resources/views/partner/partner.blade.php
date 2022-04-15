@@ -14,6 +14,29 @@
         .partner__address-upload-btn {
             font-size: 12px !important;
         }
+        .cabinet .cabinet__nav-link {
+            font-size: 14px !important;
+        }
+        .tabcontent__slider-btn {
+            width: 140px;
+            text-align: center;
+        }
+        .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+            background-color: orange;
+            color: #fff;
+        }
+        .promo__prise-form {
+            padding: 20px;
+        }
+        .time-s,.time-po {
+            width: 130px !important;
+        }
+        @media only screen and (max-width: 480px) {
+            .promo__nav-link {
+                font-size: 15px !important;
+            }
+        }
+
     </style>
 </head>
 <body>

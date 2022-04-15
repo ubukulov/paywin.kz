@@ -13,26 +13,16 @@
             </div>
             <a href="{{ route('partner.my-shares.create') }}" class="mypromo__header-btn">+ новая акция</a>
         </div>
-        {{--<div class="mypromo__nav">
-            <ul>
-                <li><a href="#" class="mypromo__nav-link mypromo__nav-link-active">акции</a></li>
-                <li><a href="#" class="mypromo__nav-link">промокоды</a></li>
-            </ul>
-        </div>--}}
+
         <div class="mypromo__tabs">
-            {{--<div class="tabheader">
-                <div class="tabheader__items">
-                    <div class="tabheader__item tabheader__item_active">активные</div>
-                    <div class="tabheader__item">прошедшие</div>
-                </div>
-            </div>--}}
+
             <div class="tabcontent">
                 <div class="tabcontent__wrapper">
                     <div class="tabcontent__slider">
                         <div class="swiper-wrapper">
                             @foreach($shares as $share)
                             <div class="tabcontent__slider-item swiper-slide">
-                                <button class="tabcontent__slider-btn">изменить акцию</button>
+                                <a href="{{ route('partner.my-shares.edit', ['my_share' => $share->id]) }}" class="tabcontent__slider-btn">изменить акцию</a>
                                 <div class="tabcontent__slider-top">
                                     <div class="tabcontent__slider-left">
                                         <p>Кол-во: <span>{{ $share->cnt }}</span></p>
@@ -53,7 +43,7 @@
                                 <div class="tabcontent__slider-bottom">
                                     <div class="tabcontent__slider-card">
                                         <img src="/images/mypromo/slider-card-elem.svg" alt="element">
-                                        <p>Баскет {{ $share->cnt }} крыльев <br>
+                                        <p>{{ \Illuminate\Support\Str::limit($share->title, 14) }} <br>
                                             при заказе от {{ $share->from_order }}₸</p>
                                     </div>
                                 </div>

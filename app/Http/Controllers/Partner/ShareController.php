@@ -70,7 +70,8 @@ class ShareController extends Controller
      */
     public function edit($id)
     {
-        //
+        $share = Share::findOrFail($id);
+        return view('partner.shares.edit', compact('share'));
     }
 
     /**
@@ -82,7 +83,9 @@ class ShareController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $share = Share::findOrFail($id);
+        $share->update($request->all());
+        return redirect()->route('partner.my-shares.index');
     }
 
     /**
