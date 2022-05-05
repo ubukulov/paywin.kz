@@ -34,7 +34,7 @@
                     <h2 class="company__title">{{ $partner->company }}</h2>
                 </div>
                 <div class="prize__info">
-                    <p class="prize__text">Призы: <b>10</b><br>Заказ от: <b>6000₸</b></p>
+                    <p class="prize__text">Призов: <b>10</b><br>Заказ от: <b>6000₸</b></p>
                     <div class="prize__slider">
                         <div class="slider__item">
                             <p class="slide__text">Cashback 50%<br>при заказе от 6000₸</p>

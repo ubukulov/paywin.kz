@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Routing\Router;
+use App\Admin\Controllers\PrizeController;
 
 Admin::routes();
 
@@ -13,4 +14,6 @@ Route::group([
 
     $router->get('/', 'HomeController@index')->name('home');
     $router->get('/categories', 'HomeController@index')->name('home');
+    $router->resource('prizes', 'PrizeController');
+    $router->resource('shares', 'ShareController');
 });

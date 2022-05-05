@@ -13,10 +13,20 @@
             <p class="profile__bonus">+<span>350</span> бонусов</p>
             <div class="profile__bank-card-block">
                 <div class="profile__bank-card-title">Банковская карта</div>
-                <div class="profile__bank-card">
+                {{--<div class="profile__bank-card">
                     <div class="profile__bank-card-number"><span>****</span><span>****</span><span>****</span><span class="profile__bank-card-lastnumbers">9981</span></div>
                     <div class="profile__bank-card-logo"><img src="/images/profile/card-logo.svg" alt="card-logo"></div>
+                </div>--}}
+                <div class="action__flex">
+
+                    <select name="card_id" style="font-size: 14px;border-color: #ccc;border-radius: 5px;color: green;">
+                        @foreach($user->getMyCards() as $card)
+                            <option value="{{ $card['id'] }}">{{ $card['number'] }}</option>
+                        @endforeach
+                    </select>
                 </div>
+
+
                 <a href="{{ route('user.addMyCard') }}" class="profile__bank-card-upload">+ прикрепить</a>
             </div>
         </div>

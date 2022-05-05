@@ -23,7 +23,7 @@ Route::group(['middleware' => ['auth']], function(){
     Route::get('/', 'IndexController@home')->name('home');
     Route::get('/prizes', 'IndexController@prizes')->name('prizes');
 
-    Route::post('/payment', 'IndexController@payment')->name('payment');
+    Route::post('/payment','IndexController@payment')->name('payment');
     Route::get('payment/success', 'IndexController@paymentSuccess');
     Route::get('payment/error', 'IndexController@paymentError');
 
@@ -55,6 +55,7 @@ Route::group(['middleware' => ['auth']], function(){
         Route::get('add-my-card', 'UserController@addMyCard')->name('addMyCard');
         Route::get('add-my-card/result', 'UserController@addMyCardResult')->name('addMyCardResult');
         Route::get('get-my-cards', 'UserController@getMyCards');
+        Route::get('remove-my-card', 'UserController@removeMyCard');
         Route::get('earn', 'UserController@earn')->name('earn');
         Route::get('history', 'UserController@history')->name('history');
         Route::get('settings', 'UserController@settings')->name('settings');

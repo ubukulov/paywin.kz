@@ -33,14 +33,8 @@
         </p>
         <div class="action action--card actions__action">
             <h3 class="action__subtitle">Метод оплаты</h3>
-            <div class="action__flex">
-                <img src="/b5/img/logotypes/mastercard.svg" alt="mastercard" class="action__icon action__icon--card">
-                <p class="action__number action__number--dots">....</p>
-                <p class="action__number">2458</p>
-                <p class="action__warning">-12250</p>
-                <button class="action__button">
-                    <img src="/b5/img/icons/arrow-down.svg" alt="Сменить способ оплаты"></button>
-            </div>
+
+            @include('_partials._payment_cards', $user)
         </div>
         <div class="action action--wallet actions__action">
             <h3 class="action__subtitle">Потратить баланс</h3>
