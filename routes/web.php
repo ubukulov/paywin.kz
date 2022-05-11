@@ -19,14 +19,12 @@ Route::post('/registration', 'AuthController@registration')->name('registration'
 Route::get('/logout', 'AuthController@logout')->name('logout');
 Route::post('/authentication', 'AuthController@authenticate')->name('authenticate');
 
-Route::group(['middleware' => ['auth']], function(){
+Route::group(['middleware' => 'auth'], function(){
     Route::get('/', 'IndexController@home')->name('home');
     Route::get('/prizes', 'IndexController@prizes')->name('prizes');
-
+    Route::get('success/payment', 'IndexController@paymentSuccess')->name('payment.success');
+    Route::get('error/payment', 'IndexController@paymentError')->name('payment.error');
     Route::post('/payment','IndexController@payment')->name('payment');
-    Route::get('payment/success', 'IndexController@paymentSuccess');
-    Route::get('payment/error', 'IndexController@paymentError');
-
     Route::get('category/{slug}', 'CategoryController@show')->name('category.show');
     Route::get('category/{slug}/{id}', 'CategoryController@showPartner')->name('showPartner');
     Route::get('payment/{slug}/{id}/page', 'IndexController@paymentPage')->name('paymentPage');

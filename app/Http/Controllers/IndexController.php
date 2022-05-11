@@ -68,6 +68,8 @@ class IndexController extends BaseController
                 'pg_card_id' => $pg_card_id,
                 'pg_description' => 'Описание платежа',
                 'pg_salt' => $salt,
+                'pg_success_url_method' => 'POST',
+                'pg_failure_url_method' => 'GET',
             ];
             //generate a signature and add it to the array
             ksort($request); //sort alphabetically
@@ -130,8 +132,10 @@ class IndexController extends BaseController
                 'pg_salt' => $salt,
                 'pg_order_id' => $payment->id,
                 'pg_description' => 'Описание заказа',
-                'pg_success_url' => 'https://paywin.kz/payment/success',
-                'pg_failure_url' => 'https://paywin.kz/payment/error',
+                'pg_success_url' => 'https://paywin.kz/success/payment',
+                'pg_failure_url' => 'https://paywin.kz/error/payment',
+                'pg_success_url_method' => 'POST',
+                'pg_failure_url_method' => 'GET',
             ];
 
             //$request['pg_testing_mode'] = 1; //add this parameter to request for testing payments
@@ -161,14 +165,17 @@ class IndexController extends BaseController
 
     public function paymentSuccess()
     {
-        $payment = Payment::where(['user_id' => Auth::user()->id, 'pg_status' => 'waiting'])->orderBy('id', 'DESC')->first();
+        /*$payment = Payment::where(['user_id' => Auth::user()->id, 'pg_status' => 'waiting'])->orderBy('id', 'DESC')->first();
         $pg_merchant_id = 511867;
         $salt = "y7crxXTrz6SXKPNd";
-        $request = [
-            'pg_merchant_id'=> $pg_merchant_id,
-            'pg_order_id' => $payment->id,
-            'pg_salt' => $salt,
-        ];
+        if($payment) {
+            $request = [
+                'pg_merchant_id'=> $pg_merchant_id,
+                'pg_order_id' => $payment->id,
+                'pg_salt' => $salt,
+            ];
+        }
+
 
         //generate a signature and add it to the array
         ksort($request); //sort alphabetically
@@ -196,16 +203,6 @@ class IndexController extends BaseController
             $payment->save();
         }
 
-        /*$payment_id = $request->input('pg_order_id');
-        $payment = Payment::findOrFail($payment_id);
-
-        if($payment->pg_status != 'ok') {
-            $payment->pg_status = 'ok';
-            $payment->pg_payment_id = $request->input('pg_payment_id');
-            $payment->updated_at = Carbon::now();
-            $payment->save();
-        }*/
-
         if (!User::isPrize(Auth::user()->id, $payment->id)) {
             $partner = $payment->partner;
             $shares = $partner->shares;
@@ -230,9 +227,10 @@ class IndexController extends BaseController
         }
 
         $prize = $payment->prize;
-        $share = Share::findOrFail($prize->share_id);
+        $share = Share::findOrFail($prize->share_id);*/
 
-        return view('thanks', compact('payment', 'prize', 'share'));
+        //return view('thanks', compact('payment', 'prize', 'share'));
+        return view('thanks2');
     }
 
     public function paymentError(Request $request)

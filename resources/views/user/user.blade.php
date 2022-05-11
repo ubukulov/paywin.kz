@@ -23,10 +23,8 @@
                 <a href="{{ route('prizes') }}" class="profile__prizes">
                     <img src="/images/profile/footer-prizes.svg" alt="icon">
                 </a>
-                <a href="{{ route('home') }}" class="profile__scanner">
-                    <div class="profile__scanner-border">
-                        <img src="/images/profile/footer-scanner.svg" alt="icon">
-                    </div>
+                <a href="{{ route('home') }}" class="footer__link">
+                    <img src="/img/icons/footer-qr.svg" alt="QR код" class="footer__icon">
                 </a>
                 <a href="{{ route('user.cabinet') }}" class="profile__profile">
                     <img class="profile__profile-active" src="/images/profile/active-line.svg" alt="" width="46">
