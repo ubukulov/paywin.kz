@@ -179,6 +179,8 @@ class UserController extends Controller
 
     public function settings()
     {
-        return view('user.settings');
+        $user = Auth::user();
+        $user_profile = $user->profile;
+        return view('user.settings', compact('user_profile'));
     }
 }

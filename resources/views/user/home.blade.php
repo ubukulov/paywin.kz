@@ -36,27 +36,30 @@
             </a>
             <div class="profile__username">
                 <img src="/images/profile/user-icon.svg" alt="">
-                <span>Sasha Grey</span>
+                <span>{{ $user_profile->full_name }}</span>
             </div>
+
             <div class="profile__sex">
-                <img src="/images/profile/female.svg" alt="">
-                <span>Женский</span>
+                @if($user_profile->sex == 1)
+                    <img src="/images/profile/female.svg" alt="">
+                    <span>Мужской</span>
+                @elseif($user_profile->sex == 2)
+                    <img src="/images/profile/male-icon.svg" alt="">
+                    <span>Женский</span>
+                @endif
             </div>
-            <div class="profile__sex">
-                <img src="/images/profile/male-icon.svg" alt="">
-                <span>Мужской</span>
-            </div>
+
             <div class="profile__birthdate">
                 <img src="/images/profile/birthday-cake.svg" alt="">
-                <span>1 сентября 1989г</span>
+                <span>{{ $user_profile->birth_date }}</span>
             </div>
             <div class="profile__telephone-number">
                 <img src="/images/profile/mobile-phone.svg" alt="">
-                <span>+7(999)999-99-99</span>
+                <span>{{ $user_profile->phone }}</span>
             </div>
             <div class="profile__email">
                 <img src="/images/profile/mail.svg" alt="">
-                <span>d1one7@ya.ru</span>
+                <span>{{ $user_profile->email }}</span>
             </div>
             <p class="profile__active-promocode">Активировать промокод</p>
             <div class="profile__promocode-input">

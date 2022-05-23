@@ -38,7 +38,7 @@ class User extends Authenticatable
 
     public function profile()
     {
-        return $this->hasOne(UserProfile::class)->whereNotNull('category_id');
+        return $this->hasOne(UserProfile::class)/*->whereNotNull('category_id')*/;
     }
 
     public function address()

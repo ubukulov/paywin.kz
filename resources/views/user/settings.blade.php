@@ -16,15 +16,21 @@
                 <img src="/images/profile/avatar.png" alt="">
             </div>
             <div class="settings__profile-content">
-                <div class="settings__profile-username">Sasha Grey</div>
+                <div class="settings__profile-username">{{ $user_profile->full_name }}</div>
+
+
                 <div class="settings__profile-sex">
-                    <img src="/images/profile/female.svg" alt="">
-                    Женский
+                    @if($user_profile->sex == 1)
+                        <img src="/images/profile/male-icon.svg" alt="">
+                        Мужской
+                    @elseif($user_profile->sex == 2)
+                        <img src="/images/profile/female.svg" alt="">
+                        Женский
+                    @endif
+
+
                 </div>
-                <div class="settings__profile-sex">
-                    <img src="/images/profile/male-icon.svg" alt="">
-                    Мужской
-                </div>
+
                 <div class="settings__profile-balance">
                     Баланс: <span class="settings__balance-sum">1500 ₸</span> <span class="settings__balance-bonus">+350 бонусов</span>
                 </div>
@@ -50,7 +56,7 @@
             <a href="#" class="settings__change-pw">Сменить пароль <img src="/images/profile/right-arrow.svg" alt=""></a>
             <p>Информация</p>
             <a href="#" class="settings__contact-us">Связаться с нами <img src="/images/profile/right-arrow.svg" alt=""></a>
-            <a href="#" class="settings__about-us">О нас <img src="/images/profile/right-arrow.svg" alt=""></a>
+            <a href="{{ route('user.setting.profile') }}" class="settings__about-us">Профиль <img src="/images/profile/right-arrow.svg" alt=""></a>
             <a href="#" class="settings__biznes">Бизнесу <img src="/images/profile/right-arrow.svg" alt=""></a>
             <a href="#" class="settings__franshiza">Франшиза <img src="/images/profile/right-arrow.svg" alt=""></a>
             <a href="#" class="settings__about-app">О приложении <img src="/images/profile/right-arrow.svg" alt=""></a>
