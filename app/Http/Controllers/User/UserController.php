@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Payment;
+use App\Models\Prize;
 use Illuminate\Http\Request;
 use Auth;
 use Str;
@@ -13,7 +15,8 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $user_profile = Auth::user()->profile;
-        return view('user.home', compact('user_profile', 'user'));
+        $prize = Prize::where(['user_id' => $user->id, 'status' => 'waiting'])->first();
+        return view('user.home', compact('user_profile', 'user', 'prize'));
     }
 
     public function addMyCard()
@@ -174,7 +177,8 @@ class UserController extends Controller
 
     public function history()
     {
-        return view('user.history');
+        $payments = Payment::where(['user_id' => Auth::user()->id, 'pg_status' => 'ok'])->orderby('id', 'DESC')->get();
+        return view('user.history', compact('payments'));
     }
 
     public function settings()

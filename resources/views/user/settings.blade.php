@@ -39,7 +39,7 @@
             </div>
         </div>
         <div class="settings__wrapper">
-            <a href="#" class="settings__card">
+            {{--<a href="#" class="settings__card">
                 <div class="settings__card-block">
                     <img src="/images/profile/master-card.svg" alt="">
                     <span class="settings__card-dot"></span>
@@ -50,20 +50,21 @@
                 </div>
                 <img src="/images/profile/right-arrow.svg" alt="">
             </a>
-            <a href="#" class="settings__share-app">Поделиться приложением <img src="/images/profile/right-arrow.svg" alt=""></a>
+            <a href="#" class="settings__share-app">Поделиться приложением <img src="/images/profile/right-arrow.svg" alt=""></a>--}}
             <p>Безопасность</p>
-            <a href="#" class="settings__code">Код доступа <img src="/images/profile/right-arrow.svg" alt=""></a>
-            <a href="#" class="settings__change-pw">Сменить пароль <img src="/images/profile/right-arrow.svg" alt=""></a>
+            {{--<a href="#" class="settings__code">Код доступа <img src="/images/profile/right-arrow.svg" alt=""></a>--}}
+            <a href="{{ route('user.setting.passwordChangeForm') }}" class="settings__change-pw">Сменить пароль <img src="/images/profile/right-arrow.svg" alt=""></a>
             <p>Информация</p>
-            <a href="#" class="settings__contact-us">Связаться с нами <img src="/images/profile/right-arrow.svg" alt=""></a>
+            {{--<a href="#" class="settings__contact-us">Связаться с нами <img src="/images/profile/right-arrow.svg" alt=""></a>--}}
             <a href="{{ route('user.setting.profile') }}" class="settings__about-us">Профиль <img src="/images/profile/right-arrow.svg" alt=""></a>
-            <a href="#" class="settings__biznes">Бизнесу <img src="/images/profile/right-arrow.svg" alt=""></a>
+            {{--<a href="#" class="settings__biznes">Бизнесу <img src="/images/profile/right-arrow.svg" alt=""></a>
             <a href="#" class="settings__franshiza">Франшиза <img src="/images/profile/right-arrow.svg" alt=""></a>
-            <a href="#" class="settings__about-app">О приложении <img src="/images/profile/right-arrow.svg" alt=""></a>
+            <a href="#" class="settings__about-app">О приложении <img src="/images/profile/right-arrow.svg" alt=""></a>--}}
             <a href="{{ route('logout') }}" class="settings__quit-accaunt">Выйти из аккаунта <img src="/images/profile/right-arrow.svg" alt=""></a>
         </div>
     </div>
-    <div class="settings__footer">
+
+    {{--<div class="settings__footer">
         <div class="settings__footer-wrapper">
             <a href="{{ route('prizes') }}" class="settings__prizes">
                 <img src="/images/profile/footer-prizes.svg" alt="icon">
@@ -78,7 +79,7 @@
                 <img src="/images/profile/profile.svg" alt="icon">
             </a>
         </div>
-    </div>
+    </div>--}}
 </div>
 
 <script src="/js/profile.js"></script>

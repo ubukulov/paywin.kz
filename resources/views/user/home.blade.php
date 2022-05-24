@@ -17,15 +17,15 @@
                     <div class="profile__bank-card-number"><span>****</span><span>****</span><span>****</span><span class="profile__bank-card-lastnumbers">9981</span></div>
                     <div class="profile__bank-card-logo"><img src="/images/profile/card-logo.svg" alt="card-logo"></div>
                 </div>--}}
+                @if(count($user->getMyCards()) > 0)
                 <div class="action__flex">
-
                     <select name="card_id" style="font-size: 14px;border-color: #ccc;border-radius: 5px;color: green;">
                         @foreach($user->getMyCards() as $card)
                             <option value="{{ $card['id'] }}">{{ $card['number'] }}</option>
                         @endforeach
                     </select>
                 </div>
-
+                @endif
 
                 <a href="{{ route('user.addMyCard') }}" class="profile__bank-card-upload">+ прикрепить</a>
             </div>
@@ -69,20 +69,29 @@
                 </a>
                 <button class="profile__promocode-btn" type="submit">OK</button>
             </div>
-            <div class="profile__surprize">
-                <div class="profile__surprize-logo">
-                    <img src="/images/profile/logo.png" alt="logo">
-                </div>
-                <div>
-                    <div class="profile__surprize-info">
-                        Подарок от <br> <span class="profile__surprize-company">Papa John’s</span> <br> <span class="profile__surprize-sum">+350тг</span>
+
+            @if($prize)
+                @php
+                    $share = $prize->share;
+                    $partner = $share->user;
+                    $partner_profile = $partner->profile;
+                @endphp
+                <div class="profile__surprize">
+                    <div class="profile__surprize-logo">
+                        <img src="/images/profile/logo.png" alt="logo">
                     </div>
-                    <a href="#" class="profile__surprize-btn">
-                        <img src="/images/profile/check.svg" alt="">
-                        получить
-                    </a>
+                    <div>
+                        <div class="profile__surprize-info">
+                            Подарок от <br> <span class="profile__surprize-company">{{ $partner_profile->company }}</span> <br> <span class="profile__surprize-sum">{{ $share->title }}</span>
+                        </div>
+                        <a href="{{ route('user.getMyPrize', ['prize_id' => $prize->id]) }}" class="profile__surprize-btn">
+                            <img src="/images/profile/check.svg" alt="">
+                            получить
+                        </a>
+                    </div>
                 </div>
-            </div>
+            @endif
+
         </div>
     </div>
     <div class="profile__info">

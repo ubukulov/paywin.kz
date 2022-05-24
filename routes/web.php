@@ -18,6 +18,7 @@ Route::get('/login', 'AuthController@login')->name('login');
 Route::post('/registration', 'AuthController@registration')->name('registration');
 Route::get('/logout', 'AuthController@logout')->name('logout');
 Route::post('/authentication', 'AuthController@authenticate')->name('authenticate');
+Route::get('/how-it-works', 'IndexController@howItWorks')->name('howItWorks');
 
 Route::group(['middleware' => 'auth'], function(){
     Route::get('/', 'IndexController@home')->name('home');
@@ -61,6 +62,9 @@ Route::group(['middleware' => 'auth'], function(){
             Route::get('/', 'UserController@settings')->name('settings');
             Route::get('/profile', 'SettingController@profile')->name('setting.profile');
             Route::post('profile/update', 'SettingController@profileUpdate')->name('setting.profileUpdate');
+            Route::get('/change-password', 'SettingController@passwordChangeForm')->name('setting.passwordChangeForm');
+            Route::post('/change-password', 'SettingController@passwordUpdate')->name('setting.passwordUpdate');
+            Route::get('/{prize_id}/get-my-prize', 'UserController@getMyPrize')->name('getMyPrize');
         });
     });
 });

@@ -30,7 +30,7 @@
             <div id="video-container" style="width: 100% !important;">
                 <video id="qr-video" style="max-width: 100%; height: 200px; transform: scaleX(1) !important;"></video>
             </div>
-            <a href="#" class="how-it-works animate__animated animate__fadeIn">
+            <a href="{{ route('howItWorks') }}" class="how-it-works animate__animated animate__fadeIn">
                 <img src="/img/icons/how-it-works.svg" alt="info" class="how-it-works__img">
                 <p class="how-it-works__text">Как это работает?</p>
             </a>
@@ -216,7 +216,7 @@
 
         <style>
             div {
-                margin-bottom: 16px;
+                margin-bottom: 0px;
             }
 
             #video-container {

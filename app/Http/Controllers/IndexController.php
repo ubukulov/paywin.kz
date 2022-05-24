@@ -252,4 +252,9 @@ class IndexController extends BaseController
     {
         return view('not_given_prize');
     }
+
+    public function howItWorks()
+    {
+        return view('how_it_works');
+    }
 }

@@ -4,8 +4,8 @@
         <div class="hbalance__bonus">+ <span>536</span> бонусов</div>
     </div>
     <div class="hbalance__balance-block">
-        <a href="#" class="hbalance__replenish-btn">+ пополнить</a>
-        <a href="#" class="hbalance__output-btn">- вывести</a>
+        <a href="#" style="height: 30px !important;" class="hbalance__replenish-btn">+ пополнить</a>
+        <a href="#" style="height: 30px !important;" class="hbalance__output-btn">- вывести</a>
     </div>
 </div>
 <div class="hbalance__wrapper">

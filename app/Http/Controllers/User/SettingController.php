@@ -22,4 +22,23 @@ class SettingController extends Controller
         $user_profile->update($request->all());
         return redirect()->route('user.cabinet');
     }
+
+    public function passwordChangeForm()
+    {
+        return view('user.change_password');
+    }
+
+    public function passwordUpdate(Request $request)
+    {
+        $request->validate([
+            'password' => 'required',
+            'new_password' => 'min:4|required_with:confirm_new_password|same:confirm_new_password',
+            'confirm_new_password' => 'required|min:4',
+        ]);
+
+        $user = Auth::user();
+        $user->password = bcrypt($request->input('new_password'));
+        $user->save();
+        return redirect()->route('user.settings');
+    }
 }
