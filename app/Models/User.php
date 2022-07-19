@@ -63,6 +63,11 @@ class User extends Authenticatable
         ]);
     }
 
+    public function getBalance()
+    {
+        return Payment::where(['partner_id' => Auth::id(), 'pg_status' => 'ok'])->sum('amount');
+    }
+
     public static function isPrize($user_id, $payment_id)
     {
         $prize = Prize::where(['user_id' => $user_id, 'payment_id' => $payment_id])->first();

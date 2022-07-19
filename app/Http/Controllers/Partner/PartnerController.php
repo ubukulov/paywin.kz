@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Partner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Payment;
 use App\Models\UserAddress;
 use App\Models\UserImage;
 use App\Models\UserProfile;
@@ -27,7 +28,24 @@ class PartnerController extends Controller
 
     public function clients()
     {
-        return view('partner.clients');
+        $payments = Payment::where(['pg_status' => 'ok'])
+                    ->selectRaw('payments.*, user_profile.full_name')
+                    ->join('users', 'users.id', 'payments.user_id')
+                    ->join('user_profile', 'user_profile.user_id', 'users.id')
+                    ->get();
+        $users = [];
+        foreach($payments as $payment) {
+            if(array_key_exists($payment->user_id, $users)) {
+                $users[$payment->user_id]['cnt'] += 1;
+                $users[$payment->user_id]['sum'] += $payment->amount;
+            } else {
+                $users[$payment->user_id]['full_name'] = $payment->full_name;
+                $users[$payment->user_id]['cnt'] = 1;
+                $users[$payment->user_id]['sum'] = $payment->amount;
+            }
+        }
+
+        return view('partner.clients', compact('users'));
     }
 
     public function edit()

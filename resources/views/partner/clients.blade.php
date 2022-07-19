@@ -36,6 +36,7 @@
                 <button class="clients__users-search-btn"><img src="/images/clients/search-icon.svg" alt="search"></button>
             </div>
 
+            @foreach($users as $user)
             <div class="clients__users-item">
                 <div class="clients__users-item-left">
                     <div class="clients__users-logo"><img src="/images/clients/logo.png" alt="logo"></div>
@@ -43,7 +44,7 @@
                     <a href="#" class="clients__users-send-present">отправить подарок</a>
                 </div>
                 <div class="clients__users-item-right">
-                    <div class="clients__users-user">Пользователь</div>
+                    <div class="clients__users-user">{{ $user['full_name'] }}</div>
                     <div class="clients__users-wallet-block">
                         <img src="/images/clients/wallet-icon.svg" alt="icon">
                         <p class="clients__users-wallet-sum">на счету <br> <span>250 ₸</span></p>
@@ -58,43 +59,15 @@
                                 <div class="clients__users-purchases-table-head-block">сумма</div>
                             </div>
                             <div class="clients__users-purchases-table-body">
-                                <div class="clients__users-purchases-table-body-block">1200</div>
-                                <div class="clients__users-purchases-table-body-block">12500тг</div>
+                                <div class="clients__users-purchases-table-body-block">{{ $user['cnt'] }}</div>
+                                <div class="clients__users-purchases-table-body-block">{{ $user['sum'] }} тг</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            @endforeach
 
-            <div class="clients__users-item">
-                <div class="clients__users-item-left">
-                    <div class="clients__users-logo"><img src="/images/clients/logo.png" alt="logo"></div>
-                    <a href="#" class="clients__users-requisites">реквизиты</a>
-                    <a href="#" class="clients__users-send-present">отправить подарок</a>
-                </div>
-                <div class="clients__users-item-right">
-                    <div class="clients__users-user">Пользователь</div>
-                    <div class="clients__users-wallet-block">
-                        <img src="/images/clients/wallet-icon.svg" alt="icon">
-                        <p class="clients__users-wallet-sum">на счету <br> <span>250 ₸</span></p>
-                        <p class="clients__users-wallet-cashback">+350 Cashback</p>
-                    </div>
-                    <p class="clients__users-win-prizes">Выиграл призов: <span>1259</span></p>
-                    <div class="clients__users-purchases">
-                        <div class="clients__users-purchases-title">Покупки:</div>
-                        <div class="clients__users-purchases-table">
-                            <div class="clients__users-purchases-table-head">
-                                <div class="clients__users-purchases-table-head-block">кол-во</div>
-                                <div class="clients__users-purchases-table-head-block">сумма</div>
-                            </div>
-                            <div class="clients__users-purchases-table-body">
-                                <div class="clients__users-purchases-table-body-block">1200</div>
-                                <div class="clients__users-purchases-table-body-block">12500тг</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 @stop
