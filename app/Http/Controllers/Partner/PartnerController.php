@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Partner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Payment;
 use App\Models\UserAddress;
 use App\Models\UserImage;
 use App\Models\UserProfile;
@@ -27,6 +28,10 @@ class PartnerController extends Controller
 
     public function clients()
     {
+        $payments = Payment::where(['partner_id' => Auth::id()])
+                    ->join('users', 'users.id', 'payments.user_id')
+                    ->join('user_profile', 'user_profile.user_id', 'users.id')
+                    ->get();
         return view('partner.clients');
     }
 

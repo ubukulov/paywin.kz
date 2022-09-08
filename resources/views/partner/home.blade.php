@@ -18,7 +18,7 @@
                 <div class="partner__name">{{ $user_profile->company }}</div>
                 <div class="partner__right-item partner__right-wallet">
                     <img src="/images/cabinet/wallet.svg" alt="icon">
-                    <div class="partner__right-wallet-text">на счету <br> <span>250 ₸</span></div>
+                    <div class="partner__right-wallet-text">на счету <br> <span>{{ $partner->getBalance() }} ₸</span></div>
                     <button class="partner__right-output"><span>-</span> вывести</button>
                 </div>
                 <div class="partner__right-item">
