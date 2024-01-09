@@ -116,4 +116,9 @@ class User extends Authenticatable
 
         return $cards;
     }
+
+    public function getBalance()
+    {
+        return Payment::where(['partner_id' => Auth::id(), 'pg_status' => 'ok'])->sum('amount');
+    }
 }
