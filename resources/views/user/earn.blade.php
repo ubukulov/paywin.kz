@@ -10,11 +10,11 @@
                     <p>Доход: <span>2500</span></p>
                 </div>
                 <a href="#" class="earn__share">
-                    <img src="images/profile/share.svg" alt="">
+                    <img src="{{ asset('images/profile/share.svg') }}" alt="">
                     поделиться
                 </a>
                 <a href="#" class="earn__download-banner">
-                    <img src="images/profile/download-banner.svg" alt="">
+                    <img src="{{ asset('images/profile/download-banner.svg') }}" alt="">
                     скачать баннер
                 </a>
                 <div class="earn__text">
@@ -29,11 +29,11 @@
                     <p>Доход: <span>2500</span></p>
                 </div>
                 <a href="#" class="earn__share">
-                    <img src="images/profile/share.svg" alt="">
+                    <img src="{{ asset('images/profile/share.svg') }}" alt="">
                     поделиться
                 </a>
                 <a href="#" class="earn__download-banner">
-                    <img src="images/profile/download-banner.svg" alt="">
+                    <img src="{{ asset('images/profile/download-banner.svg') }}" alt="">
                     скачать баннер
                 </a>
                 <div class="earn__text">
