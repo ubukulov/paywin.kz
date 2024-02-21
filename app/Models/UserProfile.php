@@ -27,4 +27,9 @@ class UserProfile extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function getLastNumberOfCard()
+    {
+        return (is_null($this->card_number)) ? 9981 : substr($this->card_number,strlen($this->card_number)-4);
+    }
 }

@@ -89,7 +89,7 @@
                     <div class="partner__requisites-title">Реквизиты</div>
                     <div class="partner__requisites-card-title">Банковская карта</div>
                     <div class="partner__requisites-card">
-                        <div class="partner__requisites-card-number"><span>****</span><span>****</span><span>****</span><span class="partner__requisites-card-lastnumbers">9981</span></div>
+                        <div class="partner__requisites-card-number"><span>****</span><span>****</span><span>****</span><span class="partner__requisites-card-lastnumbers">{{ $user_profile->getLastNumberOfCard() }}</span></div>
                         <div class="partner__requisites-card-logo"><img src="/images/cabinet/card-logo.svg" alt="card-logo"></div>
                     </div>
                     <input type="file" id="upload-card" hidden="hidden">
@@ -107,13 +107,13 @@
                         <img src="/images/cabinet/bank-name.svg" alt="">
                         <p>Название банка</p>
                     </div>
-                    <input value="{{ $user_profile->bank_name }}" class="partner__requisites-bank-name-input" type="text">
+                    <input value="{{ $user_profile->bank_name }}" disabled class="partner__requisites-bank-name-input" type="text">
 
                     <div class="partner__requisites-bank-accaunt">
                         <img src="/images/cabinet/bank-account.svg" alt="">
                         <p>Банковский счёт</p>
                     </div>
-                    <input value="{{ $user_profile->bank_account }}" class="partner__requisites-bank-accaunt-input" type="text">
+                    <input value="{{ $user_profile->bank_account }}" disabled class="partner__requisites-bank-accaunt-input" type="text">
 
                 </div>
             </div>
