@@ -57,6 +57,40 @@
                 </div>
             </div>
 
+            <h4 style="color: #ccc;" class="mb-2">Реквизиты</h4>
+            <div class="form-group">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">
+                            <i class="fa fa-bank" aria-hidden="true"></i> Названия банка
+                        </span>
+                    </div>
+                    <input type="text" class="form-control" name="bank_name" value="{{ $user_profile->bank_name }}" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">
+                            <i class="fa fa-usd" aria-hidden="true"></i> Банковский счет
+                        </span>
+                    </div>
+                    <input type="text" class="form-control" name="bank_account" value="{{ $user_profile->bank_account }}" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">
+                            <i class="fa fa-credit-card" aria-hidden="true"></i> Номер карты
+                        </span>
+                    </div>
+                    <input type="text" class="form-control" name="card_number" value="{{ $user_profile->card_number }}" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+            </div>
+
             <h4 style="color: #ccc;" class="mb-2">Социальные сети</h4>
 
             @include('partner.partials._networks')
