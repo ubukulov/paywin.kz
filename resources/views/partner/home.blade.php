@@ -93,25 +93,28 @@
                         <div class="partner__requisites-card-logo"><img src="/images/cabinet/card-logo.svg" alt="card-logo"></div>
                     </div>
                     <input type="file" id="upload-card" hidden="hidden">
-                    <button class="partner__requisites-card-upload">+ прикрепить</button>
+                    {{--<button class="partner__requisites-card-upload">+ прикрепить</button>--}}
                     <div class="partner__requisites-info">
-                        Прикрепи свою банковскую карту для быстрой и удобной оплаты <span class="dots">...</span>
+                        Прикрепи свою банковскую карту для быстрой и удобной оплаты {{--<span class="dots">...</span>
                         <span class="more-text">
                                     Прикрепи свою банковскую карту для быстрой и удобной оплаты
                                 </span>
                         <a href="#" class="open-text">открыть</a>
-                        <a href="#" class="close-text">закрыть</a>
+                        <a href="#" class="close-text">закрыть</a>--}}
                     </div>
-                    <div class="partner__requisites-bank-accaunt">
-                        <img src="/images/cabinet/bank-account.svg" alt="">
-                        <p>Банковский счёт</p>
-                    </div>
-                    <input class="partner__requisites-bank-accaunt-input" type="text">
+
                     <div class="partner__requisites-bank-name">
                         <img src="/images/cabinet/bank-name.svg" alt="">
                         <p>Название банка</p>
+                        <input value="{{ $user_profile->bank_name }}" class="partner__requisites-bank-name-input" type="text">
                     </div>
-                    <input class="partner__requisites-bank-name-input" type="text">
+
+                    <div class="partner__requisites-bank-accaunt">
+                        <img src="/images/cabinet/bank-account.svg" alt="">
+                        <p>Банковский счёт</p>
+                        <input value="{{ $user_profile->bank_account }}" class="partner__requisites-bank-accaunt-input" type="text">
+                    </div>
+
                 </div>
             </div>
             <div class="partner__descr">
