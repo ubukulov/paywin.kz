@@ -106,14 +106,14 @@
                     <div class="partner__requisites-bank-name">
                         <img src="/images/cabinet/bank-name.svg" alt="">
                         <p>Название банка</p>
-                        <input value="{{ $user_profile->bank_name }}" class="partner__requisites-bank-name-input" type="text">
                     </div>
+                    <input value="{{ $user_profile->bank_name }}" class="partner__requisites-bank-name-input" type="text">
 
                     <div class="partner__requisites-bank-accaunt">
                         <img src="/images/cabinet/bank-account.svg" alt="">
                         <p>Банковский счёт</p>
-                        <input value="{{ $user_profile->bank_account }}" class="partner__requisites-bank-accaunt-input" type="text">
                     </div>
+                    <input value="{{ $user_profile->bank_account }}" class="partner__requisites-bank-accaunt-input" type="text">
 
                 </div>
             </div>
