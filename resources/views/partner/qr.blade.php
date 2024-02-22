@@ -13,7 +13,8 @@
             </button>
             <div class="myqr__qrcode">
                 {{--<img src="/images/cabinet/Bitmap.svg" alt="qrcode">--}}
-                {!! QrCode::size(201)->generate(route('paymentPage', ['slug' => $user_profile->category->slug, 'id' => $user_profile->user_id])); !!}
+                {{--{!! QrCode::size(201)->generate(route('paymentPage', ['slug' => $user_profile->category->slug, 'id' => $user_profile->user_id])); !!}--}}
+                <img src="{!!QrCode::format('png')->generate(route('paymentPage', ['slug' => $user_profile->category->slug, 'id' => $user_profile->user_id]), 'QrCode.png', 'image/png')!!}">
             </div>
             <div class="myqr__block">
                 <div class="myqr__right">
