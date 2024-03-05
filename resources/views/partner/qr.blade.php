@@ -12,9 +12,13 @@
                 поделиться
             </button>
             <div class="myqr__qrcode">
+                @php
+                    $imgUrl = "/qrcodes/" . $user_profile->company . "_qr_code.svg";
+                @endphp
                 {{--<img src="/images/cabinet/Bitmap.svg" alt="qrcode">--}}
-                {!! QrCode::size(201)->generate(route('paymentPage', ['slug' => $user_profile->category->slug, 'id' => $user_profile->user_id])); !!}
+{{--                {!! QrCode::size(201)->generate(route('paymentPage', ['slug' => $user_profile->category->slug, 'id' => $user_profile->user_id])); !!}--}}
 {{--                <img src="{!!QrCode::format('png')->generate(route('paymentPage', ['slug' => $user_profile->category->slug, 'id' => $user_profile->user_id]), 'QrCode.png', 'image/png')!!}">--}}
+                {!! QrCode::size(201)->generate(route('paymentPage', ['slug' => $user_profile->category->slug, 'id' => $user_profile->user_id]), public_path() . $imgUrl); !!}
             </div>
             <div class="myqr__block">
                 <div class="myqr__right">
@@ -25,10 +29,10 @@
                     <div class="myqr__right-info">Используйте QR для создания своего маркетинг контента</div>
                 </div>
                 <div class="myqr__left">
-                    <button class="myqr__download-booklet">
+                    <a href="{{ asset($imgUrl) }}" target="_blank" class="myqr__download-booklet">
                         <img src="/images/cabinet/booklet-icon.svg" alt="icon">
                         скачать буклет
-                    </button>
+                    </a>
                     <div class="myqr__left-info">Используйте наш готовый буклет для запуска своей акции</div>
                     <div class="myqr__left-links">
                         <a href="#" class="myqr__left-link-stol">на стол</a>
