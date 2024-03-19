@@ -23,7 +23,7 @@ Route::get('/how-it-works', 'IndexController@howItWorks')->name('howItWorks');
 Route::group(['middleware' => 'auth'], function(){
     Route::get('/', 'IndexController@home')->name('home');
     Route::get('/prizes', 'IndexController@prizes')->name('prizes');
-    Route::post('success/payment', 'IndexController@paymentSuccess')->name('payment.success');
+    Route::get('success/payment', 'IndexController@paymentSuccess')->name('payment.success');
     Route::get('error/payment', 'IndexController@paymentError')->name('payment.error');
     Route::post('/payment','IndexController@payment')->name('payment');
     Route::get('category/{slug}', 'CategoryController@show')->name('category.show');
