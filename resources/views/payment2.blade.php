@@ -19,7 +19,7 @@
 </head>
 <body class="container payment-page">
 <h1 class="h1 animate__animated animate__fadeInLeft">Оплата</h1>
-<form class="payment-page__form" method="get" action="{{ route('payment.success') }}">
+<form class="payment-page__form" method="post" action="{{ route('payment') }}">
     @csrf
     <input type="hidden" name="partner_id" value="{{ $id }}">
     <div class="actions">

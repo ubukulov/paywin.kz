@@ -42,8 +42,6 @@ class IndexController extends BaseController
 
     public function payment(Request $request)
     {
-        $pg_merchant_id = 511867;
-        $salt = "y7crxXTrz6SXKPNd";
         $amount = $request->input('sum');
         $partner_id = $request->input('partner_id');
         $pg_card_id = $request->input('card_id');
@@ -59,22 +57,22 @@ class IndexController extends BaseController
         }
 
         if($request->has('card_id')) {
-            $apiUrl = "https://api.paybox.money/v1/merchant/{$pg_merchant_id}/card/init";
+            $apiUrl = env('PAYBOX_URL')."v1/merchant/".env('PAYBOX_MERCHANT_ID')."/card/init";
             $request = [
-                'pg_merchant_id'=> $pg_merchant_id,
+                'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
                 'pg_amount' => $amount,
                 'pg_order_id' => $payment->id,
                 'pg_user_id' => $payment->user_id,
                 'pg_card_id' => $pg_card_id,
                 'pg_description' => 'Описание платежа',
-                'pg_salt' => $salt,
+                'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
                 'pg_success_url_method' => 'POST',
                 'pg_failure_url_method' => 'GET',
             ];
             //generate a signature and add it to the array
             ksort($request); //sort alphabetically
             array_unshift($request, 'init');
-            array_push($request, $salt); //add your secret key (you can take it in your personal cabinet on paybox system)
+            array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
             $request['pg_sig'] = md5(implode(';', $request)); // signature
             unset($request[0], $request[1]);
 
@@ -91,18 +89,18 @@ class IndexController extends BaseController
             if ((string)$responseXml->pg_status == 'new') {
                 $pg_payment_id = (int) $responseXml->pg_payment_id;
                 $request = [
-                    'pg_merchant_id'=> $pg_merchant_id,
+                    'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
                     'pg_payment_id' => $pg_payment_id,
-                    'pg_salt' => $salt,
+                    'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
                 ];
                 //generate a signature and add it to the array
                 ksort($request); //sort alphabetically
                 array_unshift($request, 'pay');
-                array_push($request, $salt); //add your secret key (you can take it in your personal cabinet on paybox system)
+                array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
                 $request['pg_sig'] = md5(implode(';', $request)); // signature
                 unset($request[0], $request[1]);
 
-                $payUrl = "https://api.paybox.money/v1/merchant/{$pg_merchant_id}/card/pay";
+                $payUrl = env('PAYBOX_URL') . "v1/merchant/".env('PAYBOX_MERCHANT_ID')."/card/pay";
 
                 /*$response = $client->request('POST', $payUrl, [
                     'headers' => [
@@ -127,9 +125,9 @@ class IndexController extends BaseController
 
         } else {
             $request = [
-                'pg_merchant_id'=> $pg_merchant_id,
+                'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
                 'pg_amount' => $amount,
-                'pg_salt' => $salt,
+                'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
                 'pg_order_id' => $payment->id,
                 'pg_description' => 'Описание заказа',
                 'pg_success_url' => 'https://paywin.kz/success/payment',
@@ -148,7 +146,7 @@ class IndexController extends BaseController
             //generate a signature and add it to the array
             ksort($request); //sort alphabetically
             array_unshift($request, 'payment.php');
-            array_push($request, $salt); //add your secret key (you can take it in your personal cabinet on paybox system)
+            array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
 
 
             $request['pg_sig'] = md5(implode(';', $request));
@@ -158,7 +156,7 @@ class IndexController extends BaseController
             $query = http_build_query($request);
 
             //redirect a customer to payment page
-            header('Location:https://api.paybox.money/payment.php?'.$query);
+            header('Location: '.env('PAYBOX_URL').'payment.php?'.$query);
             exit();
         }
     }
