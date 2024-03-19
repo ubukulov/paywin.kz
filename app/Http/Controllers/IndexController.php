@@ -163,14 +163,12 @@ class IndexController extends BaseController
 
     public function paymentSuccess()
     {
-        /*$payment = Payment::where(['user_id' => Auth::user()->id, 'pg_status' => 'waiting'])->orderBy('id', 'DESC')->first();
-        $pg_merchant_id = 511867;
-        $salt = "y7crxXTrz6SXKPNd";
+        $payment = Payment::where(['user_id' => Auth::user()->id, 'pg_status' => 'waiting'])->orderBy('id', 'DESC')->first();
         if($payment) {
             $request = [
-                'pg_merchant_id'=> $pg_merchant_id,
+                'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
                 'pg_order_id' => $payment->id,
-                'pg_salt' => $salt,
+                'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
             ];
         }
 
@@ -178,13 +176,13 @@ class IndexController extends BaseController
         //generate a signature and add it to the array
         ksort($request); //sort alphabetically
         array_unshift($request, 'get_status2.php');
-        array_push($request, $salt); //add your secret key (you can take it in your personal cabinet on paybox system)
+        array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
 
         $request['pg_sig'] = md5(implode(';', $request)); // signature
 
         unset($request[0], $request[1]);
 
-        $apiUrl = "https://api.paybox.money/get_status2.php";
+        $apiUrl = env('PAYBOX_URL') . "get_status2.php";
         $client = new \GuzzleHttp\Client();
         $response = $client->request('POST', $apiUrl, [
             'headers' => [
@@ -225,10 +223,10 @@ class IndexController extends BaseController
         }
 
         $prize = $payment->prize;
-        $share = Share::findOrFail($prize->share_id);*/
+        $share = Share::findOrFail($prize->share_id);
 
-        //return view('thanks', compact('payment', 'prize', 'share'));
-        return view('thanks2');
+        return view('thanks', compact('payment', 'prize', 'share'));
+//        return view('thanks2');
     }
 
     public function paymentError(Request $request)
