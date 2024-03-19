@@ -13,4 +13,5 @@ yarn-error.log
 /public/b5
 /public/upload
 /public/vendor
+/public/qrcodes
 .idea
