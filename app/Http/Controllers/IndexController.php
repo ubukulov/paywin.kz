@@ -132,7 +132,7 @@ class IndexController extends BaseController
                 'pg_description' => 'Описание заказа',
                 'pg_success_url' => 'https://paywin.kz/success/payment',
                 'pg_failure_url' => 'https://paywin.kz/error/payment',
-                'pg_success_url_method' => 'POST',
+                'pg_success_url_method' => 'GET',
                 'pg_failure_url_method' => 'GET',
             ];
 
