@@ -76,22 +76,19 @@ class User extends Authenticatable
 
     public function getMyCards()
     {
-        $pg_merchant_id = '511867';
         $pg_user_id = (string) Auth::user()->id;
-        $secret_key = "y7crxXTrz6SXKPNd";
-        $salt = Str::random(15);
-        $pg_api_url = "https://api.paybox.money/v1/merchant/$pg_merchant_id/cardstorage/list";
+        $pg_api_url = env('PAYBOX_URL') . "v1/merchant/". env('PAYBOX_MERCHANT_ID') ."/cardstorage/list";
 
         $request = [
-            'pg_merchant_id'=> $pg_merchant_id,
+            'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
             'pg_user_id' => $pg_user_id,
-            'pg_salt' => $salt,
+            'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
         ];
 
         //generate a signature and add it to the array
         ksort($request); //sort alphabetically
         array_unshift($request, 'list');
-        array_push($request, $secret_key); //add your secret key (you can take it in your personal cabinet on paybox system)
+        array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
 
         $request['pg_sig'] = md5(implode(';', $request)); // signature
 

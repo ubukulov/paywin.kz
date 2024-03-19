@@ -52,8 +52,6 @@ Route::group(['middleware' => 'auth'], function(){
     Route::group(['prefix' => 'user', 'middleware' => ['user'], 'namespace' => 'User', 'as' => 'user.'], function(){
         Route::get('/', 'UserController@cabinet')->name('cabinet');
         Route::get('add-my-card', 'UserController@addMyCard')->name('addMyCard');
-        Route::get('add-my-card/result', 'UserController@addMyCardResult')->name('addMyCardResult');
-        Route::get('get-my-cards', 'UserController@getMyCards');
         Route::get('remove-my-card', 'UserController@removeMyCard');
         Route::get('earn', 'UserController@earn')->name('earn');
         Route::get('history', 'UserController@history')->name('history');
