@@ -76,41 +76,45 @@ class User extends Authenticatable
 
     public function getMyCards()
     {
-        $pg_user_id = (string) Auth::user()->id;
-        $pg_api_url = env('PAYBOX_URL') . "v1/merchant/". env('PAYBOX_MERCHANT_ID') ."/cardstorage/list";
+        try {
+            $pg_user_id = (string) Auth::user()->id;
+            $pg_api_url = env('PAYBOX_URL') . "v1/merchant/". env('PAYBOX_MERCHANT_ID') ."/cardstorage/list";
 
-        $request = [
-            'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
-            'pg_user_id' => $pg_user_id,
-            'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
-        ];
-
-        //generate a signature and add it to the array
-        ksort($request); //sort alphabetically
-        array_unshift($request, 'list');
-        array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
-
-        $request['pg_sig'] = md5(implode(';', $request)); // signature
-
-        unset($request[0], $request[1]);
-
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('POST', $pg_api_url, [
-            'headers' => [
-                'Content-type' => 'application/x-www-form-urlencoded'
-            ],
-            'form_params' => $request
-        ]);
-        $response = $response->getBody()->getContents();
-        $responseXml = simplexml_load_string($response);
-        $cards = [];
-        foreach($responseXml->card as $card) {
-            $cards[] = [
-                'id' => (int) $card->pg_card_id,
-                'number' => (string) $card->pg_card_hash
+            $request = [
+                'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
+                'pg_user_id' => $pg_user_id,
+                'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
             ];
-        }
 
-        return $cards;
+            //generate a signature and add it to the array
+            ksort($request); //sort alphabetically
+            array_unshift($request, 'list');
+            array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
+
+            $request['pg_sig'] = md5(implode(';', $request)); // signature
+
+            unset($request[0], $request[1]);
+
+            $client = new \GuzzleHttp\Client();
+            $response = $client->request('POST', $pg_api_url, [
+                'headers' => [
+                    'Content-type' => 'application/x-www-form-urlencoded'
+                ],
+                'form_params' => $request
+            ]);
+            $response = $response->getBody()->getContents();
+            $responseXml = simplexml_load_string($response);
+            $cards = [];
+            foreach($responseXml->card as $card) {
+                $cards[] = [
+                    'id' => (int) $card->pg_card_id,
+                    'number' => (string) $card->pg_card_hash
+                ];
+            }
+
+            return $cards;
+        } catch (\Exception $exception) {
+            dd($exception);
+        }
     }
 }
