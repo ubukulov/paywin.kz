@@ -76,6 +76,8 @@ class User extends Authenticatable
 
     public function getMyCards()
     {
+        $cards = [];
+
         try {
             $pg_user_id = (string) Auth::user()->id;
             $pg_api_url = env('PAYBOX_URL') . "v1/merchant/". env('PAYBOX_MERCHANT_ID') ."/cardstorage/list";
@@ -104,17 +106,17 @@ class User extends Authenticatable
             ]);
             $response = $response->getBody()->getContents();
             $responseXml = simplexml_load_string($response);
-            $cards = [];
+
             foreach($responseXml->card as $card) {
                 $cards[] = [
                     'id' => (int) $card->pg_card_id,
                     'number' => (string) $card->pg_card_hash
                 ];
             }
-
-            return $cards;
         } catch (\Exception $exception) {
-            dd($exception);
+
         }
+
+        return $cards;
     }
 }
