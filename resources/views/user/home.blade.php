@@ -10,7 +10,7 @@
                 <p class="profile__balance-sum">на счету <br> <span>250 ₸</span></p>
                 <a href="#" class="profile__balance-replenish">+</a>
             </div>
-            <p class="profile__bonus">+<span>350</span> бонусов</p>
+            {{--<p class="profile__bonus">+<span>350</span> бонусов</p>--}}
             <div class="profile__bank-card-block">
                 <div class="profile__bank-card-title">Банковская карта</div>
                 {{--<div class="profile__bank-card">
@@ -61,14 +61,14 @@
                 <img src="/images/profile/mail.svg" alt="">
                 <span>{{ $user_profile->email }}</span>
             </div>
-            <p class="profile__active-promocode">Активировать промокод</p>
+            {{--<p class="profile__active-promocode">Активировать промокод</p>
             <div class="profile__promocode-input">
                 <input type="text" placeholder="Введите промокод">
                 <a href="#" class="profile__promocode-scanner">
                     <img src="/images/profile/scanner-promocode-icon.svg" alt="scanner">
                 </a>
                 <button class="profile__promocode-btn" type="submit">OK</button>
-            </div>
+            </div>--}}
 
             @if($prize)
                 @php
@@ -97,5 +97,5 @@
     <div class="profile__info">
         Прикрепи свою банковскую карту для быстрой и удобной оплаты Не беспокойся, твои данные под надежной защитой!
     </div>
-    <a href="#" class="profile__user-agreement">Пользовательское соглашение</a>
+    {{--<a href="#" class="profile__user-agreement">Пользовательское соглашение</a>--}}
 @stop

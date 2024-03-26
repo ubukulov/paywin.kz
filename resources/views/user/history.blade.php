@@ -18,9 +18,9 @@
                 <a class="nav-link promo__nav-link" id="shop-tab" data-toggle="tab" href="#shop" role="tab" aria-controls="shop" aria-selected="false">Покупки</a>
             </li>
 
-            <li class="nav-item" role="presentation">
+            {{--<li class="nav-item" role="presentation">
                 <a class="nav-link promo__nav-link" id="income-tab" data-toggle="tab" href="#income" role="tab" aria-controls="income" aria-selected="false">Доходы</a>
-            </li>
+            </li>--}}
         </ul>
 
         <div class="tab-content" id="myTabContent">
@@ -32,9 +32,9 @@
                 @include('user.partials._shopping')
             </div>
 
-            <div class="tab-pane fade show" id="income" role="tabpanel" aria-labelledby="income-tab">
+            {{--<div class="tab-pane fade show" id="income" role="tabpanel" aria-labelledby="income-tab">
                 @include('user.partials._income')
-            </div>
+            </div>--}}
         </div>
 
 

@@ -27,15 +27,15 @@
                     <div class="myqr__right-info">Используйте QR для создания своего маркетинг контента</div>
                 </div>
                 <div class="myqr__left">
-                    <button class="myqr__download-booklet">
+                    <a href="{{ asset('files/booklet.png') }}" target="_blank" class="myqr__download-booklet">
                         <img src="/images/cabinet/booklet-icon.svg" alt="icon">
                         скачать буклет
-                    </button>
+                    </a>
                     <div class="myqr__left-info">Используйте наш готовый буклет для запуска своей акции</div>
-                    <div class="myqr__left-links">
+                    {{--<div class="myqr__left-links">
                         <a href="#" class="myqr__left-link-stol">на стол</a>
                         <a href="#" class="myqr__left-link-instagram">instragram</a>
-                    </div>
+                    </div>--}}
                 </div>
             </div>
         </div>
