@@ -60,12 +60,12 @@
     </header>--}}
     <main>
         <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
+            {{--<li class="nav-item" role="presentation">
                 <a class="nav-link active promo__nav-link" id="prize-tab" data-toggle="tab" href="#prize" role="tab" aria-controls="prize" aria-selected="true">Призы</a>
-            </li>
+            </li>--}}
 
             <li class="nav-item" role="presentation">
-                <a class="nav-link promo__nav-link" id="discount-tab" data-toggle="tab" href="#discount" role="tab" aria-controls="discount" aria-selected="false">Победители</a>
+                <a class="nav-link active promo__nav-link" id="discount-tab" data-toggle="tab" href="#discount" role="tab" aria-controls="discount" aria-selected="false">Победители</a>
             </li>
 
             <li class="nav-item" role="presentation">
@@ -74,11 +74,11 @@
         </ul>
 
         <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="prize" role="tabpanel" aria-labelledby="prize-tab">
+            {{--<div class="tab-pane fade show active" id="prize" role="tabpanel" aria-labelledby="prize-tab">
                 @each('_partials._prizes', $shares, 'share')
-            </div>
+            </div>--}}
 
-            <div class="tab-pane fade show" id="discount" role="tabpanel" aria-labelledby="discount-tab">
+            <div class="tab-pane fade show active" id="discount" role="tabpanel" aria-labelledby="discount-tab">
                 @include('_partials._winners')
             </div>
 
