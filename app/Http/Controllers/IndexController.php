@@ -27,7 +27,7 @@ class IndexController extends BaseController
             ->get();
 
         $prizes = Prize::where(['user_id' => Auth::user()->id])
-            ->with('user', 'share')
+            ->with('user', 'share', 'payment')
             ->get();
 
         return view('prizes', compact('shares', 'prizes'));

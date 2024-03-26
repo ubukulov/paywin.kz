@@ -35,7 +35,7 @@
                     <div class="myprize__balance-icon">
                         <img src="/images/my-prizes/balance-icon.svg" alt="">
                     </div>
-                    <div class="myprize__balance-sum">1250₸</div>
+                    <div class="myprize__balance-sum">{{ $prize->payment->amount }}₸</div>
                 </div>
                 <div class="myprize__card">
                     <div class="myprize__card-bg">
