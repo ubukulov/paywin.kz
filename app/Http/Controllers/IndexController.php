@@ -223,7 +223,12 @@ class IndexController extends BaseController
         }
 
         $prize = $payment->prize;
-        $share = Share::findOrFail($prize->share_id);
+        if($prize) {
+            $share = Share::findOrFail($prize->share_id);
+        } else {
+            $share = null;
+        }
+
 
         return view('thanks', compact('payment', 'prize', 'share'));
 //        return view('thanks2');
