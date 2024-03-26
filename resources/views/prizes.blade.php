@@ -43,6 +43,13 @@
             -moz-column-gap: 7.5px;
             column-gap: 7.5px;
         }
+        .myprize {
+            height: auto !important;
+            padding-bottom: 40px;
+        }
+        .myprize__card-text {
+            font-size: 12px !important;
+        }
     </style>
 </head>
 <body class="container prizes-page">
