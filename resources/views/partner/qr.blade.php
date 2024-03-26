@@ -7,10 +7,10 @@
         <div class="myqr__wrapper">
             <div class="myqr__title">QR код Вашей компании</div>
             <div class="myqr__descr">Для проведения акций и розыгрышей призов</div>
-            <button class="myqr__share">
+            {{--<button class="myqr__share">
                 <img src="/images/cabinet/share.svg" alt="icon">
                 поделиться
-            </button>
+            </button>--}}
             <div class="myqr__qrcode">
                 @php
                     $imgUrl = "/qrcodes/" . $user_profile->company . "_qr_code.svg";
