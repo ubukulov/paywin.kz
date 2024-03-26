@@ -23,11 +23,16 @@
 <p class="thanks__text animate__animated animate__fadeInUp">успешно оплачено</p>
 <p class="thanks__number animate__animated animate__fadeInUp" style="margin-bottom: 0px !important;">{{ $payment->amount }}₸</p>
 <p class="thanks__offer" style="margin-top: 0px;">{{ date('d.m.Y H:i', strtotime($payment->updated_at)) }}</p>
+
+@if($share)
 <h2 class="banner__title">Вы выиграли приз</h2>
 <div class="banner thanks__banner animate__animated animate__fadeIn">
     <p class="banner__text">{{ $share->title }}<br>до {{ $share->to_order }}₸</p>
 </div>
+@endif
+
 <p class="thanks__offer">Покажите чек партнёру</p>
+
 <div class="thanks__buttons">
     <h2 class="buttons__question">Вы получили приз?</h2>
     <div class="flex" style="margin-bottom: 20px;">
@@ -36,6 +41,7 @@
     </div>
     <a href="{{ route('review') }}" class="button--grey button--grey-big animate__animated animate__fadeInUp">оставить оценку и отзыв</a>
 </div>
+
 <footer class="footer container animate__animated animate__fadeInUp">
     <a href="{{ route('prizes') }}" class="footer__link">
         <img src="/b5/img/icons/footer-gift.svg" alt="Подарок" class="footer__icon">
