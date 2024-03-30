@@ -42,7 +42,7 @@
                     <p class="prize__text">Призов: <b>{{ $partner->shares->sum('cnt') }}<b><br>Заказ от: <b>{{ $partner->shares->min('from_order') }}₸</b></p>
                     <div class="prize__slider">
 
-                        @if(count($cashback) > 0)
+                        @if($cashback && count($cashback) > 0)
                         <div class="slider__item">
                             <p class="slide__text">Cashback {{ $cashback->size }}%<br>при заказе от {{ $cashback->from_order }}₸</p>
                         </div>
