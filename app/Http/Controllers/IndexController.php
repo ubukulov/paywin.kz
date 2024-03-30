@@ -27,7 +27,7 @@ class IndexController extends BaseController
             ->get();
 
         $prizes = Prize::where(['user_id' => Auth::user()->id])
-            ->with('user', 'share')
+            ->with('user', 'share', 'payment')
             ->get();
 
         return view('prizes', compact('shares', 'prizes'));
@@ -223,7 +223,12 @@ class IndexController extends BaseController
         }
 
         $prize = $payment->prize;
-        $share = Share::findOrFail($prize->share_id);
+        if($prize) {
+            $share = Share::findOrFail($prize->share_id);
+        } else {
+            $share = null;
+        }
+
 
         return view('thanks', compact('payment', 'prize', 'share'));
 //        return view('thanks2');
