@@ -36,10 +36,12 @@
 
                 @php
                     $cashback = $partner->getCashbackSizeAndAmount();
+                    $shares = $partner->shares;
+
                 @endphp
 
                 <div class="prize__info">
-                    <p class="prize__text">Призов: <b>{{ $partner->shares->sum('cnt') }}<b><br>Заказ от: <b>{{ $partner->shares->min('from_order') }}₸</b></p>
+                    <p class="prize__text">Призов: <b>{{ $shares->sum('cnt') }}<b><br>Заказ от: <b>{{ $shares->min('from_order') }}₸</b></p>
                     <div class="prize__slider">
 
                         @if($cashback && count($cashback) > 0)
