@@ -37,7 +37,7 @@
                 @php
                     $cashback = $partner->getCashbackSizeAndAmount();
                     $shares = $partner->shares;
-                    dd($shares, $shares->sum('cnt'), $shares->min('from_order'));
+                    dd($partner,$shares, $shares->sum('cnt'), $shares->min('from_order'));
                 @endphp
 
                 <div class="prize__info">
