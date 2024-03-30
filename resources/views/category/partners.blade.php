@@ -28,17 +28,18 @@
     <div class="container prizes-page">
         <main>
             @foreach($partners as $partner)
-            <div class="prize prize--1 prizes__item">
-                <div class="company prize__company">
-                    <img @if(empty($partner->logo)) src="/images/cabinet/papa-johns-pizza.svg" @else src="{{ $partner->logo }}" @endif alt="{{ $partner->company }}" class="company__logo">
-                    <h2 class="company__title">{{ $partner->company }}</h2>
-                </div>
 
                 @php
+                    $profile = $partner->profile;
                     $cashback = $partner->getCashbackSizeAndAmount();
                     $shares = $partner->shares;
-                    dd($partner,$shares, $shares->sum('cnt'), $shares->min('from_order'));
                 @endphp
+
+            <div class="prize prize--1 prizes__item">
+                <div class="company prize__company">
+                    <img @if(empty($profile->logo)) src="/images/cabinet/papa-johns-pizza.svg" @else src="{{ $profile->logo }}" @endif alt="{{ $profile->company }}" class="company__logo">
+                    <h2 class="company__title">{{ $profile->company }}</h2>
+                </div>
 
                 <div class="prize__info">
                     <p class="prize__text">Призов: <b>{{ $shares->sum('cnt') }}<b><br>Заказ от: <b>{{ $shares->min('from_order') }}₸</b></p>
