@@ -1,4 +1,4 @@
-<div class="winners" style="margin-top: 0px; padding-top: 0px;">
+<div class="winners" style="margin-top: 0px; padding-top: 0px; height: auto;">
     <div class="winners__wrapper" style="padding-top: 20px; margin-top: 0px;">
         <div class="winners__top-slider">
             <div class="winners__top-slider-title">

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -53,7 +54,9 @@ class User extends Authenticatable
 
     public function shares()
     {
-        return $this->hasMany(Share::class)->where('cnt', '>', 0);
+        return $this->hasMany(Share::class)
+            ->whereDate('to_date', '>=', Carbon::now())
+            ->where('cnt', '>', 0);
     }
 
     public function create_profile()
@@ -118,5 +121,14 @@ class User extends Authenticatable
         }
 
         return $cards;
+    }
+
+    public function getCashbackSizeAndAmount()
+    {
+        return Share::where(['user_id' => $this->id, 'type' => 'cashback'])
+            ->whereDate('to_date', '>=', Carbon::now())
+            ->where('cnt', '>', 0)
+            ->orderBy('size', 'DESC')
+            ->first();
     }
 }

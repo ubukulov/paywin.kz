@@ -30,15 +30,23 @@
             @foreach($partners as $partner)
             <div class="prize prize--1 prizes__item">
                 <div class="company prize__company">
-                    <img src="/img/logotypes/papa-johson.png" alt="Papa John`s" class="company__logo">
+                    <img @if(empty($partner->logo)) src="/images/cabinet/papa-johns-pizza.svg" @else src="{{ $partner->logo }}" @endif alt="{{ $partner->company }}" class="company__logo">
                     <h2 class="company__title">{{ $partner->company }}</h2>
                 </div>
+
+                @php
+                    $cashback = $partner->getCashbackSizeAndAmount();
+                @endphp
+
                 <div class="prize__info">
-                    <p class="prize__text">Призов: <b>10</b><br>Заказ от: <b>6000₸</b></p>
+                    <p class="prize__text">Призов: <b>{{ $partner->shares->sum('cnt') }}<b><br>Заказ от: <b>{{ $partner->shares->min('from_order') }}₸</b></p>
                     <div class="prize__slider">
+
+                        @if(count($cashback) > 0)
                         <div class="slider__item">
-                            <p class="slide__text">Cashback 50%<br>при заказе от 6000₸</p>
+                            <p class="slide__text">Cashback {{ $cashback->size }}%<br>при заказе от {{ $cashback->from_order }}₸</p>
                         </div>
+                        @endif
 
                         <div>
                             <a href="{{ route('showPartner', ['slug' => $slug, 'id' => $partner->user_id]) }}" class="review__form-btn btn btn-success">подробнее</a>
