@@ -45,12 +45,12 @@
             </form>
             <div class="review__main-subtitle">
                 или свяжитесь с нами любым удобным способом <br>
-                87086144660
+                +77759931157
             </div>
             <div class="review__social">
-                <a href="#" class="review__link"><img src="/images/telegram.svg" alt="icon"></a>
-                <a href="#" class="review__link"><img src="/images/phone.svg" alt="icon"></a>
-                <a href="#" class="review__link"><img src="/images/whatsApp.svg" alt="icon"></a>
+                <a href="https://t.me/+77759931157" class="review__link"><img src="/images/telegram.svg" alt="icon"></a>
+                <a href="tel:+77759931157" class="review__link"><img src="/images/phone.svg" alt="icon"></a>
+                <a href="https://wa.me/+77759931157" class="review__link"><img src="/images/whatsApp.svg" alt="icon"></a>
             </div>
         </div>
         <div class="review__footer">
