@@ -31,6 +31,7 @@
 
                 @php
                     $profile = $partner->profile;
+dd($profile);
                     $cashback = $partner->getCashbackSizeAndAmount();
                     $shares = $partner->shares;
                 @endphp
