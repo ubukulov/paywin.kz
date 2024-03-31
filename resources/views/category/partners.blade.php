@@ -29,11 +29,15 @@
         <main>
             @foreach($partners as $partner)
 
-                @php
-                    $profile = $partner->profile;
-                    $cashback = $partner->getCashbackSizeAndAmount();
-                    $shares = $partner->shares;
-                @endphp
+            @php
+                $profile = $partner->profile;
+                $cashback = $partner->getCashbackSizeAndAmount();
+                $shares = $partner->shares;
+            @endphp
+
+            @if(count($shares) == 0)
+                @continue
+            @endif
 
             <div class="prize prize--1 prizes__item">
                 <div class="company prize__company">
