@@ -17,8 +17,10 @@ class CategoryController extends Controller
             ->join('user_profile', 'user_profile.user_id', 'users.id')
             ->whereNotNull('user_profile.category_id')
             ->get();*/
-        $partners = User::where(['user_type' => 'partner'])
-            ->whereNotNull('company')
+        $partners = User::where(['user_type' => 'partner'])/*
+
+            ->join('user_profile', 'user_profile.user_id', 'users.id')
+            ->where('user_profile.category_id', $category->id)*/
             ->get();
         return view('category.partners', compact('partners', 'slug'));
     }
