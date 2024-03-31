@@ -24,13 +24,13 @@
     $profile = $partner->profile;
 @endphp
 
-<div class="partdescr__profile">
-    <div class="partdescr__profile-logo">
+<div style="display: flex; justify-content: center;" class="partdescr__profile">
+    <div style="margin-right: 20px;" class="partdescr__profile-logo">
         <img @if(empty($profile->logo)) src="/upload/partners/3205aef25d19ee31146a921fc9230d05.svg" @else src="{{ $profile->logo }}" @endif alt="logo">
     </div>
     <div class="partdescr__profile-block">
-        <div class="partdescr__profile-name">{{ $profile->company }}</div>
-        <div class="partdescr__profile-descr">{{ $profile->category->title }}</div>
+        <div style="font-weight: bold;" class="partdescr__profile-name">{{ $profile->company }}</div>
+        <div style="color: #9B9B9B;" class="partdescr__profile-descr">{{ $profile->category->title }}</div>
     </div>
 </div>
 <br>
