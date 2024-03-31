@@ -5,7 +5,7 @@
     border-color: #ccc;
     border-radius: 5px;
     color: green;">
-        @foreach($user->getMyCards() as $card)
+        @foreach($cards as $card)
             <option value="{{ $card['id'] }}">{{ $card['number'] }}</option>
         @endforeach
     </select>

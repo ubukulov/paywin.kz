@@ -19,6 +19,7 @@
 </head>
 <body class="container payment-page">
 <h1 class="h1 animate__animated animate__fadeInLeft">Оплата</h1>
+<h1 class="h1 animate__animated animate__fadeInLeft">Партнер: {{ $partner->profile->company }}</h1>
 <form class="payment-page__form" method="post" action="{{ route('payment') }}">
     @csrf
     <input type="hidden" name="partner_id" value="{{ $id }}">
@@ -31,11 +32,14 @@
             border-radius: 5px;
             border: 1px solid #ccc; text-align: center;" required type="text" name="sum">
         </p>
+
+        @if($cards = $user->getMyCards())
         <div class="action action--card actions__action">
             <h3 class="action__subtitle">Метод оплаты</h3>
-
-            @include('_partials._payment_cards', $user)
+            @include('_partials._payment_cards', $cards)
         </div>
+        @endif
+
         <div class="action action--wallet actions__action">
             <h3 class="action__subtitle">Потратить баланс</h3>
             <div class="action__flex">
@@ -45,6 +49,7 @@
                 <button class="switch-btn switch-on action__button action__button--checkbox"></button>
             </div>
         </div>
+
         <div class="action action--precent actions__action">
             <h3 class="action__subtitle">Применить скидку</h3>
             <div class="action__flex">
