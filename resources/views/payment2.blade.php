@@ -19,7 +19,21 @@
 </head>
 <body class="container payment-page">
 <h1 class="h1 animate__animated animate__fadeInLeft">Оплата</h1>
-<h1 class="h1 animate__animated animate__fadeInLeft">Партнер: {{ $partner->profile->company }}</h1>
+<br>
+@php
+    $profile = $partner->profile;
+@endphp
+
+<div class="partdescr__profile">
+    <div class="partdescr__profile-logo">
+        <img @if(empty($profile->logo)) src="/upload/partners/3205aef25d19ee31146a921fc9230d05.svg" @else src="{{ $profile->logo }}" @endif alt="logo">
+    </div>
+    <div class="partdescr__profile-block">
+        <div class="partdescr__profile-name">{{ $profile->company }}</div>
+        <div class="partdescr__profile-descr">{{ $profile->category->title }}</div>
+    </div>
+</div>
+<br>
 <form class="payment-page__form" method="post" action="{{ route('payment') }}">
     @csrf
     <input type="hidden" name="partner_id" value="{{ $id }}">
