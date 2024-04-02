@@ -120,5 +120,7 @@
         <img src="/b5/img/icons/footer-user.svg" alt="Профиль" class="footer__icon">
     </a>
 </footer>
+
+@include('_partials.info')
 </body>
 </html>
