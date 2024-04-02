@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTableUsersBalances extends Migration
+class CreateTableUserBalances extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,21 @@ class CreateTableUsersBalances extends Migration
      */
     public function up()
     {
-        Schema::create('users_balances', function (Blueprint $table) {
+        // Может пополняется самим пользователям
+        // с помощью кэшбека
+        // с помощью промокода
+
+        Schema::create('user_balances', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('payment_id')->nullable();
+            $table->unsignedBigInteger('pg_payment_id')->nullable();
+            $table->enum('type', [
+                'payment', 'cashback', 'promocode'
+            ]);
             $table->bigInteger('amount');
             $table->enum('status', [
-                'active', 'withdrawn'
+                'waiting', 'ok', 'error'
             ]);
-
-
 
             $table->timestamps();
         });

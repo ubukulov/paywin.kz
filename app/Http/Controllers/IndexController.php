@@ -249,8 +249,9 @@ class IndexController extends BaseController
         return view('review');
     }
 
-    public function notGivenPrize()
+    public function notGivenPrize($id)
     {
+        $partner = User::findOrFail($id);
         return view('not_given_prize');
     }
 

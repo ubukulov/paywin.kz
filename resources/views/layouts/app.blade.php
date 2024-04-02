@@ -275,6 +275,8 @@
     <a @if(Auth::user()->user_type == 'partner') href="{{ route('partner.cabinet') }}" @else href="{{ route('user.cabinet') }}" @endif  class="footer__link">
         <img src="/img/icons/footer-user.svg" alt="Профиль" class="footer__icon">
     </a>
+
+    <p>Мы принимаем <i class="fa fa-cc-visa"></i>&nbsp;&nbsp;<i class="fa fa-cc-mastercard"></i></p>
 </footer>
 </body>
 </html>

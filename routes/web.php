@@ -31,7 +31,7 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('payment/{slug}/{id}/page', 'IndexController@paymentPage')->name('paymentPage');
 
     Route::get('review', 'IndexController@review')->name('review');
-    Route::get('not-given-prize', 'IndexController@notGivenPrize')->name('notGivenPrize');
+    Route::get('partner/{id}/not-given-prize', 'IndexController@notGivenPrize')->name('notGivenPrize');
 
     # Partner's route
     Route::group(['prefix' => 'partner', 'middleware' => ['partner'], 'namespace' => 'Partner', 'as' => 'partner.'], function(){

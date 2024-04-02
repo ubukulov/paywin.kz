@@ -37,7 +37,7 @@
     <h2 class="buttons__question">Вы получили приз?</h2>
     <div class="flex" style="margin-bottom: 20px;">
         <button class="button--green animate__animated animate__fadeInLeft">да</button>
-        <a href="{{ route('notGivenPrize') }}" style="margin-left: 20px; text-align: center; font-size: 16px;" class="button--grey animate__animated animate__fadeInRight">нет</a>
+        <a href="{{ route('notGivenPrize', ['id' => $payment->partner_id]) }}" style="margin-left: 20px; text-align: center; font-size: 16px;" class="button--grey animate__animated animate__fadeInRight">нет</a>
     </div>
     <a href="{{ route('review') }}" class="button--grey button--grey-big animate__animated animate__fadeInUp">оставить оценку и отзыв</a>
 </div>

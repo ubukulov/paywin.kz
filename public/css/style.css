@@ -3634,13 +3634,13 @@ body {
   color: #ACACAC;
   background-color: #fff;
   border: none; }
-  .button--back::before {
+  /*.button--back::before {
     content: url("../img/icons/arrow-back.svg");
     position: absolute;
     top: 3px;
     left: -8px;
     width: 6.93px;
-    height: 11.42px; }
+    height: 11.42px; }*/
 
 .button--go {
   position: relative;
