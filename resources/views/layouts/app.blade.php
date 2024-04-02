@@ -277,8 +277,15 @@
         <img src="/img/icons/footer-user.svg" alt="Профиль" class="footer__icon">
     </a>
 </footer>
-<div>
-    <p>Мы принимаем <i class="fa fa-cc-visa"></i>&nbsp;&nbsp;<i class="fa fa-cc-mastercard"></i></p>
+<div class="info">
+    <div>
+        <p>&copy; Paywin.kz 2024</p>
+        <p><a href="#">Политика конфиденциальности</a></p>
+    </div>
+
+    <div>
+        <svg width="51.174" height="16.53"><use xlink:href="/Content/img/icons.svg#visa"></use></svg>&nbsp;&nbsp;<svg width="42.724" height="26.445"><use xlink:href="/Content/img/icons.svg#mastercard"></use></svg>
+    </div>
 </div>
 </body>
 </html>
