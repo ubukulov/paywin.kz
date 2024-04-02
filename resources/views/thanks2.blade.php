@@ -31,7 +31,7 @@
 <div class="thanks__buttons">
     <h2 class="buttons__question">Вы получили приз?</h2>
     <div id="dis_b" class="flex" style="margin-bottom: 20px;">
-        <button id="prize_give" class="button--green animate__animated animate__fadeInLeft">да</button>
+        <button onclick="clickBtn()" class="button--green animate__animated animate__fadeInLeft">да</button>
         <a href="{{ route('notGivenPrize') }}" style="margin-left: 20px; text-align: center; font-size: 16px;" class="button--grey animate__animated animate__fadeInRight">нет</a>
     </div>
 
@@ -52,5 +52,14 @@
         <img src="/b5/img/icons/footer-user.svg" alt="Профиль" class="footer__icon">
     </a>
 </footer>
+<script type="text/javascript">
+    function clickBtn(){
+        var dis_b = document.getElementById('dis_b');
+        var suc = document.getElementById('suc');
+
+        dis_b.style.display = 'none';
+        suc.style.display = 'block';
+    }
+</script>
 </body>
 </html>
