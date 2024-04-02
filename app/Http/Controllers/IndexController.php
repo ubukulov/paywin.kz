@@ -170,56 +170,57 @@ class IndexController extends BaseController
                 'pg_order_id' => $payment->id,
                 'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
             ];
-        }
 
+            //generate a signature and add it to the array
+            ksort($request); //sort alphabetically
+            array_unshift($request, 'get_status2.php');
+            array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
 
-        //generate a signature and add it to the array
-        ksort($request); //sort alphabetically
-        array_unshift($request, 'get_status2.php');
-        array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
+            $request['pg_sig'] = md5(implode(';', $request)); // signature
 
-        $request['pg_sig'] = md5(implode(';', $request)); // signature
+            unset($request[0], $request[1]);
 
-        unset($request[0], $request[1]);
+            $apiUrl = env('PAYBOX_URL') . "get_status2.php";
+            $client = new \GuzzleHttp\Client();
+            $response = $client->request('POST', $apiUrl, [
+                'headers' => [
+                    'Content-type' => 'application/x-www-form-urlencoded'
+                ],
+                'form_params' => $request
+            ]);
+            $response = $response->getBody()->getContents();
+            $responseXml = simplexml_load_string($response);
+            if((string)$responseXml->pg_status == 'ok') {
+                $payment->pg_status = 'ok';
+                $payment->pg_payment_id = (int) $responseXml->pg_payment_id;
+                $payment->updated_at = Carbon::now();
+                $payment->save();
+            }
 
-        $apiUrl = env('PAYBOX_URL') . "get_status2.php";
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('POST', $apiUrl, [
-            'headers' => [
-                'Content-type' => 'application/x-www-form-urlencoded'
-            ],
-            'form_params' => $request
-        ]);
-        $response = $response->getBody()->getContents();
-        $responseXml = simplexml_load_string($response);
-        if((string)$responseXml->pg_status == 'ok') {
-            $payment->pg_status = 'ok';
-            $payment->pg_payment_id = (int) $responseXml->pg_payment_id;
-            $payment->updated_at = Carbon::now();
-            $payment->save();
-        }
+            if (!User::isPrize(Auth::user()->id, $payment->id)) {
+                $partner = $payment->partner;
+                $shares = $partner->shares;
 
-        if (!User::isPrize(Auth::user()->id, $payment->id)) {
-            $partner = $payment->partner;
-            $shares = $partner->shares;
+                if (count($shares) != 0) {
+                    foreach($shares->shuffle() as $share) {
+                        if(($share->from_order >= $payment->amount) && ($payment->amount <= $share->to_order)) {
+                            $prize = new Prize();
+                            $prize->payment_id = $payment->id;
+                            $prize->user_id = $payment->user_id;
+                            $prize->share_id = $share->id;
+                            $prize->cnt = 1;
+                            $prize->status = 'got';
+                            $prize->save();
 
-            if (count($shares) != 0) {
-                foreach($shares->shuffle() as $share) {
-                    if(($share->from_order >= $payment->amount) && ($payment->amount <= $share->to_order)) {
-                        $prize = new Prize();
-                        $prize->payment_id = $payment->id;
-                        $prize->user_id = $payment->user_id;
-                        $prize->share_id = $share->id;
-                        $prize->cnt = 1;
-                        $prize->status = 'got';
-                        $prize->save();
-
-                        $share->cnt--;
-                        $share->save();
-                        break;
+                            $share->cnt--;
+                            $share->save();
+                            break;
+                        }
                     }
                 }
             }
+        } else {
+            $payment = Payment::where(['user_id' => Auth::user()->id, 'pg_status' => 'ok'])->orderBy('id', 'DESC')->first();
         }
 
         $prize = $payment->prize;
@@ -231,7 +232,6 @@ class IndexController extends BaseController
 
 
         return view('thanks', compact('payment', 'prize', 'share'));
-//        return view('thanks2');
     }
 
     public function paymentError(Request $request)
