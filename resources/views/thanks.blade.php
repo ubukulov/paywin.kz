@@ -44,7 +44,7 @@
 </div>
 
 <div id="suc" style="display: none;">
-    <p>Благодарим за покупку, надеемся Вам все понравилось и ждём с радостью Вас снова)</p>
+    <p style="text-align: center;">Благодарим за покупку, надеемся Вам все понравилось и ждём с радостью Вас снова)</p>
 </div>
 
 <footer class="footer container animate__animated animate__fadeInUp">
@@ -58,6 +58,8 @@
         <img src="/b5/img/icons/footer-user.svg" alt="Профиль" class="footer__icon">
     </a>
 </footer>
+
+@include('_partials.info')
 
 <script type="text/javascript">
     function clickBtn(){
