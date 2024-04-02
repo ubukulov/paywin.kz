@@ -277,13 +277,14 @@
         <img src="/img/icons/footer-user.svg" alt="Профиль" class="footer__icon">
     </a>
 </footer>
-<div class="info">
+<div class="info" style="display: flex; justify-content: space-around; background: #000000; color: #ffffff;">
     <div>
         <p>&copy; Paywin.kz 2024</p>
-        <p><a href="#">Политика конфиденциальности</a></p>
+        <p><a style="color: #fff; text-decoration: none;" href="#">Политика конфиденциальности</a></p>
+        <p><a style="color: #fff; text-decoration: none;" href="#">Публичная оферта</a></p>
     </div>
 
-    <div>
+    <div style="font-size: 40px; display: flex; align-items: center;">
         <i class="fa fa-cc-visa"></i>&nbsp;&nbsp;<i class="fa fa-cc-mastercard"></i>
     </div>
 </div>
