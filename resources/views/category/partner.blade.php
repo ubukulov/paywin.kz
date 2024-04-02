@@ -123,6 +123,7 @@
     </div>
 </div>
 
+@include('_partials.info')
 
 <script src="/js/swiper-boundle.min.js"></script>
 <script src="/js/partdescr.js"></script>
