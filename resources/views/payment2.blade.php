@@ -104,7 +104,7 @@
         <div class="payment-page__buttons">
             <button type="submit" class="button button--green">оплатить</button>
             <a href="{{ route('showPartner', ['slug' => $slug, 'id' => $id]) }}" class="button button--back">
-                <img src="{{ asset('img/icons/arrow-back.svg') }}" alt="arrow-back"> вернуться
+                вернуться
             </a>
         </div>
     </div>
