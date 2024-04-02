@@ -33,18 +33,18 @@
 
 <p class="thanks__offer">Покажите чек партнёру</p>
 
-<div class="thanks__buttons">
+<div id="dis_b" class="thanks__buttons">
     <h2 class="buttons__question">Вы получили приз?</h2>
-    <div id="dis_b" class="flex" style="margin-bottom: 20px;">
+    <div class="flex" style="margin-bottom: 20px;">
         <button onclick="clickBtn()" class="button--green animate__animated animate__fadeInLeft">да</button>
         <a href="{{ route('notGivenPrize', ['id' => $payment->partner_id]) }}" style="margin-left: 20px; text-align: center; font-size: 16px;" class="button--grey animate__animated animate__fadeInRight">нет</a>
     </div>
 
-    <div id="suc" style="display: none;">
-        <p>Благодарим за покупку, надеемся Вам все понравилось и ждём с радостью Вас снова)</p>
-    </div>
-
     <a href="{{ route('review') }}" class="button--grey button--grey-big animate__animated animate__fadeInUp">оставить оценку и отзыв</a>
+</div>
+
+<div id="suc" style="display: none;">
+    <p>Благодарим за покупку, надеемся Вам все понравилось и ждём с радостью Вас снова)</p>
 </div>
 
 <footer class="footer container animate__animated animate__fadeInUp">
