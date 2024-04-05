@@ -23,9 +23,9 @@
             <p class="label__text">Стать партнером</p>
         </label>
 
-        <label for="reg-1-partner" class="reg-1__label--partner animate__animated animate__fadeIn">
-            <input id="reg-1-partner" type="checkbox" readonly name="partner" value="yes" checked="" class="checkbox reg-1__input--partner custom-checkbox">
-            <label for="reg-1-partner"></label>
+        <label for="reg-2-partner" class="reg-1__label--partner animate__animated animate__fadeIn">
+            <input id="reg-2-partner" type="checkbox" readonly name="afferts" value="yes" checked="" class="checkbox reg-1__input--partner custom-checkbox">
+            <label for="reg-2-partner"></label>
             <p class="label__text"> Подтверждаю ознакомление и согласие с условиями <a href="{{ asset('files/публичная_оферта.pdf') }}" target="_blank">Публичной оферты</a></p>
         </label>
 
