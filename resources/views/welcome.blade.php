@@ -36,6 +36,8 @@
             </div>
         </div>
     </div>
+
+    @include('_partials.info')
 </div>
 </body>
 </html>

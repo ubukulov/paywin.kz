@@ -14,7 +14,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 </head>
-<body class="container registration-1-page">
+<body class="container registration-1-page" style="padding: 0 10px !important;">
 @yield('content')
 
 <script src="{{ asset('js/jquery-3.6.0.min.js') }}" type="text/javascript"></script>
