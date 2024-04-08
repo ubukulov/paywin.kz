@@ -144,7 +144,7 @@ class UserController extends Controller
 
     public function balanceReplenishment(Request $request)
     {
-        $amount = $request->input('sum');
+        $amount = $request->input('amount');
         $user_balance = UserBalance::where(['user_id' => Auth::user()->id, 'amount' => $amount, 'status' => 'waiting'])->first();
         if(!$user_balance) {
             $user_balance = new UserBalance();
