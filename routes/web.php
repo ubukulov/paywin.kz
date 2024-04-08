@@ -56,7 +56,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('remove-my-card', 'UserController@removeMyCard');
         Route::get('earn', 'UserController@earn')->name('earn');
         Route::get('history', 'UserController@history')->name('history');
-        //Route::get('');
+        Route::post('balance-replenishment', 'UserController@balanceReplenishment')->name('balanceReplenishment');
 
         Route::group(['prefix' => 'settings'], function(){
             Route::get('/', 'UserController@settings')->name('settings');

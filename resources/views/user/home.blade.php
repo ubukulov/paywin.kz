@@ -7,9 +7,9 @@
             </div>
             <div class="profile__balance">
                 <img src="/images/profile/wallet.svg" alt="">
-                <p class="profile__balance-sum">на счету <br> <span>250 ₸</span></p>
+                <p class="profile__balance-sum">на счету <br> <span>{{ $user->getBalanceForUser() }} ₸</span></p>
 {{--                <a href="#" class="profile__balance-replenish">+</a>--}}
-                <button type="button" class="btn btn-primary profile__balance-replenish" data-toggle="modal" data-target="#exampleModal">+</button>
+                <button style="border: none;" type="button" class="btn btn-primary profile__balance-replenish" data-toggle="modal" data-target="#exampleModal">+</button>
             </div>
             {{--<p class="profile__bonus">+<span>350</span> бонусов</p>--}}
             <div class="profile__bank-card-block">
@@ -104,19 +104,24 @@
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
+                <form action="{{ route('user.balanceReplenishment') }}" method="post">
+                @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Пополнение</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    ...
+                    <div class="form-group">
+                        <input type="text" name="amount" placeholder="Введите сумму" required class="form-control">
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-primary">Продолжить</button>
                 </div>
+                </form>
             </div>
         </div>
     </div>

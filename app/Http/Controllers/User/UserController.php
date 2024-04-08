@@ -5,6 +5,10 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\Prize;
+use App\Models\Share;
+use App\Models\User;
+use App\Models\UserBalance;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Auth;
 use Str;
@@ -13,6 +17,41 @@ class UserController extends Controller
 {
     public function cabinet()
     {
+        $user_balance = UserBalance::where(['user_id' => Auth::user()->id, 'status' => 'waiting'])->orderBy('id', 'DESC')->first();
+        if($user_balance) {
+            $request = [
+                'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
+                'pg_order_id' => $user_balance->id,
+                'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
+            ];
+
+            //generate a signature and add it to the array
+            ksort($request); //sort alphabetically
+            array_unshift($request, 'get_status2.php');
+            array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
+
+            $request['pg_sig'] = md5(implode(';', $request)); // signature
+
+            unset($request[0], $request[1]);
+
+            $apiUrl = env('PAYBOX_URL') . "get_status2.php";
+            $client = new \GuzzleHttp\Client();
+            $response = $client->request('POST', $apiUrl, [
+                'headers' => [
+                    'Content-type' => 'application/x-www-form-urlencoded'
+                ],
+                'form_params' => $request
+            ]);
+            $response = $response->getBody()->getContents();
+            $responseXml = simplexml_load_string($response);
+            if((string)$responseXml->pg_status == 'ok') {
+                $user_balance->status = 'ok';
+                $user_balance->pg_payment_id = (int) $responseXml->pg_payment_id;
+                $user_balance->updated_at = Carbon::now();
+                $user_balance->save();
+            }
+        }
+
         $user = Auth::user();
         $user_profile = Auth::user()->profile;
         $prize = Prize::where(['user_id' => $user->id, 'status' => 'waiting'])->first();
@@ -101,5 +140,46 @@ class UserController extends Controller
         $user = Auth::user();
         $user_profile = $user->profile;
         return view('user.settings', compact('user_profile'));
+    }
+
+    public function balanceReplenishment(Request $request)
+    {
+        $amount = $request->input('sum');
+        $user_balance = UserBalance::where(['user_id' => Auth::user()->id, 'amount' => $amount, 'status' => 'waiting'])->first();
+        if(!$user_balance) {
+            $user_balance = new UserBalance();
+            $user_balance->user_id = Auth::user()->id;
+            $user_balance->amount = $amount;
+            $user_balance->type = 'payment';
+            $user_balance->status = 'waiting';
+            $user_balance->save();
+        }
+
+        $request = [
+            'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
+            'pg_amount' => $amount,
+            'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
+            'pg_order_id' => $user_balance->id,
+            'pg_description' => 'Пополнение баланса',
+            'pg_success_url' => 'https://paywin.kz/user',
+            'pg_failure_url' => 'https://paywin.kz/user',
+            'pg_success_url_method' => 'GET',
+            'pg_failure_url_method' => 'GET',
+        ];
+
+        ksort($request); //sort alphabetically
+        array_unshift($request, 'payment.php');
+        array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
+
+
+        $request['pg_sig'] = md5(implode(';', $request));
+
+        unset($request[0], $request[1]);
+
+        $query = http_build_query($request);
+
+        //redirect a customer to payment page
+        header('Location: '.env('PAYBOX_URL').'payment.php?'.$query);
+        exit();
     }
 }
