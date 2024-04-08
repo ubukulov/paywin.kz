@@ -3,6 +3,7 @@
 <div class="info" style="display: flex; justify-content: space-around; background: #000000; color: #ffffff; margin-top: 40px;padding: 10px;">
     <div>
         <p>&copy; Paywin.kz 2024</p>
+        <p><a style="color: #fff; text-decoration: none;" href="{{ route('aboutUs') }}">О нас</a></p>
         <p><a style="color: #fff; text-decoration: none;" href="{{ asset('files/ПОЛЬЗОВАТЕЛЬСКОЕ_СОГЛАШЕНИЕ.pdf') }}" target="_blank">Политика конфиденциальности</a></p>
         <p><a style="color: #fff; text-decoration: none;" href="{{ asset('files/публичная_оферта.pdf') }}" target="_blank">Публичная оферта</a></p>
     </div>

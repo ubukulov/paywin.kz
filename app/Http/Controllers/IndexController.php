@@ -40,6 +40,11 @@ class IndexController extends BaseController
         return view('payment2', compact('slug', 'id', 'partner', 'user'));
     }
 
+    public function aboutUs()
+    {
+        return view('about');
+    }
+
     public function payment(Request $request)
     {
         $amount = $request->input('sum');

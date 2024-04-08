@@ -19,6 +19,7 @@ Route::post('/registration', 'AuthController@registration')->name('registration'
 Route::get('/logout', 'AuthController@logout')->name('logout');
 Route::post('/authentication', 'AuthController@authenticate')->name('authenticate');
 Route::get('/how-it-works', 'IndexController@howItWorks')->name('howItWorks');
+Route::get('about-us', 'IndexController@aboutUs')->name('aboutUs');
 
 Route::group(['middleware' => 'auth'], function(){
     Route::get('/', 'IndexController@home')->name('home');
