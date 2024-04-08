@@ -67,12 +67,20 @@ class User extends Authenticatable
 
     public function getBalance()
     {
-        return Payment::where(['partner_id' => Auth::id(), 'pg_status' => 'ok'])->sum('amount');
+        return Payment::where(['partner_id' => $this->id, 'pg_status' => 'ok'])->sum('amount');
     }
 
     public function getBalanceForUser()
     {
-        return UserBalance::where(['user_id' => Auth::id(), 'status' => 'ok'])->sum('amount');
+        return UserBalance::where(['user_id' => $this->id, 'status' => 'ok'])->sum('amount');
+    }
+
+    public function getUserBalances()
+    {
+        return $this->hasMany(UserBalance::class)
+            ->where(['user_id' => $this->id])
+            ->orderBy('id', 'DESC');
+        //return UserBalance::where(['user_id' => $this->id, 'status' => 'ok'])->orderBy('id', 'DESC');
     }
 
     public static function isPrize($user_id, $payment_id)
