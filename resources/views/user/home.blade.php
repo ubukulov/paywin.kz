@@ -8,7 +8,8 @@
             <div class="profile__balance">
                 <img src="/images/profile/wallet.svg" alt="">
                 <p class="profile__balance-sum">на счету <br> <span>250 ₸</span></p>
-                <a href="#" class="profile__balance-replenish">+</a>
+{{--                <a href="#" class="profile__balance-replenish">+</a>--}}
+                <button type="button" class="btn btn-primary profile__balance-replenish" data-toggle="modal" data-target="#exampleModal">+</button>
             </div>
             {{--<p class="profile__bonus">+<span>350</span> бонусов</p>--}}
             <div class="profile__bank-card-block">
@@ -98,4 +99,25 @@
         Прикрепи свою банковскую карту для быстрой и удобной оплаты Не беспокойся, твои данные под надежной защитой!
     </div>
     {{--<a href="#" class="profile__user-agreement">Пользовательское соглашение</a>--}}
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @stop

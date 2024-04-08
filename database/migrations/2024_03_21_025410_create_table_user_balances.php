@@ -21,15 +21,21 @@ class CreateTableUserBalances extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('pg_payment_id')->nullable();
+            $table->unsignedBigInteger('promocode_id')->nullable();
             $table->enum('type', [
                 'payment', 'cashback', 'promocode'
             ]);
             $table->bigInteger('amount');
             $table->enum('status', [
-                'waiting', 'ok', 'error'
+                'waiting', 'ok', 'error', 'withdraw'
             ]);
 
             $table->timestamps();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
         });
     }
 
