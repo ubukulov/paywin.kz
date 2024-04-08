@@ -32,10 +32,11 @@
                 </div>
 
                 <div class="settings__profile-balance">
-                    Баланс: <span class="settings__balance-sum">1500 ₸</span> <span class="settings__balance-bonus">+350 бонусов</span>
+                    Баланс: <span class="settings__balance-sum">{{ Auth::user()->getBalanceForUser() }} ₸</span> {{--<span class="settings__balance-bonus">+350 бонусов</span>--}}
                 </div>
-                <a href="#" class="settings__profile-replenish">+ пополнить</a>
-                <a href="#" class="settings__profile-output">- вывести</a>
+{{--                <a href="#" class="settings__profile-replenish">+ пополнить</a>--}}
+                <button type="button" class="settings__profile-replenish" data-toggle="modal" data-target="#exampleModal">+ пополнить</button>
+{{--                <a href="#" class="settings__profile-output">- вывести</a>--}}
             </div>
         </div>
         <div class="settings__wrapper">
@@ -80,6 +81,33 @@
             </a>
         </div>
     </div>--}}
+
+<!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="{{ route('user.balanceReplenishment') }}" method="post">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Пополнение</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="text" name="amount" placeholder="Введите сумму" required class="form-control">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-primary">Продолжить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script src="/js/profile.js"></script>
