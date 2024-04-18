@@ -2,7 +2,7 @@
     <div class="winners__wrapper" style="padding-top: 20px; margin-top: 0px;">
         <div class="winners__top-slider">
             <div class="winners__top-slider-title">
-                Выиграли призов: <p><span>{{ count($winners) }}</span> за месяц</p>
+                Выиграли призов: <p><span>45</span> за месяц</p>
             </div>
             <div class="winners__top-slider-wrapper">
                 <div class="swiper-wrapper">
