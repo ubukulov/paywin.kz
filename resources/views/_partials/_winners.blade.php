@@ -2,7 +2,7 @@
     <div class="winners__wrapper" style="padding-top: 20px; margin-top: 0px;">
         <div class="winners__top-slider">
             <div class="winners__top-slider-title">
-                Выиграли призов: <p><span>1278</span> за день</p>
+                Выиграли призов: <p><span>{{ count($winners) }}</span> за месяц</p>
             </div>
             <div class="winners__top-slider-wrapper">
                 <div class="swiper-wrapper">
@@ -11,67 +11,15 @@
                             <img src="/images/winners/avatar.png" alt="">
                         </div>
                         <div class="winners__top-info">
-                            Sasha Grey выиграл приз
+                            {{ $winner->full_name }} выиграл приз
                         </div>
-                        <div class="winners__top-card purple">
-                            Скидка 50% от Costa Coffee
+
+                        <div class="winners__top-card @if($winner->share->type == 'share') purple @elseif($winner->share->type == 'cashback') red @else blue @endif">
+                            {{ $winner->share->title }}
                         </div>
+
                     </div>
-                    <div class="winners__top-item swiper-slide">
-                        <div class="winners__top-avatar">
-                            <img src="/images/winners/avatar.png" alt="">
-                        </div>
-                        <div class="winners__top-info">
-                            Sasha Grey выиграл приз
-                        </div>
-                        <div class="winners__top-card red">
-                            Баскет 25 крыльев
-                        </div>
-                    </div>
-                    <div class="winners__top-item swiper-slide">
-                        <div class="winners__top-avatar">
-                            <img src="/images/winners/avatar.png" alt="">
-                        </div>
-                        <div class="winners__top-info">
-                            Sasha Grey выиграл приз
-                        </div>
-                        <div class="winners__top-card blue">
-                            CashBack 50% в PapaJohn’s
-                        </div>
-                    </div>
-                    <div class="winners__top-item swiper-slide">
-                        <div class="winners__top-avatar">
-                            <img src="/images/winners/avatar.png" alt="">
-                        </div>
-                        <div class="winners__top-info">
-                            Sasha Grey выиграл приз
-                        </div>
-                        <div class="winners__top-card blue">
-                            CashBack 50% в PapaJohn’s
-                        </div>
-                    </div>
-                    <div class="winners__top-item swiper-slide">
-                        <div class="winners__top-avatar">
-                            <img src="/images/winners/avatar.png" alt="">
-                        </div>
-                        <div class="winners__top-info">
-                            Sasha Grey выиграл приз
-                        </div>
-                        <div class="winners__top-card blue">
-                            CashBack 50% в PapaJohn’s
-                        </div>
-                    </div>
-                    <div class="winners__top-item swiper-slide">
-                        <div class="winners__top-avatar">
-                            <img src="/images/winners/avatar.png" alt="">
-                        </div>
-                        <div class="winners__top-info">
-                            Sasha Grey выиграл приз
-                        </div>
-                        <div class="winners__top-card blue">
-                            CashBack 50% в PapaJohn’s
-                        </div>
-                    </div>
+
                 </div>
             </div>
             <div class="winners__top-slider-next"><img src="/images/winners/next-arrow.svg" alt=""></div>

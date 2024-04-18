@@ -30,7 +30,13 @@ class IndexController extends BaseController
             ->with('user', 'share', 'payment')
             ->get();
 
-        return view('prizes', compact('shares', 'prizes'));
+        $winners = Prize::whereRaw('DATE_FORMAT(prizes.created_at, "%m") = '.date('m'))
+            ->with('user', 'share', 'payment')
+            ->join('user_profile', 'user_profile.user_id', 'prizes.user_id')
+            ->where('prizes.status', '=', 'got')
+            ->get();
+
+        return view('prizes', compact('shares', 'prizes', 'winners'));
     }
 
     public function paymentPage($slug, $id)

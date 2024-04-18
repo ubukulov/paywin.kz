@@ -86,7 +86,7 @@
             </div>--}}
 
             <div class="tab-pane fade show active" id="discount" role="tabpanel" aria-labelledby="discount-tab">
-                @include('_partials._winners')
+                @include('_partials._winners', $winners, 'winner')
             </div>
 
             <div class="tab-pane fade show" id="cashback" role="tabpanel" aria-labelledby="cashback-tab">
