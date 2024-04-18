@@ -143,4 +143,13 @@ class User extends Authenticatable
             ->orderBy('size', 'DESC')
             ->first();
     }
+
+    public function getCountOfAwardedPrizes()
+    {
+        $prizes = Prize::where(['prizes.status' => 'got', 'shares.user_id' => $this->id])
+            ->join('shares', 'shares.id', 'prizes.share_id')
+            ->whereRaw('DATE_FORMAT(prizes.created_at, "%m") = '.date('m'))
+            ->get();
+        return count($prizes);
+    }
 }

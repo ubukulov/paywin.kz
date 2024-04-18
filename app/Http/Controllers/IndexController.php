@@ -8,6 +8,7 @@ use App\Models\Payment;
 use App\Models\Prize;
 use App\Models\Share;
 use App\Models\User;
+use App\Models\UserProfile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Auth;
@@ -32,13 +33,23 @@ class IndexController extends BaseController
 
         $winners = Prize::whereRaw('DATE_FORMAT(prizes.created_at, "%m") = '.date('m'))
             //->with('user', 'share', 'payment')
-            ->selectRaw('prizes.*, shares.title as share_title, shares.type as share_type, user_profile.full_name')
+            ->selectRaw('prizes.*, shares.user_id as partner_id, shares.title as share_title, shares.type as share_type, user_profile.full_name')
             ->join('shares', 'shares.id', 'prizes.share_id')
             ->join('user_profile', 'user_profile.user_id', 'prizes.user_id')
             ->where('prizes.status', '=', 'got')
             ->get();
 
-        return view('prizes', compact('shares', 'prizes', 'winners'));
+        $ids = [];
+
+        foreach($winners as $winner) {
+            if(!in_array($winner->partner_id, $ids)) {
+                $ids[] = $winner->partner_id;
+            }
+        }
+
+        $top_partners = User::whereIn('id', $ids)->with('profile')->get();
+
+        return view('prizes', compact('shares', 'prizes', 'winners', 'top_partners'));
     }
 
     public function paymentPage($slug, $id)

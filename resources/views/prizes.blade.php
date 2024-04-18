@@ -50,6 +50,10 @@
         .myprize__card-text {
             font-size: 12px !important;
         }
+        .winners__top-card {
+            line-height: 11px;
+            align-content: center;
+        }
     </style>
 </head>
 <body class="container prizes-page">
@@ -119,60 +123,19 @@
                             <div class="winners__bottom-slider-title">TOP партнеров</div>
                             <div class="winners__bottom-slider-wrapper">
                                 <div class="swiper-wrapper">
+
+                                    @foreach($top_partners as $top)
                                     <div class="winners__bottom-item swiper-slide">
                                         <div class="winners__bottom-logo">
-                                            <img src="/images/winners/kfc-logo.png" alt="">
+                                            <img @if(empty($top->profile->logo)) src="/images/winners/kfc-logo.png" @else src="{{ asset($top->profile->logo) }}" @endif alt="">
                                         </div>
-                                        <div class="winners__bottom-name">KFC</div>
+                                        <div class="winners__bottom-name">{{ $top->profile->company }}</div>
                                         <div class="winners__bottom-info">
-                                            вручили призов: <p><span>1280</span> за день</p>
+                                            вручили призов: <p><span>{{ $top->getCountOfAwardedPrizes() }}</span> за месяц</p>
                                         </div>
                                     </div>
-                                    <div class="winners__bottom-item swiper-slide">
-                                        <div class="winners__bottom-logo">
-                                            <img src="/images/winners/papa-johns-logo.png" alt="">
-                                        </div>
-                                        <div class="winners__bottom-name">Papa John’s</div>
-                                        <div class="winners__bottom-info">
-                                            вручили призов: <p><span>1280</span> за день</p>
-                                        </div>
-                                    </div>
-                                    <div class="winners__bottom-item swiper-slide">
-                                        <div class="winners__bottom-logo">
-                                            <img src="/images/winners/kfc-logo.png" alt="">
-                                        </div>
-                                        <div class="winners__bottom-name">KFC</div>
-                                        <div class="winners__bottom-info">
-                                            вручили призов: <p><span>1280</span> за день</p>
-                                        </div>
-                                    </div>
-                                    <div class="winners__bottom-item swiper-slide">
-                                        <div class="winners__bottom-logo">
-                                            <img src="/images/winners/papa-johns-logo.png" alt="">
-                                        </div>
-                                        <div class="winners__bottom-name">Papa John’s</div>
-                                        <div class="winners__bottom-info">
-                                            вручили призов: <p><span>1280</span> за день</p>
-                                        </div>
-                                    </div>
-                                    <div class="winners__bottom-item swiper-slide">
-                                        <div class="winners__bottom-logo">
-                                            <img src="/images/winners/kfc-logo.png" alt="">
-                                        </div>
-                                        <div class="winners__bottom-name">KFC</div>
-                                        <div class="winners__bottom-info">
-                                            вручили призов: <p><span>1280</span> за день</p>
-                                        </div>
-                                    </div>
-                                    <div class="winners__bottom-item swiper-slide">
-                                        <div class="winners__bottom-logo">
-                                            <img src="/images/winners/papa-johns-logo.png" alt="">
-                                        </div>
-                                        <div class="winners__bottom-name">Papa John’s</div>
-                                        <div class="winners__bottom-info">
-                                            вручили призов: <p><span>1280</span> за день</p>
-                                        </div>
-                                    </div>
+                                    @endforeach
+
                                 </div>
                             </div>
                             <div class="winners__bottom-slider-next"><img src="/images/winners/next-arrow.svg" alt=""></div>
