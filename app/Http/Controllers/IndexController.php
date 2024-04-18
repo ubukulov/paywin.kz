@@ -31,7 +31,9 @@ class IndexController extends BaseController
             ->get();
 
         $winners = Prize::whereRaw('DATE_FORMAT(prizes.created_at, "%m") = '.date('m'))
-            ->with('user', 'share', 'payment')
+            //->with('user', 'share', 'payment')
+            ->selectRaw('prizes.*, shares.title as share_title, shares.type as share_type, user_profile.full_name')
+            ->join('shares', 'shares.id', 'prizes.share_id')
             ->join('user_profile', 'user_profile.user_id', 'prizes.user_id')
             ->where('prizes.status', '=', 'got')
             ->get();
