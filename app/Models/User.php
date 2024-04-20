@@ -13,6 +13,8 @@ class User extends Authenticatable
 {
     use Notifiable;
 
+    protected $sum = 0;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -155,29 +157,29 @@ class User extends Authenticatable
 
     public function payWithBalance($amount)
     {
-        $sum = $amount;
+        $this->sum = $amount;
         $user_balances = UserBalance::where(['user_id' => $this->id, 'status' => 'ok'])->get();
         foreach($user_balances as $user_balance) {
-            if($sum == 0) break;
-            if($user_balance->amount < $sum) {
+            if($this->sum == 0) break;
+            if($user_balance->amount < $this->sum) {
                 $user_balance->status = 'withdraw';
                 $user_balance->save();
-                $sum -= $user_balance->amount;
+                $this->sum = $this->sum - $user_balance->amount;
             }
 
-            if($user_balance->amount == $sum) {
+            if($user_balance->amount == $this->sum) {
                 $user_balance->status = 'withdraw';
                 $user_balance->save();
-                $sum -= $user_balance->amount;
+                $this->sum = $this->sum - $user_balance->amount;
             }
 
-            if($user_balance->amount > $sum) {
-                $user_balance->amount -= $sum;
+            if($user_balance->amount > $this->sum) {
+                $user_balance->amount = $user_balance->amount - $this->sum;
                 $user_balance->status = 'ok';
                 $user_balance->save();
 
                 UserBalance::create([
-                    'user_id' => $this->id, 'type' => 'payment', 'amount' => $sum, 'status' => 'withdraw'
+                    'user_id' => $this->id, 'type' => 'payment', 'amount' => $this->sum, 'status' => 'withdraw'
                 ]);
 
                 break;
