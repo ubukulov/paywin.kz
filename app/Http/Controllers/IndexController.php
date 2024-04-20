@@ -85,7 +85,7 @@ class IndexController extends BaseController
                         'user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'ok'
                     ]);
 
-                    $user->givePrize(Partner::findOrFail($partner_id), $payment);
+                    $user->givePrize(User::findOrFail($partner_id), $payment);
 
                     return redirect()->route('payment.success');
                 }
@@ -243,6 +243,25 @@ class IndexController extends BaseController
                 $payment->pg_payment_id = (int) $responseXml->pg_payment_id;
                 $payment->updated_at = Carbon::now();
                 $payment->save();
+
+                /*if($balance) {
+                    $balance_amount = $user->getBalanceForUser();
+                    if($balance_amount >= $amount) {
+                        $user->payWithBalance($amount);
+
+                        $payment = Payment::create([
+                            'user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'ok'
+                        ]);
+
+                        $user->givePrize(Partner::findOrFail($partner_id), $payment);
+
+                        return redirect()->route('payment.success');
+                    }
+
+                    if($balance_amount < $amount) {
+                        $amount = $amount - $balance_amount;
+                    }
+                }*/
             }
 
             if (!User::isPrize($user->id, $payment->id)) {
