@@ -56,7 +56,7 @@ class IndexController extends BaseController
     {
         $partner = User::findOrFail($id);
         $user = User::findOrFail(Auth::user()->id);
-        return view('payment2', compact('slug', 'id', 'partner', 'user'));
+        return view('payment', compact('slug', 'id', 'partner', 'user'));
     }
 
     public function aboutUs()
