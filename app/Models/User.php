@@ -165,15 +165,11 @@ class User extends Authenticatable
                 $user_balance->status = 'withdraw';
                 $user_balance->save();
                 $this->sum = $this->sum - $user_balance->amount;
-            }
-
-            if($user_balance->amount == $this->sum) {
+            } elseif($user_balance->amount == $this->sum) {
                 $user_balance->status = 'withdraw';
                 $user_balance->save();
                 $this->sum = $this->sum - $user_balance->amount;
-            }
-
-            if($user_balance->amount > $this->sum) {
+            } elseif($user_balance->amount > $this->sum) {
                 $user_balance->amount = $user_balance->amount - $this->sum;
                 $user_balance->status = 'ok';
                 $user_balance->save();
