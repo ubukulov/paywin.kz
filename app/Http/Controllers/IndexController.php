@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Models\Prize;
 use App\Models\Share;
 use App\Models\User;
+use App\Models\UserBalance;
 use App\Models\UserProfile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -72,6 +73,7 @@ class IndexController extends BaseController
         $pg_card_id = $request->input('card_id');
         $balance = $request->input('balance');
         $user = Auth::user();
+        $partner = User::findOrFail($partner_id);
 
         $payment = Payment::where(['user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'waiting'])->first();
         if(!$payment) {
@@ -85,13 +87,19 @@ class IndexController extends BaseController
                         'user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'ok'
                     ]);
 
-                    $user->givePrize(User::findOrFail($partner_id), $payment);
+                    $user->givePrize($partner->shares, $payment);
 
                     return redirect()->route('payment.success');
                 }
 
                 if($balance_amount < $amount) {
                     $amount = $amount - $balance_amount;
+
+                    $user_balance = UserBalance::where(['user_id' => $user->id, 'amount' => $balance_amount, 'status' => 'ok'])->first();
+                    if($user_balance) {
+                        $user_balance->status = 'waiting';
+                        $user_balance->save();
+                    }
                 }
             }
 
@@ -244,28 +252,16 @@ class IndexController extends BaseController
                 $payment->updated_at = Carbon::now();
                 $payment->save();
 
-                /*if($balance) {
-                    $balance_amount = $user->getBalanceForUser();
-                    if($balance_amount >= $amount) {
-                        $user->payWithBalance($amount);
-
-                        $payment = Payment::create([
-                            'user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'ok'
-                        ]);
-
-                        $user->givePrize(Partner::findOrFail($partner_id), $payment);
-
-                        return redirect()->route('payment.success');
-                    }
-
-                    if($balance_amount < $amount) {
-                        $amount = $amount - $balance_amount;
-                    }
-                }*/
+                $user_balance = UserBalance::where(['user_id' => $user->id, 'status' => 'waiting'])->first();
+                if($user_balance) {
+                    $user_balance->status = 'withdraw';
+                    $user_balance->save();
+                }
             }
 
+            $partner = $payment->partner;
             if (!User::isPrize($user->id, $payment->id)) {
-                $user->givePrize($payment->partner, $payment);
+                $user->givePrize($partner->shares, $payment);
             }
         } else {
             $payment = Payment::where(['user_id' => $user->id, 'pg_status' => 'ok'])->orderBy('id', 'DESC')->first();

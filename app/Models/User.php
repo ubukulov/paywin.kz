@@ -183,10 +183,8 @@ class User extends Authenticatable
         }
     }
 
-    public function givePrize($partner, $payment)
+    public function givePrize($shares, $payment)
     {
-        $shares = $partner->shares;
-
         if (count($shares) != 0) {
             foreach($shares->shuffle() as $share) {
                 if(($share->from_order >= $payment->amount) && ($payment->amount <= $share->to_order)) {
