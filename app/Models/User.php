@@ -152,4 +152,59 @@ class User extends Authenticatable
             ->get();
         return count($prizes);
     }
+
+    public function payWithBalance($amount)
+    {
+        $sum = $amount;
+        $user_balances = UserBalance::where(['user_id' => $this->id, 'status' => 'ok'])->get();
+        foreach($user_balances as $user_balance) {
+            if($sum == 0) break;
+            if($user_balance->amount < $sum) {
+                $user_balance->status = 'withdraw';
+                $user_balance->save();
+                $sum -= $user_balance->amount;
+            }
+
+            if($user_balance->amount == $sum) {
+                $user_balance->status = 'withdraw';
+                $user_balance->save();
+                $sum -= $user_balance->amount;
+            }
+
+            if($user_balance->amount > $sum) {
+                $user_balance->amount -= $sum;
+                $user_balance->status = 'ok';
+                $user_balance->save();
+
+                UserBalance::create([
+                    'user_id' => $this->id, 'type' => 'payment', 'amount' => $sum, 'status' => 'withdraw'
+                ]);
+
+                break;
+            }
+        }
+    }
+
+    public function givePrize($partner, $payment)
+    {
+        $shares = $partner->shares;
+
+        if (count($shares) != 0) {
+            foreach($shares->shuffle() as $share) {
+                if(($share->from_order >= $payment->amount) && ($payment->amount <= $share->to_order)) {
+                    $prize = new Prize();
+                    $prize->payment_id = $payment->id;
+                    $prize->user_id = $payment->user_id;
+                    $prize->share_id = $share->id;
+                    $prize->cnt = 1;
+                    $prize->status = 'got';
+                    $prize->save();
+
+                    $share->cnt--;
+                    $share->save();
+                    break;
+                }
+            }
+        }
+    }
 }

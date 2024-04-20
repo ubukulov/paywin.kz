@@ -4713,9 +4713,8 @@ body {
   text-decoration: none; }
 
 .actions {
-  width: 215px;
-  margin-bottom: 9px;
-  margin-left: calc(50% - 117.5px);
+  width: 250px;
+  margin: 0 auto;
   padding-right: 10px;
   padding-left: 10px;
   border: 1px solid #F6F6F6;

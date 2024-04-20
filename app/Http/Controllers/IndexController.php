@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\Partner;
 use App\Models\Category;
 use App\Models\Payment;
 use App\Models\Prize;
@@ -69,11 +70,33 @@ class IndexController extends BaseController
         $amount = $request->input('sum');
         $partner_id = $request->input('partner_id');
         $pg_card_id = $request->input('card_id');
+        $balance = $request->input('balance');
+        $user = Auth::user();
 
-        $payment = Payment::where(['user_id' => Auth::user()->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'waiting'])->first();
+        $payment = Payment::where(['user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'waiting'])->first();
         if(!$payment) {
+
+            if($balance) {
+                $balance_amount = $user->getBalanceForUser();
+                if($balance_amount >= $amount) {
+                    $user->payWithBalance($amount);
+
+                    $payment = Payment::create([
+                        'user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'ok'
+                    ]);
+
+                    $user->givePrize(Partner::findOrFail($partner_id), $payment);
+
+                    return redirect()->route('payment.success');
+                }
+
+                if($balance_amount < $amount) {
+                    $amount = $amount - $balance_amount;
+                }
+            }
+
             $payment = new Payment();
-            $payment->user_id = Auth::user()->id;
+            $payment->user_id = $user->id;
             $payment->partner_id = $partner_id;
             $payment->amount = $amount;
             $payment->pg_status = 'waiting';
@@ -187,7 +210,8 @@ class IndexController extends BaseController
 
     public function paymentSuccess()
     {
-        $payment = Payment::where(['user_id' => Auth::user()->id, 'pg_status' => 'waiting'])->orderBy('id', 'DESC')->first();
+        $user = Auth::user();
+        $payment = Payment::where(['user_id' => $user->id, 'pg_status' => 'waiting'])->orderBy('id', 'DESC')->first();
         if($payment) {
             $request = [
                 'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
@@ -221,30 +245,11 @@ class IndexController extends BaseController
                 $payment->save();
             }
 
-            if (!User::isPrize(Auth::user()->id, $payment->id)) {
-                $partner = $payment->partner;
-                $shares = $partner->shares;
-
-                if (count($shares) != 0) {
-                    foreach($shares->shuffle() as $share) {
-                        if(($share->from_order >= $payment->amount) && ($payment->amount <= $share->to_order)) {
-                            $prize = new Prize();
-                            $prize->payment_id = $payment->id;
-                            $prize->user_id = $payment->user_id;
-                            $prize->share_id = $share->id;
-                            $prize->cnt = 1;
-                            $prize->status = 'got';
-                            $prize->save();
-
-                            $share->cnt--;
-                            $share->save();
-                            break;
-                        }
-                    }
-                }
+            if (!User::isPrize($user->id, $payment->id)) {
+                $user->givePrize($payment->partner, $payment);
             }
         } else {
-            $payment = Payment::where(['user_id' => Auth::user()->id, 'pg_status' => 'ok'])->orderBy('id', 'DESC')->first();
+            $payment = Payment::where(['user_id' => $user->id, 'pg_status' => 'ok'])->orderBy('id', 'DESC')->first();
         }
 
         $prize = $payment->prize;

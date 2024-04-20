@@ -64,10 +64,10 @@
             <div class="action__flex">
                 <img src="/b5/img/icons/wallet.svg" alt="кошёлек" class="action__icon action__icon--wallet">
                 <p class="action__number">{{ $user->getBalanceForUser() }} ₸</p>
-                <p class="action__warning hidden">-250</p>
-                <input type="hidden" id="balance" name="balance" value="0">
-                <button class="switch-btn switch-on action__button action__button--checkbox"></button>
+{{--                <p class="action__warning">-250</p>--}}
+                <button id="balance_switch" class="switch-btn switch-on action__button action__button--checkbox"></button>
             </div>
+            <input type="hidden" id="balance" name="balance" value="0">
         </div>
 
         <div class="action action--precent actions__action">
@@ -130,7 +130,7 @@
 @include('_partials.info')
 <script>
     $(document).ready(function(){
-        $('.switch-btn').toggle(function(){
+        $('#balance_switch').toggle(function(){
             $('#balance').val(1);
         }, function(){
             $('#balance').val(0);
