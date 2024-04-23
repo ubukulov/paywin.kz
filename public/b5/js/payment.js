@@ -7,10 +7,14 @@ $(document).ready(function(){
     slidesToShow: 1,
     adaptiveHeight: false
   });
-});
 
-$(document).ready(function(){
-	$('.switch-btn').click(function(){
-    $(this).toggleClass('switch-on'); return false;
-	});
+    $('.switch-btn').click(function(){
+        $(this).toggleClass('switch-on'); return false;
+    });
+
+    $('#balance_switch').toggle(function(){
+        $('#balance').val(1);
+    }, function(){
+        $('#balance').val(0);
+    });
 });

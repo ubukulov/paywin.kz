@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Оплата</title>
     <link rel="stylesheet" href="/b5/css/style.css">
-    <script src="/b5/js/script.js"></script>
     <script src="/b5/js/jquery-3.6.0.min.js"></script>
+    <script src="/b5/js/script.js"></script>
     <script src="/b5/js/slick.min.js"></script>
     <script src="/b5/js/payment.js"></script>
     <link rel="apple-touch-icon" sizes="180x180" href="/b5/img/favicons/apple-touch-icon.png">
@@ -128,14 +128,5 @@
 </footer>
 
 @include('_partials.info')
-<script>
-    $(document).ready(function(){
-        $('#balance_switch').toggle(function(){
-            $('#balance').val(1);
-        }, function(){
-            $('#balance').val(0);
-        });
-    });
-</script>
 </body>
 </html>
