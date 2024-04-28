@@ -20,7 +20,27 @@
         .hidden {
             display: none;
         }
+        .form-check-input:checked{
+            background-color: #18BE1E !important;
+            border-color: #18BE1E !important;
+        }
+        .form-switch .form-check-input{
+            font-size: 20px;
+        }
+        .actions{
+            width: 280px !important;
+        }
+        .action__flex {
+            justify-content: space-between;
+        }
+        .action__warning {
+            position: relative;
+            top: 0px;
+            right: 0px;
+            font-size: 18px;
+        }
     </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 <body class="container payment-page">
 <h1 class="h1 animate__animated animate__fadeInLeft">Оплата</h1>
@@ -45,7 +65,7 @@
     <div class="actions">
         <h2 style="margin-top: 0px;" class="offer animate__animated animate__fadeIn">Сумма оплаты</h2>
         <p class="payment-page__number">
-            <input style="width: 200px;
+            <input id="payment_input" style="width: 200px;
             max-width: 100%;
             height: 35px;
             border-radius: 5px;
@@ -63,21 +83,61 @@
             <h3 class="action__subtitle">Потратить баланс</h3>
             <div class="action__flex">
                 <img src="/b5/img/icons/wallet.svg" alt="кошёлек" class="action__icon action__icon--wallet">
-                <p class="action__number">{{ $user->getBalanceForUser() }} ₸</p>
+                <p id="balance" class="action__number">{{ $user->getBalanceForUser() }} ₸</p>
 {{--                <p class="action__warning">-250</p>--}}
-                <button id="balance_switch" class="switch-btn switch-on action__button action__button--checkbox"></button>
+{{--                <button id="balance_switch" class="switch-btn action__button action__button--checkbox"></button>--}}
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                </div>
             </div>
-            <input type="hidden" id="balance" name="balance" value="0">
+            <input type="hidden" id="balance_hidden" name="balance" value="0">
         </div>
 
         <div class="action action--precent actions__action">
             <h3 class="action__subtitle">Применить скидку</h3>
             <div class="action__flex">
                 <img src="/b5/img/icons/precent.svg" alt="проценты" class="action__icon action__icon--precent">
-                <p class="action__number">-50%</p><p class="action__warning">-6125</p>
-                <button class="switch-btn switch-on action__button action__button--checkbox"></button>
+                <p id="discount" class="action__number">-50%</p>
+{{--                <button class="switch-btn switch-on action__button action__button--checkbox"></button>--}}
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="discount_input">
+                </div>
             </div>
         </div>
+
+        <hr>
+
+        <div id="to_payment" class="to_payment hidden">
+            <h3 style="margin-top: 0px;" class="offer animate__animated animate__fadeIn">К оплате</h3>
+
+            <div id="balance_size_hidden" class="action action--wallet actions__action hidden">
+                <h3 class="action__subtitle">С баланса</h3>
+                <div class="action__flex">
+                    <img src="/b5/img/icons/wallet.svg" alt="кошёлек" class="action__icon action__icon--wallet">
+                    <p class="action__number"></p>
+                    <p id="balance_size" class="action__warning"></p>
+                </div>
+            </div>
+
+            <div id="discount_size_hidden" class="action action--precent actions__action hidden">
+                <h3 class="action__subtitle">Скидка</h3>
+                <div class="action__flex">
+                    <img src="/b5/img/icons/precent.svg" alt="проценты" class="action__icon action__icon--precent">
+                    <p class="action__number"></p>
+                    <p id="discount_size" class="action__warning"></p>
+                </div>
+            </div>
+
+            <div class="action action--precent actions__action" style="margin-bottom: 20px;">
+                <h3 class="action__subtitle">Итоговая сумма</h3>
+                <div class="action__flex">
+                    <img src="/b5/img/icons/wallet.svg" alt="кошёлек" class="action__icon action__icon--wallet">
+                    <p class="action__number"></p>
+                    <p id="sum_amount" class="action__warning"></p>
+                </div>
+            </div>
+        </div>
+
     </div>
     {{--<div class="keyboard keyboard__wrapper animate__animated animate__fadeIn">
         <button class="keyboard__item">1</button> <button class="keyboard__item">2</button>
@@ -128,5 +188,64 @@
 </footer>
 
 @include('_partials.info')
+
+<script>
+    $(document).ready(function(){
+        let payment_input = $('#payment_input');
+        let to_payment    = $('#to_payment');
+        let balance    = $('#balance');
+        let discount    = $('#discount');
+        let balance_switch     = $('#flexSwitchCheckDefault');
+        let discount_switch    = $('#discount_input');
+        let balance_size       = $('#balance_size');
+        let discount_size      = $('#discount_size');
+        let sum_amount         = $('#sum_amount');
+        let balance_size_hidden         = $('#balance_size_hidden');
+        let discount_size_hidden         = $('#discount_size_hidden');
+        let balance_hidden         = $('#balance_hidden');
+
+        payment_input.on("focusout", function(){
+            let amount = payment_input.val();
+            if(amount.length > 0) {
+                to_payment.removeClass('hidden');
+                sum_amount.html(amount + " ₸");
+                balance_switch.prop('checked', false);
+                discount_switch.prop('checked', false);
+            }
+        });
+
+        balance_switch.click(function(){
+            let amount = parseInt(payment_input.val());
+            if(balance_switch.prop("checked")) {
+                let balance_amount = parseInt(balance.html());
+                if(balance_amount >= amount) {
+                    discount_switch.prop('disabled', true);
+                    balance_size_hidden.removeClass('hidden');
+                    balance_size.html("-" + amount);
+                    balance_hidden.val(1);
+                    sum_amount.html("0 ₸");
+                } else {
+                    discount_switch.prop('disabled', false);
+                }
+            } else {
+                discount_switch.prop('disabled', false);
+                balance_size_hidden.addClass('hidden');
+                balance_size.html('');
+                balance_hidden.val(0);
+                sum_amount.html(amount + " ₸");
+            }
+        });
+
+        discount_switch.click(function(){
+            let amount = parseInt(payment_input.val());
+            if(discount_switch.prop("checked")) {
+                let discount_amount = parseInt(discount.html());
+
+            } else {
+
+            }
+        });
+    });
+</script>
 </body>
 </html>
