@@ -54,6 +54,11 @@ class User extends Authenticatable
         return $this->hasMany(UserImage::class);
     }
 
+    public function discounts()
+    {
+        return $this->hasMany(UserDiscount::class);
+    }
+
     public function shares()
     {
         return $this->hasMany(Share::class)
