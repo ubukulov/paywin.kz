@@ -9,7 +9,7 @@ class UserDiscount extends Model
     protected $table = 'user_discounts';
 
     protected $fillable = [
-        'user_id', 'partner_id', 'size', 'status'
+        'user_id', 'partner_id', 'payment_id', 'size', 'status'
     ];
 
     public function user()

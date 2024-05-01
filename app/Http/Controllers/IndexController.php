@@ -68,47 +68,57 @@ class IndexController extends BaseController
 
     public function payment(Request $request)
     {
-        $amount = $request->input('sum');
+        $amount = (int) $request->input('sum');
         $partner_id = $request->input('partner_id');
         $pg_card_id = $request->input('card_id');
         $balance = $request->input('balance');
+        $discount = $request->input('discount');
         $user = Auth::user();
         $partner = User::findOrFail($partner_id);
+        $new_amount = $amount;
 
         $payment = Payment::where(['user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'waiting'])->first();
         if(!$payment) {
 
+            if($discount) {
+                $discount_amount = $user->getDiscountForUser();
+                $need_amount = (int) $amount - ($amount * (int) $discount_amount) / 100;
+            } else {
+                $need_amount = 0;
+            }
+
+            $new_amount = ($need_amount > 0) ? $need_amount : $amount;
+
             if($balance) {
                 $balance_amount = $user->getBalanceForUser();
-                if($balance_amount >= $amount) {
-                    $user->payWithBalance($amount);
 
+                if($balance_amount >= $new_amount) {
                     $payment = Payment::create([
                         'user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'ok'
                     ]);
+
+                    $user->payWithBalance($new_amount, $payment);
 
                     $user->givePrize($partner->shares, $payment);
 
                     return redirect()->route('payment.success');
                 }
 
-                if($balance_amount < $amount) {
-                    $amount = $amount - $balance_amount;
-
-                    $user_balance = UserBalance::where(['user_id' => $user->id, 'amount' => $balance_amount, 'status' => 'ok'])->first();
-                    if($user_balance) {
-                        $user_balance->status = 'waiting';
-                        $user_balance->save();
-                    }
+                if($balance_amount < $new_amount) {
+                    $payment = Payment::create([
+                        'user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'waiting'
+                    ]);
+                    $user->reservationBalance($balance_amount, $payment);
+                    $new_amount = $new_amount - $balance_amount;
                 }
+            } else {
+                $payment = new Payment();
+                $payment->user_id = $user->id;
+                $payment->partner_id = $partner_id;
+                $payment->amount = $amount;
+                $payment->pg_status = 'waiting';
+                $payment->save();
             }
-
-            $payment = new Payment();
-            $payment->user_id = $user->id;
-            $payment->partner_id = $partner_id;
-            $payment->amount = $amount;
-            $payment->pg_status = 'waiting';
-            $payment->save();
         }
 
 //        if($request->has('card_id')) {
@@ -181,7 +191,7 @@ class IndexController extends BaseController
 //        } else {
             $request = [
                 'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
-                'pg_amount' => $amount,
+                'pg_amount' => $new_amount,
                 'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
                 'pg_order_id' => $payment->id,
                 'pg_description' => 'Описание заказа',
@@ -252,10 +262,12 @@ class IndexController extends BaseController
                 $payment->updated_at = Carbon::now();
                 $payment->save();
 
-                $user_balance = UserBalance::where(['user_id' => $user->id, 'status' => 'waiting'])->first();
+                $user_balance = UserBalance::where(['user_id' => $user->id, 'status' => 'waiting', 'payment_id' => $payment->id])->get();
                 if($user_balance) {
-                    $user_balance->status = 'withdraw';
-                    $user_balance->save();
+                    foreach($user_balance as $item) {
+                        $item->status = 'withdraw';
+                        $item->save();
+                    }
                 }
             }
 
