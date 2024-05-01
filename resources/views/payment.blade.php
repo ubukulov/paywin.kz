@@ -79,11 +79,12 @@
         </div>
         @endif
 
+        @if($user_balance = $user->getBalanceForUser())
         <div class="action action--wallet actions__action">
             <h3 class="action__subtitle">Потратить баланс</h3>
             <div class="action__flex">
                 <img src="/b5/img/icons/wallet.svg" alt="кошёлек" class="action__icon action__icon--wallet">
-                <p id="balance" class="action__number">{{ $user->getBalanceForUser() }} ₸</p>
+                <p id="balance" class="action__number">{{ $user_balance }} ₸</p>
 {{--                <p class="action__warning">-250</p>--}}
 {{--                <button id="balance_switch" class="switch-btn action__button action__button--checkbox"></button>--}}
                 <div class="form-check form-switch">
@@ -92,18 +93,22 @@
             </div>
             <input type="hidden" id="balance_hidden" name="balance" value="0">
         </div>
+        @endif
 
+        @if($user_discount = $user->getDiscountForUser())
         <div class="action action--precent actions__action">
             <h3 class="action__subtitle">Применить скидку</h3>
             <div class="action__flex">
                 <img src="/b5/img/icons/precent.svg" alt="проценты" class="action__icon action__icon--precent">
-                <p id="discount" class="action__number">-50%</p>
+                <p id="discount" class="action__number">{{ $user_discount }}%</p>
 {{--                <button class="switch-btn switch-on action__button action__button--checkbox"></button>--}}
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="discount_input">
                 </div>
             </div>
+            <input type="hidden" id="discount_hidden" name="discount" value="0">
         </div>
+        @endif
 
         <hr>
 
@@ -134,6 +139,7 @@
                     <img src="/b5/img/icons/wallet.svg" alt="кошёлек" class="action__icon action__icon--wallet">
                     <p class="action__number"></p>
                     <p id="sum_amount" class="action__warning"></p>
+                    <input type="hidden" id="sum_amount_hidden" name="sum_amount" value="0">
                 </div>
             </div>
         </div>
@@ -203,12 +209,15 @@
         let balance_size_hidden         = $('#balance_size_hidden');
         let discount_size_hidden         = $('#discount_size_hidden');
         let balance_hidden         = $('#balance_hidden');
+        let discount_hidden         = $('#discount_hidden');
+        let sum_amount_hidden         = $('#sum_amount_hidden');
 
         payment_input.on("focusout", function(){
             let amount = payment_input.val();
             if(amount.length > 0) {
                 to_payment.removeClass('hidden');
                 sum_amount.html(amount + " ₸");
+                sum_amount_hidden.val(amount);
                 balance_switch.prop('checked', false);
                 discount_switch.prop('checked', false);
             }
@@ -219,20 +228,104 @@
             if(balance_switch.prop("checked")) {
                 let balance_amount = parseInt(balance.html());
                 if(balance_amount >= amount) {
-                    discount_switch.prop('disabled', true);
-                    balance_size_hidden.removeClass('hidden');
                     balance_size.html("-" + amount);
-                    balance_hidden.val(1);
                     sum_amount.html("0 ₸");
+                    sum_amount_hidden.val(0);
                 } else {
-                    discount_switch.prop('disabled', false);
+                    balance_size.html("-" + balance_amount);
+                    let d = amount - balance_amount;
+                    sum_amount.html(d + " ₸");
+                    sum_amount_hidden.val(d);
                 }
+
+                if(discount_switch.prop("checked")) {
+                    let discount_amount = parseInt(discount.html());
+                    let d = ((amount * discount_amount) / 100);
+                    let need_amount = amount - Math.abs(d);
+                    if(balance_amount >= need_amount) {
+                        balance_size.html("-" + need_amount);
+                        sum_amount.html("0 ₸");
+                        sum_amount_hidden.val(0);
+                    } else {
+                        let c = need_amount - balance_amount;
+                        balance_size.html("-" + balance_amount);
+                        sum_amount.html(c + " ₸");
+                        sum_amount_hidden.val(c);
+                    }
+                }
+
+                balance_size_hidden.removeClass('hidden');
+                balance_hidden.val(1);
             } else {
-                discount_switch.prop('disabled', false);
+                if(discount_switch.prop("checked")) {
+                    let discount_amount = parseInt(discount.html());
+                    let d = ((amount * discount_amount) / 100);
+                    let need_amount = amount - Math.abs(d);
+                    sum_amount.html(need_amount + " ₸");
+                    sum_amount_hidden.val(need_amount);
+                } else {
+                    sum_amount.html(amount + " ₸");
+                    sum_amount_hidden.val(amount);
+                }
+
                 balance_size_hidden.addClass('hidden');
                 balance_size.html('');
                 balance_hidden.val(0);
-                sum_amount.html(amount + " ₸");
+            }
+        });
+
+        discount_switch.click(function(){
+            let amount = parseInt(payment_input.val());
+            if(discount_switch.prop("checked")) {
+                let discount_amount = parseInt(discount.html());
+                discount_size_hidden.removeClass('hidden');
+                let d = ((amount * discount_amount) / 100);
+                discount_size.html("-" + Math.abs(d));
+                discount_hidden.val(1);
+
+                let need_amount = amount - Math.abs(d);
+
+                if(balance_switch.prop("checked")) {
+                    let balance_amount = parseInt(balance.html());
+                    if(balance_amount >= need_amount) {
+                        balance_size.html("-" + need_amount);
+                        balance_hidden.val(1);
+                        sum_amount.html("0 ₸");
+                        sum_amount_hidden.val(0);
+                    } else {
+                        let c = need_amount - balance_amount;
+                        balance_size.html("-" + balance_amount);
+                        balance_hidden.val(1);
+                        sum_amount.html(c + " ₸");
+                        sum_amount_hidden.val(c);
+                    }
+                } else {
+                    sum_amount.html(need_amount + " ₸");
+                    sum_amount_hidden.val(need_amount);
+                }
+            } else {
+                if(balance_switch.prop("checked")) {
+                    let balance_amount = parseInt(balance.html());
+                    if(balance_amount >= amount) {
+                        balance_size.html("-" + amount);
+                        sum_amount.html("0 ₸");
+                        sum_amount_hidden.val(0);
+                    } else {
+                        balance_size.html("-" + balance_amount);
+                        let d = amount - balance_amount;
+                        sum_amount.html(d + " ₸");
+                        sum_amount_hidden.val(d);
+                    }
+                } else {
+                    balance_size_hidden.addClass('hidden');
+                    balance_size.html('');
+                    balance_hidden.val(0);
+                    sum_amount.html(amount + " ₸");
+                    sum_amount_hidden.val(amount);
+                }
+                discount_size_hidden.addClass('hidden');
+                discount_size.html('');
+                discount_hidden.val(0);
             }
         });
     });

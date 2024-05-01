@@ -56,7 +56,7 @@ class User extends Authenticatable
 
     public function discounts()
     {
-        return $this->hasMany(UserDiscount::class);
+        return $this->hasMany(UserDiscount::class)->whereStatus('active');
     }
 
     public function shares()
@@ -80,6 +80,12 @@ class User extends Authenticatable
     public function getBalanceForUser()
     {
         return UserBalance::where(['user_id' => $this->id, 'status' => 'ok'])->sum('amount');
+    }
+
+    public function getDiscountForUser()
+    {
+        $user_discount = UserDiscount::where(['user_id' => $this->id, 'status' => 'active'])->first();
+        return ($user_discount) ? $user_discount->size : null;
     }
 
     public function getUserBalances()
@@ -160,7 +166,7 @@ class User extends Authenticatable
         return count($prizes);
     }
 
-    public function payWithBalance($amount)
+    public function payWithBalance($amount, $payment)
     {
         $this->sum = $amount;
         $user_balances = UserBalance::where(['user_id' => $this->id, 'status' => 'ok'])->get();
@@ -168,10 +174,12 @@ class User extends Authenticatable
             if($this->sum == 0) break;
             if($user_balance->amount < $this->sum) {
                 $user_balance->status = 'withdraw';
+                $user_balance->payment_id = $payment->id;
                 $user_balance->save();
                 $this->sum = $this->sum - $user_balance->amount;
             } elseif($user_balance->amount == $this->sum) {
                 $user_balance->status = 'withdraw';
+                $user_balance->payment_id = $payment->id;
                 $user_balance->save();
                 $this->sum = $this->sum - $user_balance->amount;
             } elseif($user_balance->amount > $this->sum) {
@@ -180,7 +188,37 @@ class User extends Authenticatable
                 $user_balance->save();
 
                 UserBalance::create([
-                    'user_id' => $this->id, 'type' => 'payment', 'amount' => $this->sum, 'status' => 'withdraw'
+                    'user_id' => $this->id, 'type' => 'payment', 'amount' => $this->sum, 'status' => 'withdraw', 'payment_id' => $payment->id
+                ]);
+
+                break;
+            }
+        }
+    }
+
+    public function reservationBalance($amount, $payment)
+    {
+        $this->sum = $amount;
+        $user_balances = UserBalance::where(['user_id' => $this->id, 'status' => 'ok'])->get();
+        foreach($user_balances as $user_balance) {
+            if($this->sum == 0) break;
+            if($user_balance->amount < $this->sum) {
+                $user_balance->status = 'waiting';
+                $user_balance->payment_id = $payment->id;
+                $user_balance->save();
+                $this->sum = $this->sum - $user_balance->amount;
+            } elseif($user_balance->amount == $this->sum) {
+                $user_balance->status = 'waiting';
+                $user_balance->payment_id = $payment->id;
+                $user_balance->save();
+                break;
+            } elseif($user_balance->amount > $this->sum) {
+                $user_balance->amount = $user_balance->amount - $this->sum;
+                $user_balance->status = 'ok';
+                $user_balance->save();
+
+                UserBalance::create([
+                    'user_id' => $this->id, 'type' => 'payment', 'amount' => $this->sum, 'status' => 'waiting', 'payment_id' => $payment->id
                 ]);
 
                 break;
