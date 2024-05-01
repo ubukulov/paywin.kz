@@ -235,16 +235,6 @@
                 sum_amount.html(amount + " ₸");
             }
         });
-
-        discount_switch.click(function(){
-            let amount = parseInt(payment_input.val());
-            if(discount_switch.prop("checked")) {
-                let discount_amount = parseInt(discount.html());
-
-            } else {
-
-            }
-        });
     });
 </script>
 </body>
