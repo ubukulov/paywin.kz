@@ -10,6 +10,7 @@ use App\Models\Prize;
 use App\Models\Share;
 use App\Models\User;
 use App\Models\UserBalance;
+use App\Models\UserDiscount;
 use App\Models\UserProfile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -97,6 +98,16 @@ class IndexController extends BaseController
                         'user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'ok'
                     ]);
 
+                    if($discount) {
+                        $discount_amount = $user->getDiscountForUser();
+                        $user_discount = UserDiscount::where(['size' => $discount_amount, 'status' => 'active', 'partner_id' => $partner_id])->first();
+                        if($user_discount) {
+                            $user_discount->status = 'used';
+                            $user_discount->payment_id = $payment->id;
+                            $user_discount->save();
+                        }
+                    }
+
                     $user->payWithBalance($new_amount, $payment);
 
                     $user->givePrize($partner->shares, $payment);
@@ -118,6 +129,16 @@ class IndexController extends BaseController
                 $payment->amount = $amount;
                 $payment->pg_status = 'waiting';
                 $payment->save();
+            }
+
+            if($discount) {
+                $discount_amount = $user->getDiscountForUser();
+                $user_discount = UserDiscount::where(['size' => $discount_amount, 'status' => 'active', 'partner_id' => $partner_id])->first();
+                if($user_discount) {
+                    $user_discount->status = 'waiting';
+                    $user_discount->payment_id = $payment->id;
+                    $user_discount->save();
+                }
             }
         }
 
@@ -256,6 +277,9 @@ class IndexController extends BaseController
             ]);
             $response = $response->getBody()->getContents();
             $responseXml = simplexml_load_string($response);
+
+            $partner = $payment->partner;
+
             if((string)$responseXml->pg_status == 'ok') {
                 $payment->pg_status = 'ok';
                 $payment->pg_payment_id = (int) $responseXml->pg_payment_id;
@@ -269,9 +293,15 @@ class IndexController extends BaseController
                         $item->save();
                     }
                 }
+
+                $user_discount = UserDiscount::where(['partner_id' => $partner->id, 'status' => 'waiting', 'payment_id' => $payment->id])->first();
+                if($user_discount) {
+                    $user_discount->status = 'used';
+                    $user_discount->save();
+                }
             }
 
-            $partner = $payment->partner;
+
             if (!User::isPrize($user->id, $payment->id)) {
                 $user->givePrize($partner->shares, $payment);
             }
