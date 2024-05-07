@@ -29,7 +29,7 @@ Route::group(['middleware' => 'auth'], function(){
     Route::post('/payment','IndexController@payment')->name('payment');
     Route::get('category/{slug}', 'CategoryController@show')->name('category.show');
     Route::get('category/{slug}/{id}', 'CategoryController@showPartner')->name('showPartner');
-    Route::get('category/all-partners', 'CategoryController@allPartners')->name('category.allPartners');
+    Route::get('category-all-partners', 'CategoryController@allPartners')->name('category.allPartners');
     Route::get('payment/{slug}/{id}/page', 'IndexController@paymentPage')->name('paymentPage');
 
     Route::get('review', 'IndexController@review')->name('review');
