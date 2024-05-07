@@ -56,7 +56,7 @@
                             @endif
 
                             <div>
-                                <a href="{{ route('showPartner', ['slug' => $slug, 'id' => $profile->user_id]) }}" class="review__form-btn btn btn-success">подробнее</a>
+                                <a href="{{ route('showPartner', ['slug' => $profile->category->slug, 'id' => $profile->user_id]) }}" class="review__form-btn btn btn-success">подробнее</a>
                             </div>
                         </div>
                     </div>
