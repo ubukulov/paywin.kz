@@ -3,7 +3,7 @@
     <section class="categories container">
         <ul class="categories__list animate__animated animate__fadeIn">
             <li class="categories__item">
-                <a href="{{ route('home') }}" class="categories__link">
+                <a href="{{ route('category.allPartners') }}" class="categories__link">
                     <img src="/img/icons/all-categories.svg" alt="все категории" class="categories__icon">
                     <p class="categories__text">все категории</p>
                 </a>

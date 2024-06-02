@@ -19,7 +19,7 @@ class CreateTableUserDiscounts extends Migration
             $table->unsignedBigInteger('partner_id');
             $table->string('size');
             $table->enum('status', [
-                'active', 'used', 'expired'
+                'active', 'used', 'expired', 'waiting'
             ]);
             $table->timestamps();
         });

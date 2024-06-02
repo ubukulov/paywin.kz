@@ -30,4 +30,12 @@ class CategoryController extends Controller
         $profile = $partner->profile;
         return view('category.partner', compact('partner', 'slug', 'id', 'profile'));
     }
+
+    public function allPartners()
+    {
+        $partners = User::where(['user_type' => 'partner'])
+            ->join('user_profile', 'user_profile.user_id', 'users.id')
+            ->get();
+        return view('category.all-partners', compact('partners'));
+    }
 }
