@@ -85,7 +85,7 @@ class User extends Authenticatable
     public function getDiscountForUser()
     {
         $user_discount = UserDiscount::where(['user_id' => $this->id, 'status' => 'active'])->first();
-        return ($user_discount) ? $user_discount->size : null;
+        return ($user_discount) ? $user_discount : null;
     }
 
     public function getUserBalances()
