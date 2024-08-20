@@ -28,7 +28,7 @@
             font-size: 20px;
         }
         .actions{
-            width: 280px !important;
+            width: 380px !important;
         }
         .action__flex {
             justify-content: space-between;
@@ -100,7 +100,8 @@
             <h3 class="action__subtitle">Применить скидку</h3>
             <div class="action__flex">
                 <img src="/b5/img/icons/precent.svg" alt="проценты" class="action__icon action__icon--precent">
-                <p id="discount" class="action__number">{{ $user_discount }}%</p>
+                <p class="action__number"><span id="discount">{{ $user_discount->size }}%</span><span id="discount_max_sum" data-sum="{{ $user_discount->max_sum }}" style="font-size: 12px;"> (до {{ $user_discount->max_sum }} тг)</span></p>
+
 {{--                <button class="switch-btn switch-on action__button action__button--checkbox"></button>--}}
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="discount_input">
@@ -211,6 +212,7 @@
         let balance_hidden         = $('#balance_hidden');
         let discount_hidden         = $('#discount_hidden');
         let sum_amount_hidden         = $('#sum_amount_hidden');
+        let discount_max_sum         = $('#discount_max_sum');
 
         payment_input.on("focusout", function(){
             let amount = payment_input.val();
@@ -259,8 +261,17 @@
             } else {
                 if(discount_switch.prop("checked")) {
                     let discount_amount = parseInt(discount.html());
+                    let dd;
                     let d = ((amount * discount_amount) / 100);
-                    let need_amount = amount - Math.abs(d);
+                    let max_d = discount_max_sum.data('sum');
+                    if(Math.abs(d) >= max_d) {
+                        discount_size.html("-" + Math.abs(max_d));
+                        dd = max_d;
+                    } else {
+                        discount_size.html("-" + Math.abs(d));
+                        dd = d;
+                    }
+                    let need_amount = amount - Math.abs(dd);
                     sum_amount.html(need_amount + " ₸");
                     sum_amount_hidden.val(need_amount);
                 } else {
@@ -279,11 +290,20 @@
             if(discount_switch.prop("checked")) {
                 let discount_amount = parseInt(discount.html());
                 discount_size_hidden.removeClass('hidden');
+                let dd;
                 let d = ((amount * discount_amount) / 100);
-                discount_size.html("-" + Math.abs(d));
+                let max_d = discount_max_sum.data('sum');
+                if(Math.abs(d) >= max_d) {
+                    discount_size.html("-" + Math.abs(max_d));
+                    dd = max_d;
+                } else {
+                    discount_size.html("-" + Math.abs(d));
+                    dd = d;
+                }
+
                 discount_hidden.val(1);
 
-                let need_amount = amount - Math.abs(d);
+                let need_amount = amount - Math.abs(dd);
 
                 if(balance_switch.prop("checked")) {
                     let balance_amount = parseInt(balance.html());

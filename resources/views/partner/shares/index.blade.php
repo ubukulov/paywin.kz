@@ -26,13 +26,13 @@
                                 <div class="tabcontent__slider-top">
                                     <div class="tabcontent__slider-left">
                                         <p>Кол-во: <span>{{ $share->cnt }}</span></p>
-                                        <p>Остаток: <span>2</span></p>
-                                        <p>Клиентов: <span>6</span></p>
+                                        <p>Остаток: <span>{{ $share->getRemainder() }}</span></p>
+                                        <p>Клиентов: <span>{{ $share->getClients() }}</span></p>
                                     </div>
                                     <div class="tabcontent__slider-right">
                                         <p>При заказе от: <span>{{ $share->from_order }}</span></p>
                                         <p>Коэф выигр: <span>{{ $share->c_winning }}%</span></p>
-                                        <p>Доход: <span>250000₸</span></p>
+                                        <p>Доход: <span>{{ $share->getProfit() }} ₸</span></p>
                                     </div>
                                 </div>
                                 <div class="tabcontent__slider-center">

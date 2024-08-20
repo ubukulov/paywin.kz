@@ -101,6 +101,11 @@
                     </div>
 
                     <div class="promo__prise-input-block">
+                        <label for="gift-coeficent-winning">Максимальная сумма</label>
+                        <input type="number" min="1" name="max_sum" required>
+                    </div>
+
+                    <div class="promo__prise-input-block">
                         <label for="gift-coeficent-winning">Коэф. выигрыша</label>
                         <input type="number" min="1" name="c_winning" required>
                     </div>

@@ -28,21 +28,17 @@
     <div class="container prizes-page">
         <main>
             @foreach($partners as $partner)
-
             @php
-                $profile = $partner->profile;
                 $cashback = $partner->getCashbackSizeAndAmount();
                 $shares = $partner->shares;
             @endphp
 
-            @if(count($shares) == 0)
-                @continue
-            @endif
+
 
             <div class="prize prize--1 prizes__item">
                 <div class="company prize__company">
-                    <img @if(empty($profile->logo)) src="/images/cabinet/papa-johns-pizza.svg" @else src="{{ $profile->logo }}" @endif alt="{{ $profile->company }}" class="company__logo">
-                    <h2 class="company__title">{{ $profile->company }}</h2>
+                    <img @if(empty($partner->logo)) src="/images/cabinet/papa-johns-pizza.svg" @else src="{{ $partner->logo }}" @endif alt="{{ $partner->company }}" class="company__logo">
+                    <h2 class="company__title">{{ $partner->company }}</h2>
                 </div>
 
                 <div class="prize__info">
@@ -56,7 +52,7 @@
                         @endif
 
                         <div>
-                            <a href="{{ route('showPartner', ['slug' => $slug, 'id' => $profile->user_id]) }}" class="review__form-btn btn btn-success">подробнее</a>
+                            <a href="{{ route('showPartner', ['slug' => $slug, 'id' => $partner->user_id]) }}" class="review__form-btn btn btn-success">подробнее</a>
                         </div>
                     </div>
                 </div>

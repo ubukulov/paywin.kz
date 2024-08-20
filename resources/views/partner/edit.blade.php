@@ -57,6 +57,15 @@
                 </div>
             </div>
 
+            <div class="form-group">
+                <label>Договор</label>
+                <div class="custom-file mb-3">
+                    <input type="file" accept="application/pdf" name="agreement" class="custom-file-input" id="validatedCustomFile" @if(empty($user_profile->agreement)) required @endif>
+                    <label class="custom-file-label" for="validatedCustomFile">Выберите договор...</label>
+                    <div class="invalid-feedback">Example invalid custom file feedback</div>
+                </div>
+            </div>
+
             <h4 style="color: #ccc;" class="mb-2">Реквизиты</h4>
             <div class="form-group">
                 <div class="input-group mb-3">
