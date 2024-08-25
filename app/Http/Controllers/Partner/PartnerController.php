@@ -79,6 +79,20 @@ class PartnerController extends Controller
                 $data['logo'] = $path.$name;
             }
 
+            if ($request->hasFile('agreement')) {
+                if(!empty($user_profile->agreement) && file_exists(public_path() . $user_profile->agreement)) {
+                    unlink(public_path() . $user_profile->agreement);
+                }
+
+                $file = $request->file('agreement');
+                $ext = $file->getClientOriginalExtension();
+                $name = md5(time()) . '.' . $ext;
+                $path = '/upload/partners/';
+                $dir = public_path() . $path;
+                $file->move($dir, $name);
+                $data['agreement'] = $path.$name;
+            }
+
             $user_profile->update($data);
 
             return redirect()->route('partner.cabinet');

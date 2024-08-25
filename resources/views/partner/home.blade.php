@@ -24,12 +24,19 @@
                 <div class="partner__right-item">
                     <a href="{{ route('partner.edit') }}" class="partner__right-edit"><img src="/images/cabinet/edit-icon.svg" alt="icon"> редактировать</a>
                 </div>
+                @if(!empty($user_profile->agreement))
                 <div class="partner__right-item">
                     <input type="file" id="upload-contract" hidden="hidden">
-                    <button class="partner__right-upload-contract"><img src="/images/cabinet/add-file.svg" alt="icon"> прикрепить договор</button>
+                    <a href="{{$user_profile->getAgreementUrl()}}" target="_blank" style="line-height: 14px;" class="partner__right-upload-contract">
+                        <img src="/images/cabinet/add-file.svg" alt="icon"> Скачать договор
+                    </a>
                 </div>
-                <div class="partner__right-item">
+                @endif
+                {{--<div class="partner__right-item">
                     <button class="partner__right-statistic"><img src="/images/cabinet/statistic.svg" alt="icon"> статистика</button>
+                </div>--}}
+                <div class="partner__right-item">
+                    <a href="{{ route('logout') }}" class="partner__right-statistic"> Выйти из кабинета</a>
                 </div>
                 <div class="partner__right-item">
                     <a href="{{ route('logout') }}" class="partner__right-statistic"> Выйти из кабинета</a>
