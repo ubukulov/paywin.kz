@@ -48,6 +48,8 @@ Route::group(['middleware' => 'auth'], function(){
 
         Route::get('images/create', 'PartnerController@imageCreate')->name('imageCreate');
         Route::post('images/store', 'PartnerController@imageStore')->name('imageStore');
+        Route::get('images/lists', 'PartnerController@imageLists')->name('imageLists');
+        Route::get('image/{id}/delete', 'PartnerController@imageDelete')->name('imageDelete');
     });
 
     # Users route

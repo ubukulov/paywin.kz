@@ -11,7 +11,7 @@
                 </div>
                 <div class="partner__persent-block">
                     <div class="partner__persent-img"><img src="/images/cabinet/persent-icon.svg" alt="icon"></div>
-                    <div class="partner__persent-text">тариф <br> <span>8%</span></div>
+                    <div class="partner__persent-text">тариф <br> <span>{{$user_profile->percent}}%</span></div>
                 </div>
             </div>
             <div class="partner__right">
@@ -30,6 +30,9 @@
                 </div>
                 <div class="partner__right-item">
                     <button class="partner__right-statistic"><img src="/images/cabinet/statistic.svg" alt="icon"> статистика</button>
+                </div>
+                <div class="partner__right-item">
+                    <a href="{{ route('logout') }}" class="partner__right-statistic"> Выйти из кабинета</a>
                 </div>
             </div>
         </div>

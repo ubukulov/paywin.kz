@@ -120,4 +120,17 @@ class PartnerController extends Controller
 
         return redirect()->route('partner.cabinet');
     }
+
+    public function imageLists()
+    {
+        $images = UserImage::where(['user_id' => Auth::user()->id])->get();
+        return view('partner.images', compact('images'));
+    }
+
+    public function imageDelete($id)
+    {
+        $image = UserImage::findOrFail($id);
+        $image->delete();
+        return redirect()->route('partner.cabinet');
+    }
 }

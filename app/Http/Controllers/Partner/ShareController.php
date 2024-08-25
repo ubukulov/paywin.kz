@@ -20,7 +20,12 @@ class ShareController extends Controller
         $shares = Share::where(['user_id' => Auth::id()])
             ->whereDate('to_date', '>=', date('Y-m-d'))
             ->get();
-        return view('partner.shares.index', compact('shares'));
+
+        $shares_old = Share::where(['user_id' => Auth::id()])
+            ->whereDate('to_date', '<', date('Y-m-d'))
+            ->get();
+
+        return view('partner.shares.index', compact('shares', 'shares_old'));
     }
 
     /**
