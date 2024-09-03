@@ -28,7 +28,16 @@ class CategoryController extends Controller
     {
         $partner = User::findOrFail($id);
         $profile = $partner->profile;
-        return view('category.partner', compact('partner', 'slug', 'id', 'profile'));
+        $addresses = $partner->address;
+        $arr = [];
+        foreach($addresses as $item){
+            $arr[$item->id] = $item->toArray();
+            $arr[$item->id]['address'] = str_replace('<br>', '', $item->address);
+        }
+
+        $addresses = $arr;
+
+        return view('category.partner', compact('partner', 'slug', 'id', 'profile', 'addresses'));
     }
 
     public function allPartners()

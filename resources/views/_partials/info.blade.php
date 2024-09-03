@@ -5,7 +5,7 @@
         <p>&copy; Paywin.kz 2024</p>
         <p><a style="color: #fff; text-decoration: none;" href="{{ route('aboutUs') }}">О нас</a></p>
         <p><a style="color: #fff; text-decoration: none;" href="{{ asset('files/ПОЛЬЗОВАТЕЛЬСКОЕ_СОГЛАШЕНИЕ.pdf') }}" target="_blank">Политика конфиденциальности</a></p>
-        <p><a style="color: #fff; text-decoration: none;" href="{{ asset('files/публичная_оферта.pdf') }}" target="_blank">Публичная оферта</a></p>
+        <p><a style="color: #fff; text-decoration: none;" @if(Auth::check() && Auth::user()->user_type == 'partner') href="{{ asset('files/публичная_оферта_партнера.pdf') }}" @else href="{{ asset('files/публичная_оферта.pdf') }}" @endif target="_blank">Публичная оферта</a></p>
     </div>
 
     <div style="font-size: 40px; display: flex; align-items: center;">
