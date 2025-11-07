@@ -31,6 +31,7 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('category/{slug}/{id}', 'CategoryController@showPartner')->name('showPartner');
     Route::get('category-all-partners', 'CategoryController@allPartners')->name('category.allPartners');
     Route::get('payment/{slug}/{id}/page', 'IndexController@paymentPage')->name('paymentPage');
+    Route::get('product/{slug}', 'ProductController@show')->name('product.show');
 
     Route::get('review', 'IndexController@review')->name('review');
     Route::get('partner/{id}/not-given-prize', 'IndexController@notGivenPrize')->name('notGivenPrize');

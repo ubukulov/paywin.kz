@@ -23,3 +23,17 @@
 	RewriteCond %{SERVER_PORT} 80
 	RewriteRule ^(.*)$ https://paywin.kz/$1 [R,L]
 </IfModule>
+
+<IfModule mod_headers.c>
+    # разрешаем конкретный origin (более безопасно), либо '*' для разработки
+    Header set Access-Control-Allow-Origin "http://127.0.0.1:8000"
+    Header set Access-Control-Allow-Methods "GET,OPTIONS"
+    Header set Access-Control-Allow-Headers "Origin,Accept,Content-Type"
+</IfModule>
+
+# для изображений (опционально)
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|svg)$">
+    <IfModule mod_headers.c>
+        Header set Access-Control-Allow-Origin "http://127.0.0.1:8000"
+    </IfModule>
+</FilesMatch>

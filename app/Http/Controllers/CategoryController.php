@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -21,6 +22,15 @@ class CategoryController extends Controller
             ->join('user_profile', 'user_profile.user_id', 'users.id')
             ->where('user_profile.category_id', $category->id)
             ->get();
+
+        if ($slug == 'tovary') {
+            $products = Product::whereCategoryId($category->id)
+                    ->with('images')
+                    ->get();
+
+            return view('category.products', compact( 'products'));
+        }
+
         return view('category.partners', compact('partners', 'slug'));
     }
 
