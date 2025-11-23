@@ -14,12 +14,15 @@
     <link rel="manifest" href="{{ asset('img/favicons/site.webmanifest') }}">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="home-page">
 <section class="camera">
     <div class="container">
         <h1 class="home-page__title animate__animated animate__fadeInDown">Наведите камеру на QR код</h1>
         <button id="scanQR" class="button camera__button">Сканировать</button>
+
         <div class="camera--hidden animate__animated animate__fadeInDown" style="text-align: center;">
             {{--<img src="/img/icons/qr.svg" alt="Наведите камеру на QR код" class="camera__img">--}}
             {{--<video style="max-width: 100%; height: 200px; transform: scaleX(1) !important;" id="preview">
@@ -35,11 +38,35 @@
                 <p class="how-it-works__text">Как это работает?</p>
             </a>
         </div>
-        <form action="" class="home-page__form animate__animated animate__fadeIn">
-            <input type="text" name="location" placeholder="Алматы" class="home-page__select">
-            <input type="text" placeholder="Искать акцию или компанию.." class="home-page__input">
-            <button type="submit" class="home-page__search"><img src="/img/icons/search.svg" alt="Найти"></button>
-        </form>
+
+        <div class="header-line">
+            <div>
+                <form action="" class="home-page__form animate__animated animate__fadeIn">
+                    <input type="text" name="location" placeholder="Алматы" class="home-page__select">
+                    <input type="text" placeholder="Искать акцию или компанию.." class="home-page__input">
+                    <button type="submit" class="home-page__search"><img src="/img/icons/search.svg" alt="Найти"></button>
+                </form>
+            </div>
+
+            @if(Route::currentRouteName() !== 'cart.index')
+            <div class="cart">
+                <a href="{{ route('cart.index') }}" class="relative inline-block">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M2.25 2.25h1.386c.51 0 .957.343 1.087.835L5.25 6.75m0 0h13.5l-1.5 9h-12l-1.5-9zm0 0L4.723 4.085A1.125 1.125 0 0 0 3.636 3.25H2.25M9 21a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm9 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z"/>
+                    </svg>
+
+                    <span id="cart-count"
+                          class="absolute -top-1 -right-2 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">
+                        {{ $cartCount ?? 0 }}
+                    </span>
+                </a>
+            </div>
+            @endif
+        </div>
+
+
+
 
         {{--<div id="video-container">
             <video id="qr-video"></video>
@@ -219,6 +246,21 @@
                 margin-bottom: 0px;
             }
 
+            .header-line {
+                display: flex;
+                justify-content: center;
+                gap: 50px;
+            }
+
+            .cart {
+                padding: 0 10px;
+                margin-top: 25px;
+                background-color: #fff;
+                border-radius: 20px;
+                -webkit-box-shadow: 0px 2px 8px 0px #000000 0.18;
+                box-shadow: 0px 2px 8px 0px #000000 0.18;
+            }
+
             #video-container {
                 line-height: 0;
                 max-width: 100%;
@@ -277,5 +319,36 @@
     </a>
 </footer>
 @include('_partials.info')
+
+<div
+    x-data="{ show: false, message: '' }"
+    x-ref="toast"
+    x-show="show"
+    x-transition
+    class="fixed bottom-6 right-6 z-50 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg"
+>
+    <span x-text="message"></span>
+</div>
+
+<script>
+    window.showToast = function(msg) {
+        const toastEl = document.querySelector('[x-ref="toast"]');
+        if (!toastEl) return;
+
+        // Проверяем Alpine
+        if (!toastEl.__x) {
+            console.warn("Alpine.js еще не инициализирован");
+            return;
+        }
+
+        const data = toastEl.__x.$data;
+        data.message = msg;
+        data.show = true;
+
+        // Сбрасываем через 2.5 сек
+        setTimeout(() => data.show = false, 2500);
+    };
+</script>
+
 </body>
 </html>

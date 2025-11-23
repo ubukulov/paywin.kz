@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('content')
-    <script src="https://cdn.tailwindcss.com"></script>
     <div class="container products-list">
         <main class="max-w-7xl mx-auto px-4 pb-12">
             <!-- фильтры / поиск -->

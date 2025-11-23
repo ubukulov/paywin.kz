@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('content')
-    <script src="https://cdn.tailwindcss.com"></script>
     <div class="container product-page">
         <div class="max-w-7xl mx-auto px-4 py-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -74,9 +73,6 @@
                         <div class="flex items-center gap-3 mt-2">
                             <div class="text-sm text-gray-500">Категория: <span class="font-medium">{{ $product->category->title ?? '—' }}</span></div>
                             {{-- пример метки --}}
-                            @if($product->active)
-                                <span class="ml-auto inline-flex items-center bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded">Опубликован</span>
-                            @endif
                         </div>
 
                         {{-- Цена --}}
@@ -89,8 +85,9 @@
                         </div>
 
                         {{-- Кнопка добавить в корзину (пример формы) --}}
-                        <form action="#" method="POST" class="mt-6 flex gap-3 items-center">
+                        <form action="{{ route('cart.add') }}" method="POST" class="mt-6 flex gap-3 items-center" id="add-to-cart-form">
                             @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
                             <div class="flex items-center border rounded-md overflow-hidden">
                                 <button type="button" onclick="decrementQty()" class="px-3 py-2">−</button>
                                 <input id="cart-qty" name="quantity" value="1" min="1" max="{{ max(1, $product->quantity) }}" type="number" class="w-16 text-center px-2 py-2 outline-none" />
@@ -100,14 +97,14 @@
                             <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">В корзину</button>
 
                             {{-- ещё кнопка купить в 1 клик --}}
-                            <button type="button" class="ml-2 text-sm text-indigo-600 underline">Купить в 1 клик</button>
+                            {{--<button type="button" class="ml-2 text-sm text-indigo-600 underline">Купить в 1 клик</button>--}}
                         </form>
 
                         {{-- Кнопки соц/поделиться/избранное --}}
-                        <div class="mt-4 flex gap-3 text-sm">
+                        {{--<div class="mt-4 flex gap-3 text-sm">
                             <button class="px-3 py-1 rounded-md border">Поделиться</button>
                             <button class="px-3 py-1 rounded-md border">Добавить в избранное</button>
-                        </div>
+                        </div>--}}
                     </div>
 
                     {{-- Описание --}}
@@ -147,6 +144,33 @@
 
         {{-- Скрипт галереи и управления кол-вом (минимальный, без библиотек) --}}
         <script>
+            document.getElementById('add-to-cart-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                let formData = new FormData(this);
+
+                fetch("{{ route('cart.add') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: formData
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        // обновляем счетчик корзины
+                        const counter = document.getElementById('cart-count');
+                        if(counter) counter.innerText = data.total_items ?? 0;
+
+                        // toast уведомление
+                        window.showToast("Товар добавлен в корзину!");
+                    });
+            });
+
+            function updateCartCounter(count) {
+                document.getElementById('cart-count').innerText = count;
+            }
+
             // Собираем картинки из blade в массив
             const productImages = [
                 @foreach($product->images as $img)
@@ -168,7 +192,14 @@
                 mainImage.src = productImages[currentIndex] || mainImage.src;
                 // подсветка миниатюр
                 document.querySelectorAll('.thumbnail').forEach((el, i) => {
-                    el.classList.toggle('ring-2 ring-indigo-500', i === currentIndex);
+                    //el.classList.toggle('ring-2 ring-indigo-500', i === currentIndex);
+                    document.querySelectorAll('.thumbnail').forEach((el, i) => {
+                        if(i === currentIndex) {
+                            el.classList.add('ring-2', 'ring-indigo-500');
+                        } else {
+                            el.classList.remove('ring-2', 'ring-indigo-500');
+                        }
+                    });
                 });
             }
 
