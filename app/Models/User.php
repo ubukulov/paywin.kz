@@ -246,4 +246,11 @@ class User extends Authenticatable
             }
         }
     }
+
+    public function getStorePoints()
+    {
+        return StorePoint::where(['user_id' => $this->id])
+            ->with('city')
+            ->get();
+    }
 }

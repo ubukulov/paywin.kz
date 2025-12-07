@@ -55,7 +55,7 @@ class ProductForm
                     ->schema([
                         FileUpload::make('path')
                             ->image()
-                            ->directory(fn () => 'products/' . now()->format('Y-m'))
+                            ->directory(fn () => 'product/' . now()->format('Y-m'))
                             ->disk('public')
                             ->imagePreviewHeight('120')
                             ->required(),

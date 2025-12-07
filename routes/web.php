@@ -11,6 +11,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Partner\ShareController;
 use App\Http\Controllers\User\SettingController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\Partner\ProductController as PartnerProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,6 +67,13 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('images/store', [PartnerController::class, 'imageStore'])->name('imageStore');
         Route::get('images/lists', [PartnerController::class, 'imageLists'])->name('imageLists');
         Route::get('image/{id}/delete', [PartnerController::class, 'imageDelete'])->name('imageDelete');
+
+        # Products
+        Route::group(['prefix' => 'products'], function(){
+            Route::get('/', [PartnerProductController::class, 'index'])->name('product.index');
+            Route::get('create', [PartnerProductController::class, 'create'])->name('product.create');
+            Route::post('store', [PartnerProductController::class, 'store'])->name('product.store');
+        });
     });
 
     # Users route

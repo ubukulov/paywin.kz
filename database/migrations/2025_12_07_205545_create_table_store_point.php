@@ -11,21 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product', function (Blueprint $table) {
+        Schema::create('store_points', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('category_id');
-            $table->string('sku')->nullable()->index();
+            $table->unsignedBigInteger('city_id');
             $table->string('name');
-            $table->text('description')->nullable();
-            $table->decimal('price', 12, 2);
-            $table->integer('quantity')->default(0);
-            $table->boolean('active')->default(true);
-            $table->json('meta')->nullable();
+            $table->string('address')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade');
         });
     }
 
@@ -34,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product');
+        Schema::dropIfExists('store_point');
     }
 };

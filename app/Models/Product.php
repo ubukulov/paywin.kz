@@ -11,12 +11,17 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'category_id', 'sku', 'name', 'slug', 'description', 'price', 'quantity', 'active', 'meta'
+        'user_id', 'category_id', 'sku', 'name', 'slug', 'description', 'price', 'quantity', 'active', 'meta'
     ];
 
     protected $casts = [
         'meta' => 'array',
     ];
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

@@ -38,9 +38,6 @@
                 <div class="partner__right-item">
                     <a href="{{ route('logout') }}" class="partner__right-statistic"> Выйти из кабинета</a>
                 </div>
-                <div class="partner__right-item">
-                    <a href="{{ route('logout') }}" class="partner__right-statistic"> Выйти из кабинета</a>
-                </div>
             </div>
         </div>
         <div class="partner__main">
