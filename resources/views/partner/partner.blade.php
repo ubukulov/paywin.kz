@@ -9,8 +9,13 @@
 {{--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">--}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
     <link rel="stylesheet" href="/css/style.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     @stack('partner_styles')
     <style>
+        #content {
+            max-width: 450px;
+            margin: 0 auto;
+        }
         .partner__address-upload-btn {
             font-size: 12px !important;
         }

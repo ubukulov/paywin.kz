@@ -14,6 +14,8 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::where(['user_id' => Auth::id()])
+            ->selectRaw('products.*, product_stocks.price, product_stocks.quantity')
+            ->join('product_stocks', 'products.id', '=', 'product_stocks.product_id')
             ->get();
         return view('partner.product.index', compact('products'));
     }
@@ -42,7 +44,7 @@ class ProductController extends Controller
                     'city_id'        => 1,
                     'store_point_id' => $pointId,
                     'price'          => $data['price'],
-                    'count'          => $data['count'],
+                    'quantity'          => $data['count'],
                 ]);
             }
 

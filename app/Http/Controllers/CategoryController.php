@@ -26,6 +26,8 @@ class CategoryController extends Controller
         if ($slug == 'tovary') {
             $products = Product::whereCategoryId($category->id)
                     ->with('images')
+                    ->join('product_stocks', 'product_stocks.product_id', 'products.id')
+                    ->select('products.*', 'product_stocks.price', 'product_stocks.quantity')
                     ->get();
 
             return view('category.products', compact( 'products'));
