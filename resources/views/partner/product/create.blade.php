@@ -127,6 +127,7 @@
 
         <div id="createGood" class="kaspi-form">
 
+            @if(count($storePoints))
             <h2>Создание товара</h2>
             <p class="subtitle">Подробно заполните указанные ниже поля.</p>
 
@@ -174,6 +175,11 @@
 
             <button @click="createProduct" class="submit-btn">Создать товар</button>
 
+            @else
+                <h4>У вас нет магазины/склады</h4>
+                <p>В первую очеред создайте магазин/склад перед добавлением товара</p>
+                <a class="btn btn-success" href="{{ route('partner.store.create') }}">Создать</a>
+            @endif
         </div>
 
 

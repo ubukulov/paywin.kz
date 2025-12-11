@@ -13,6 +13,7 @@ use App\Http\Controllers\User\SettingController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Partner\ProductController as PartnerProductController;
 use App\Http\Controllers\Partner\GiftController;
+use App\Http\Controllers\Partner\StoreController;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,6 +82,13 @@ Route::group(['middleware' => 'auth'], function(){
             Route::get('/', [GiftController::class, 'index'])->name('gift.index');
             Route::get('create', [GiftController::class, 'create'])->name('gift.create');
             Route::post('store', [GiftController::class, 'store'])->name('gift.store');
+        });
+
+        # Магазины/склады
+        Route::group(['prefix' => 'stores'], function(){
+            Route::get('/', [StoreController::class, 'index'])->name('store.index');
+            Route::get('create', [StoreController::class, 'create'])->name('store.create');
+            Route::post('store', [StoreController::class, 'store'])->name('store.store');
         });
     });
 
