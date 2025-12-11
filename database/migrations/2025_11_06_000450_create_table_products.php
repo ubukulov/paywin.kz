@@ -18,8 +18,6 @@ return new class extends Migration
             $table->string('sku')->nullable()->index();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->decimal('price', 12, 2);
-            $table->integer('quantity')->default(0);
             $table->boolean('active')->default(true);
             $table->json('meta')->nullable();
             $table->timestamps();

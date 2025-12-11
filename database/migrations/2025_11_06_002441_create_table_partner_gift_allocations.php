@@ -17,10 +17,11 @@ return new class extends Migration
             $table->unsignedBigInteger('order_id')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->enum('status', [
-                'allocated',
-                'claimed',
+                'pending',
+                'won',
+                'lost',
                 'sent'
-            ])->default('allocated'); // allocated, claimed, sent
+            ])->default('pending');
             $table->json('meta')->nullable();
             $table->timestamps();
 

@@ -7,20 +7,32 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+use App\Services\PartnerGiftService;
 
 class CartController extends Controller
 {
+    protected PartnerGiftService $partnerGiftService;
+
+    public function __construct(PartnerGiftService $partnerGiftService)
+    {
+        $this->partnerGiftService = $partnerGiftService;
+    }
+
     // Получить корзину
     public function getCart()
     {
         $cart = $this->getOrCreateCart();
-        return view('cart.index', compact('cart'));
+        $gift = $this->partnerGiftService->getAvailableGiftsForUser(Auth::id(), $cart->total);
+        return view('cart.index', compact('cart', 'gift'));
     }
 
     // Добавить товар
     public function addToCart(Request $request)
     {
-        $product = Product::findOrFail($request->product_id);
+        $product = Product::where(['products.id' => $request->product_id])
+                ->selectRaw('products.*, product_stocks.price, product_stocks.quantity')
+                ->join('product_stocks', 'product_stocks.product_id', 'products.id')
+                ->first();
         $cart = $this->getOrCreateCart();
 
         $item = CartItem::firstOrCreate(

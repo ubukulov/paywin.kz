@@ -12,6 +12,7 @@ use App\Http\Controllers\Partner\ShareController;
 use App\Http\Controllers\User\SettingController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Partner\ProductController as PartnerProductController;
+use App\Http\Controllers\Partner\GiftController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,6 +74,13 @@ Route::group(['middleware' => 'auth'], function(){
             Route::get('/', [PartnerProductController::class, 'index'])->name('product.index');
             Route::get('create', [PartnerProductController::class, 'create'])->name('product.create');
             Route::post('store', [PartnerProductController::class, 'store'])->name('product.store');
+        });
+
+        # Подарки и правилы
+        Route::group(['prefix' => 'gifts'], function(){
+            Route::get('/', [GiftController::class, 'index'])->name('gift.index');
+            Route::get('create', [GiftController::class, 'create'])->name('gift.create');
+            Route::post('store', [GiftController::class, 'store'])->name('gift.store');
         });
     });
 

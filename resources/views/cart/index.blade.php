@@ -43,6 +43,45 @@
                     @endforeach
                 </div>
 
+                @if($gift)
+                    <div class="mt-6 p-5 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 shadow-sm">
+
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                🎁
+                            </div>
+                            <h2 class="text-xl font-semibold text-indigo-700">Вы участвуете в розыгрыше подарка!</h2>
+                        </div>
+
+                        <p class="text-gray-700 mb-4">
+                            После оплаты заказа у вас появится шанс выиграть один из следующих подарков:
+                        </p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="p-4 bg-white border rounded-xl shadow-sm hover:shadow-md transition">
+                                <div class="text-lg font-medium text-gray-900">{{ $gift['title'] }}</div>
+                                <div class="text-gray-600 mt-1 text-sm">{{ $gift['description'] }}</div>
+
+                                <div class="mt-3 flex items-center justify-between">
+                                    <div class="text-sm text-indigo-600 font-semibold">
+                                        Шанс выигрыша: {{ $gift['chance'] }}%
+                                    </div>
+
+                                    <div class="text-indigo-500">
+                                        ⭐
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="mt-4 text-sm text-gray-500">
+                            Подарок будет разыгран автоматически после успешной оплаты.
+                        </p>
+
+                    </div>
+                @endif
+
+
                 {{-- ИТОГО --}}
                 <div class="mt-6 p-4 bg-white rounded-xl shadow">
                     <div class="text-xl font-semibold">
@@ -59,7 +98,7 @@
         function updateQty(itemId, qty) {
             if (qty < 1) qty = 1;
 
-            fetch('/api/cart/update', {
+            fetch('/cart/update', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json','X-CSRF-TOKEN': '{{ csrf_token() }}'},
                 body: JSON.stringify({ item_id: itemId, quantity: qty })
@@ -68,7 +107,7 @@
         }
 
         function deleteItem(id) {
-            fetch('/api/cart/item/' + id, {
+            fetch('/cart/item/' + id, {
                 method: 'DELETE',
                 headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'},
             }).then(() => location.reload());

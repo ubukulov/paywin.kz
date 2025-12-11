@@ -2,49 +2,87 @@
 
 @section('content')
     <div class="max-w-4xl mx-auto px-4 py-10">
-        <h1 class="text-2xl font-semibold mb-6">Оформление заказа</h1>
+
+        <h1 class="text-3xl font-bold mb-8 text-gray-800">Оформление заказа</h1>
+
+        {{-- Подарки — показываем перед формой --}}
+        @if($gift)
+            <div class="mb-8 p-5 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-indigo-200 shadow-sm">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-2xl">
+                        🎁
+                    </div>
+                    <h2 class="text-xl font-semibold text-indigo-700">У вас есть шанс выиграть подарок!</h2>
+                </div>
+
+                <p class="text-gray-700 mb-4">После успешной оплаты будет проведён розыгрыш среди доступных подарков:</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="p-4 bg-white border rounded-xl shadow-sm hover:shadow-md transition">
+                        <div class="text-lg font-medium text-gray-900">{{ $gift['title'] }}</div>
+                        <div class="text-gray-600 mt-1 text-sm">{{ $gift['description'] }}</div>
+
+                        <div class="mt-3 flex items-center justify-between">
+                            <div class="text-sm text-indigo-600 font-semibold">
+                                Шанс: {{ $gift['chance'] }}%
+                            </div>
+                            <div class="text-indigo-500 text-lg">⭐</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="mt-4 text-sm text-gray-500">
+                    Подарок будет разыгран автоматически сразу после оплаты заказа.
+                </p>
+            </div>
+        @endif
+
 
         <form action="{{ route('checkout.store') }}" method="POST"
-              class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white p-6 rounded-xl shadow">
+              class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
             @csrf
 
+            {{-- Левая колонка --}}
             <div>
-                <h2 class="font-medium mb-4">Данные покупателя</h2>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Данные покупателя</h2>
 
-                <label class="block mb-3">
-                    <span class="text-sm">Имя</span>
-                    <input type="text" name="name" required class="w-full border rounded p-2 mt-1">
+                <label class="block mb-4">
+                    <span class="text-sm font-medium text-gray-700">Имя</span>
+                    <input type="text" name="name" required
+                           class="w-full border rounded-lg p-3 mt-1 focus:ring-indigo-500 focus:border-indigo-500">
                 </label>
 
-                <label class="block mb-3">
-                    <span class="text-sm">Телефон</span>
-                    <input type="text" name="phone" required class="w-full border rounded p-2 mt-1">
+                <label class="block mb-4">
+                    <span class="text-sm font-medium text-gray-700">Телефон</span>
+                    <input type="text" name="phone" required
+                           class="w-full border rounded-lg p-3 mt-1 focus:ring-indigo-500 focus:border-indigo-500">
                 </label>
 
-                <label class="block mb-3">
-                    <span class="text-sm">Адрес доставки</span>
+                <label class="block mb-4">
+                    <span class="text-sm font-medium text-gray-700">Адрес доставки</span>
                     <textarea name="address" rows="3" required
-                              class="w-full border rounded p-2 mt-1"></textarea>
+                              class="w-full border rounded-lg p-3 mt-1 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
                 </label>
             </div>
 
+            {{-- Правая колонка --}}
             <div>
-                <h2 class="font-medium mb-4">Ваш заказ</h2>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Ваш заказ</h2>
 
                 <div class="space-y-3">
                     @foreach($cart->items as $item)
-                        <div class="flex justify-between border-b pb-1">
+                        <div class="flex justify-between border-b pb-2 text-gray-700">
                             <span>{{ $item->product->name }} × {{ $item->quantity }}</span>
-                            <span>{{ number_format($item->total) }} ₸</span>
+                            <span>{{ number_format($item->total, 0, '.', ' ') }} ₸</span>
                         </div>
                     @endforeach
                 </div>
 
-                <div class="text-xl font-semibold mt-4">
-                    Итого: {{ number_format($cart->total) }} ₸
+                <div class="text-2xl font-semibold mt-6 text-gray-900">
+                    Итого: {{ number_format($cart->total, 0, '.', ' ') }} ₸
                 </div>
 
-                <button class="mt-6 w-full bg-indigo-600 text-white py-2 rounded-lg">
+                <button class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 transition text-white py-3 rounded-lg text-lg font-medium shadow">
                     Подтвердить заказ
                 </button>
             </div>

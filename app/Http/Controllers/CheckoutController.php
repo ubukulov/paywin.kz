@@ -2,20 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PartnerGiftAllocation;
 use App\Models\Product;
+use App\Models\ProductStock;
 use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Services\PartnerGiftService;
 
 class CheckoutController extends Controller
 {
+    protected PartnerGiftService $partnerGiftService;
+
+    public function __construct(PartnerGiftService $partnerGiftService)
+    {
+        $this->partnerGiftService = $partnerGiftService;
+    }
+
     public function index()
     {
         $cart = Cart::where('session_id', session()->getId())->firstOrFail();
-        return view('checkout', compact('cart'));
+        $gift = $this->partnerGiftService->getAvailableGiftsForUser(Auth::id(), $cart->total);
+        return view('checkout', compact('cart', 'gift'));
     }
 
     public function store(Request $request)
@@ -38,9 +50,11 @@ class CheckoutController extends Controller
 
             // сохраняем товары
             foreach ($cart->items as $item) {
-                /*$product = Product::find($item->product_id);
-                $product->quantity -= $item->quantity;
-                $product->save();*/
+                $productStock = ProductStock::where(['product_id' => $item->product_id, 'city_id' => 1])->first();
+
+                if ($productStock) {
+                    $productStock->decrement('quantity', $item->quantity);
+                }
 
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -48,6 +62,27 @@ class CheckoutController extends Controller
                     'quantity' => $item->quantity,
                     'price' => $item->price,
                     'total' => $item->total,
+                ]);
+            }
+
+            // 🎁 попытка выиграть подарок
+            $winnerGift = $this->partnerGiftService->getAvailableGiftsForUser(Auth::id(), $cart->total);
+
+            if ($winnerGift) {
+                // пользователь выиграл подарок
+                PartnerGiftAllocation::create([
+                    'partner_gift_id' => $winnerGift->id,
+                    'order_id' => $order->id,
+                    'user_id' => Auth::id(),
+                    'status' => 'pending', // потом можно обновить на 'won'
+                ]);
+            } else {
+                // пользователь не выиграл — фиксируем попытку
+                PartnerGiftAllocation::create([
+                    'partner_gift_id' => null,
+                    'order_id' => $order->id,
+                    'user_id' => Auth::id(),
+                    'status' => 'lost',
                 ]);
             }
 

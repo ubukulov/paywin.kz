@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('partner_id');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('type', ['physical','coupon','points'])->default('coupon');
+            $table->enum('type', ['physical','discount','cashback', 'promocode'])->default('discount');
             $table->string('partner')->nullable();
             $table->json('payload')->nullable(); // данные (код купона и т.п.)
             $table->boolean('active')->default(true);
