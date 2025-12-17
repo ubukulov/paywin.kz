@@ -27,7 +27,8 @@ class CheckoutController extends Controller
     {
         $cart = Cart::where('session_id', session()->getId())->firstOrFail();
         $gift = $this->partnerGiftService->getAvailableGiftsForUser(Auth::id(), $cart->total);
-        return view('checkout', compact('cart', 'gift'));
+        $ttpPublicId = env('TIPTOPPAY_PUBLIC_ID');
+        return view('checkout', compact('cart', 'gift', 'ttpPublicId'));
     }
 
     public function store(Request $request)

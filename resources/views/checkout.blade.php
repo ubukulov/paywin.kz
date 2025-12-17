@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+    <script src="https://checkout.tiptoppay.kz/checkout.js"></script>
     <div class="max-w-4xl mx-auto px-4 py-10">
 
         <h1 class="text-3xl font-bold mb-8 text-gray-800">Оформление заказа</h1>
@@ -88,4 +89,24 @@
             </div>
         </form>
     </div>
+
+    <script>
+        const checkout = new tiptop.Checkout({
+            publicId: <?php echo $ttpPublicId; ?>,
+        });
+
+        const fieldValues = {
+            cvv: '911',
+            cardNumber: '4242 4242 4242 4242',
+            expDateMonth: '12',
+            expDateYear: '26',
+        }
+
+        checkout.createPaymentCryptogram(fieldValues)
+            .then((cryptogram) => {
+                console.log(cryptogram);
+            }).catch((errors) => {
+            console.log(errors)
+        });
+    </script>
 @endsection
