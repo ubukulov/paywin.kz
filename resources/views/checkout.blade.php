@@ -92,7 +92,7 @@
 
     <script>
         const checkout = new tiptop.Checkout({
-            publicId: <?php echo $ttpPublicId; ?>,
+            publicId: "<?php echo $ttpPublicId; ?>",
         });
 
         const fieldValues = {
