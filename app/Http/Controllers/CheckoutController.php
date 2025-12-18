@@ -173,26 +173,31 @@ class CheckoutController extends Controller
 
     public function handle3DS(Request $request)
     {
-        $transactionId = $request->input('MD');
+        $transactionId = $request->input('MD'); // MD = order id
         $pares = $request->input('PaRes');
 
         $tiptop = new TipTopPayService();
         $result = $tiptop->confirm3DS($transactionId, $pares);
 
         if ($result['Success'] && $result['Model']['Status'] === 'Completed') {
-            // Сохраняем Payment
+            $order = Order::find($transactionId);
+
             Payment::create([
-                'user_id' => auth()->id(),
+                'user_id' => $order->user_id,
                 'partner_id' => null,
                 'pg_payment_id' => $result['Model']['Token'] ?? $result['Model']['TransactionId'],
                 'amount' => $result['Model']['Amount'],
                 'pg_status' => 'ok',
             ]);
 
-            return view('checkout.success'); // либо redirect
+            // обновляем заказ
+            $order->update(['status' => 'paid']);
+
+            // TipTopPay ждёт просто 200
+            return response('OK', 200);
         }
 
-        return view('checkout.failed', ['error' => $result]);
+        return response('FAILED', 200);
     }
 
     public function success()
