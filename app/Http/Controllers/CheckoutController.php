@@ -112,7 +112,7 @@ class CheckoutController extends Controller
             ]);
 
             $order->update([
-                'meta' => $model
+                'meta' => json_encode($model, JSON_UNESCAPED_UNICODE),
             ]);
 
             // 🎁 попытка выиграть подарок
