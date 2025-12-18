@@ -199,8 +199,24 @@ class CheckoutController extends Controller
             // обновляем заказ
             $order->update(['status' => 'paid']);
 
-            // TipTopPay ждёт просто 200
-            return response('OK', 200);
+            $cart = $order->user->cart;
+            if ($cart) {
+                $cart->items()->delete();
+                $cart->delete();
+            }
+
+            // Редирект родительского окна на страницу успеха
+            return response(
+                '<!DOCTYPE html>
+            <html>
+            <head>
+                <script>
+                    window.top.location.href = "/checkout/success";
+                </script>
+            </head>
+            <body></body>
+            </html>'
+            );
         }
 
         return response('FAILED', 200);

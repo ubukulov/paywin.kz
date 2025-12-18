@@ -152,15 +152,6 @@
             form3ds.remove();
         }
 
-        document.getElementById('threeDsFrame').onload = function() {
-            try {
-                const iframeDoc = this.contentDocument || this.contentWindow.document;
-                if (iframeDoc.body.innerText.includes('OK')) {
-                    window.location.href = '/checkout/success';
-                }
-            } catch(e) {}
-        };
-
         const checkout = new tiptop.Checkout({ publicId: "{{ $ttpPublicId }}" });
         const cardInput = document.getElementById('cardNumber');
         const confirmOrder = document.getElementById('confirmOrder');
