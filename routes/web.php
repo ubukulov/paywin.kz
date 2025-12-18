@@ -125,6 +125,7 @@ Route::group(['middleware' => 'auth'], function(){
     # Checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::post('/checkout/3ds-callback', [CheckoutController::class, 'handle3DS'])->name('checkout.3ds.callback');
+
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 });
+Route::post('/checkout/3ds-callback', [CheckoutController::class, 'handle3DS'])->name('checkout.3ds.callback');
