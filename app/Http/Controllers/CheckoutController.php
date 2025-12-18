@@ -97,7 +97,7 @@ class CheckoutController extends Controller
             }
 
             // Платеж прошёл, получаем модель транзакции
-            $model = $result['Model'] ?? null;
+            $model = $paymentResponse['Model'] ?? null;
 
             if (!$model || $model['Status'] !== 'Completed') {
                 throw new \Exception('Платеж не завершен.');
