@@ -46,4 +46,20 @@ class TipTopPayService
             throw $exception;
         }
     }
+
+    public function confirm3DS($transactionId, $pares)
+    {
+        $username = env('TIPTOPPAY_PUBLIC_ID');
+        $password = env('TIPTOPPAY_PASSWORD');
+
+        $response = $this->client->request('POST', 'payments/cards/post3ds', [
+            'auth' => [$username, $password],
+            'json' => [
+                'TransactionId' => $transactionId,
+                'PaRes' => $pares,
+            ],
+        ]);
+
+        return json_decode($response->getBody(), true);
+    }
 }

@@ -55,6 +55,7 @@ class CheckoutController extends Controller
                 return redirect()->route('cart.index');
             }
 
+            // Создаём заказ
             $order = Order::create([
                 'user_id' => auth()->id(),
                 'subtotal' => $cart->subtotal,
@@ -62,14 +63,17 @@ class CheckoutController extends Controller
                 'shipping_cost' => 0,
                 'total' => $cart->total,
                 'status' => 'pending',
-                'payment_method' => 'cash',
+                'payment_method' => 'card', // по умолчанию карта
                 'shipping_method' => 'courier',
                 'shipping_address' => $request->address,
             ]);
 
-            // сохраняем товары
+            // Сохраняем товары и уменьшаем сток
             foreach ($cart->items as $item) {
-                $productStock = ProductStock::where(['product_id' => $item->product_id, 'city_id' => 1])->first();
+                $productStock = ProductStock::where([
+                    'product_id' => $item->product_id,
+                    'city_id' => 1
+                ])->first();
 
                 if ($productStock) {
                     $productStock->decrement('quantity', $item->quantity);
@@ -84,6 +88,7 @@ class CheckoutController extends Controller
                 ]);
             }
 
+            // Отправляем платёж в TipTopPay
             $data = [
                 'amount' => $cart->total,
                 'orderId' => $order->id,
@@ -92,42 +97,59 @@ class CheckoutController extends Controller
 
             $paymentResponse = $this->tipTopPayService->payment($data);
 
+            // Проверяем результат
             if (!isset($paymentResponse['Success']) || !$paymentResponse['Success']) {
-                throw new \Exception('Платеж не прошел.' . json_encode($paymentResponse, JSON_UNESCAPED_UNICODE));
+                $model = $paymentResponse['Model'] ?? null;
+
+                // Если требуется 3DS
+                if ($model && isset($model['Status']) && $model['Status'] === 'AwaitingAuthentication') {
+                    DB::commit(); // транзакцию пока закрываем, так как заказ создан
+                    return response()->json([
+                        'status' => '3ds_required',
+                        'acs_url' => $model['AcsUrl'] ?? null,
+                        'pareq' => $model['PaReq'] ?? null,
+                        'transaction_id' => $model['TransactionId'] ?? null,
+                        'order_id' => $order->id
+                    ]);
+                }
+
+                // Иначе платеж не прошел
+                throw new \Exception('Платеж не прошел: ' . json_encode($paymentResponse, JSON_UNESCAPED_UNICODE));
             }
 
-            // Платеж прошёл, получаем модель транзакции
+            // Платёж прошёл сразу
             $model = $paymentResponse['Model'] ?? null;
 
             if (!$model || $model['Status'] !== 'Completed') {
                 throw new \Exception('Платеж не завершен.');
             }
 
+            // Сохраняем Payment
             Payment::create([
                 'user_id' => auth()->id(),
-                'partner_id' => null, // если есть партнёр
+                'partner_id' => null,
                 'pg_payment_id' => $model['Token'] ?? $model['TransactionId'],
                 'amount' => $model['Amount'] ?? $order->total,
                 'pg_status' => 'ok',
             ]);
 
-            /*$order->update([
+            // Сохраняем весь ответ TipTopPay в meta
+            $order->update([
                 'meta' => json_encode($model, JSON_UNESCAPED_UNICODE),
-            ]);*/
+                'status' => 'paid'
+            ]);
 
-            // 🎁 попытка выиграть подарок
+            // 🎁 обработка подарка
             $winnerGift = $this->partnerGiftService->getAvailableGiftsForUser(Auth::id(), $cart->total);
 
             if ($winnerGift) {
-                // пользователь выиграл подарок
                 PartnerGiftAllocation::create([
                     'partner_gift_id' => $winnerGift->id,
                     'order_id' => $order->id,
                     'user_id' => Auth::id(),
-                    'status' => 'pending', // потом можно обновить на 'won'
+                    'status' => 'pending', // можно обновить на 'won'
                 ]);
             } else {
-                // пользователь не выиграл — фиксируем попытку
                 PartnerGiftAllocation::create([
                     'partner_gift_id' => null,
                     'order_id' => $order->id,
@@ -136,7 +158,7 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            // очистить корзину
+            // Очистка корзины
             $cart->items()->delete();
             $cart->delete();
 
@@ -147,5 +169,34 @@ class CheckoutController extends Controller
             DB::rollBack();
             return response(['error' => $exception->getMessage()], 500);
         }
+    }
+
+    public function handle3DS(Request $request)
+    {
+        $transactionId = $request->input('MD');
+        $pares = $request->input('PaRes');
+
+        $tiptop = new TipTopPayService();
+        $result = $tiptop->confirm3DS($transactionId, $pares);
+
+        if ($result['Success'] && $result['Model']['Status'] === 'Completed') {
+            // Сохраняем Payment
+            Payment::create([
+                'user_id' => auth()->id(),
+                'partner_id' => null,
+                'pg_payment_id' => $result['Model']['Token'] ?? $result['Model']['TransactionId'],
+                'amount' => $result['Model']['Amount'],
+                'pg_status' => 'ok',
+            ]);
+
+            return view('checkout.success'); // либо redirect
+        }
+
+        return view('checkout.failed', ['error' => $result]);
+    }
+
+    public function success()
+    {
+        return view('checkout.success');
     }
 }
