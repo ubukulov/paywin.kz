@@ -103,7 +103,13 @@ class CheckoutController extends Controller
 
                 // Если требуется 3DS
                 if ($model && isset($model['Status']) && $model['Status'] === 'AwaitingAuthentication') {
+
+                    $order->update([
+                        'transaction_id' => $model['TransactionId']
+                    ]);
+
                     DB::commit(); // транзакцию пока закрываем, так как заказ создан
+
                     return response()->json([
                         'status' => '3ds_required',
                         'acs_url' => $model['AcsUrl'] ?? null,
@@ -173,14 +179,14 @@ class CheckoutController extends Controller
 
     public function handle3DS(Request $request)
     {
-        $transactionId = $request->input('MD'); // MD = order id
+        $transactionId = $request->input('MD'); // MD = transaction id
         $pares = $request->input('PaRes');
 
         $tiptop = new TipTopPayService();
         $result = $tiptop->confirm3DS($transactionId, $pares);
 
         if ($result['Success'] && $result['Model']['Status'] === 'Completed') {
-            $order = Order::find($transactionId);
+            $order = Order::where(['transaction_id' => $transactionId])->first();
 
             Payment::create([
                 'user_id' => $order->user_id,

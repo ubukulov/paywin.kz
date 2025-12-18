@@ -17,6 +17,7 @@ class Order extends Model
         'status',
         'payment_method',
         'payment_id',
+        'transaction_id',
         'shipping_method',
         'shipping_address',
         'meta',
