@@ -111,9 +111,9 @@ class CheckoutController extends Controller
                 'pg_status' => 'ok',
             ]);
 
-            $order->update([
+            /*$order->update([
                 'meta' => json_encode($model, JSON_UNESCAPED_UNICODE),
-            ]);
+            ]);*/
 
             // 🎁 попытка выиграть подарок
             $winnerGift = $this->partnerGiftService->getAvailableGiftsForUser(Auth::id(), $cart->total);
