@@ -91,12 +91,21 @@ class CartController extends Controller
 
     private function getOrCreateCart()
     {
-        $session_id = session()->getId();
+        /*$session_id = session()->getId();
 
         return Cart::firstOrCreate(
             ['user_id' => Auth::id() ?? null],
             ['session_id' => $session_id],
             ['subtotal' => 0, 'total' => 0]
+        );*/
+
+        return Cart::firstOrCreate(
+            ['user_id' => Auth::id()],
+            [
+                'session_id' => session()->getId(),
+                'subtotal' => 0,
+                'total' => 0
+            ]
         );
     }
 

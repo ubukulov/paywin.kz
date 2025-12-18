@@ -13,21 +13,34 @@ use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\PartnerGiftService;
+use App\Services\TipTopPayService;
+use App\Models\Payment;
 
 class CheckoutController extends Controller
 {
     protected PartnerGiftService $partnerGiftService;
+    protected TipTopPayService $tipTopPayService;
 
-    public function __construct(PartnerGiftService $partnerGiftService)
+    public function __construct(PartnerGiftService $partnerGiftService, TipTopPayService $tipTopPayService)
     {
         $this->partnerGiftService = $partnerGiftService;
+        $this->tipTopPayService = $tipTopPayService;
     }
 
     public function index()
     {
-        $cart = Cart::where('session_id', session()->getId())->firstOrFail();
-        $gift = $this->partnerGiftService->getAvailableGiftsForUser(Auth::id(), $cart->total);
+        $cart = Cart::where('user_id', Auth::id())->first();
+
+        if (!$cart || $cart->items()->count() === 0) {
+            return redirect()->route('cart.index')
+                ->with('error', 'Корзина пуста');
+        }
+
+        $gift = $this->partnerGiftService
+            ->getAvailableGiftsForUser(Auth::id(), $cart->total);
+
         $ttpPublicId = env('TIPTOPPAY_PUBLIC_ID');
+
         return view('checkout', compact('cart', 'gift', 'ttpPublicId'));
     }
 
@@ -35,7 +48,12 @@ class CheckoutController extends Controller
     {
         DB::beginTransaction();
         try {
-            $cart = Cart::where('session_id', session()->getId())->firstOrFail();
+            $cryptogram = $request->get('cryptogram');
+            $cart = Cart::where('user_id', Auth::id())->first();
+
+            if (!$cart || $cart->items->isEmpty()) {
+                return redirect()->route('cart.index');
+            }
 
             $order = Order::create([
                 'user_id' => auth()->id(),
@@ -65,6 +83,37 @@ class CheckoutController extends Controller
                     'total' => $item->total,
                 ]);
             }
+
+            $data = [
+                'amount' => $cart->total,
+                'orderId' => $order->id,
+                'cryptogram' => $cryptogram,
+            ];
+
+            $paymentResponse = $this->tipTopPayService->payment($data);
+
+            if (!isset($paymentResponse['Success']) || !$paymentResponse['Success']) {
+                throw new \Exception('Платеж не прошел.');
+            }
+
+            // Платеж прошёл, получаем модель транзакции
+            $model = $result['Model'] ?? null;
+
+            if (!$model || $model['Status'] !== 'Completed') {
+                throw new \Exception('Платеж не завершен.');
+            }
+
+            Payment::create([
+                'user_id' => auth()->id(),
+                'partner_id' => null, // если есть партнёр
+                'pg_payment_id' => $model['Token'] ?? $model['TransactionId'],
+                'amount' => $model['Amount'] ?? $order->total,
+                'pg_status' => 'ok',
+            ]);
+
+            $order->update([
+                'meta' => $model
+            ]);
 
             // 🎁 попытка выиграть подарок
             $winnerGift = $this->partnerGiftService->getAvailableGiftsForUser(Auth::id(), $cart->total);

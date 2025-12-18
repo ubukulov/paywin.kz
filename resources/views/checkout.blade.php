@@ -83,7 +83,90 @@
                     Итого: {{ number_format($cart->total, 0, '.', ' ') }} ₸
                 </div>
 
-                <button class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 transition text-white py-3 rounded-lg text-lg font-medium shadow">
+                {{-- Card data --}}
+                <div class="mt-8 p-6 border rounded-2xl bg-gray-50">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Данные карты</h3>
+
+                    <div class="space-y-4">
+
+                        <div>
+                            <label class="text-sm text-gray-600">Номер карты</label>
+                            <input
+                                id="cardNumber"
+                                type="text"
+                                inputmode="numeric"
+                                autocomplete="cc-number"
+                                placeholder="4242 4242 4242 4242"
+                                maxlength="23"
+                                class="w-full border rounded-lg p-3 tracking-widest
+                       focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-600">MM</label>
+                                <input
+                                    id="expMonth"
+                                    type="text"
+                                    inputmode="numeric"
+                                    maxlength="2"
+                                    placeholder="01"
+                                    class="w-full border rounded-lg p-3 text-center
+                           focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+
+                            <div>
+                                <label class="text-sm text-gray-600">YY</label>
+                                <input
+                                    id="expYear"
+                                    type="text"
+                                    inputmode="numeric"
+                                    maxlength="2"
+                                    placeholder="26"
+                                    class="w-full border rounded-lg p-3 text-center
+                           focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+
+                            <div>
+                                <label class="text-sm text-gray-600">CVV</label>
+                                <input
+                                    id="cvv"
+                                    type="password"
+                                    inputmode="numeric"
+                                    maxlength="4"
+                                    placeholder="777"
+                                    class="w-full border rounded-lg p-3 text-center
+                           focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-600">Имя держателя</label>
+                            <input
+                                id="cardHolder"
+                                type="text"
+                                autocomplete="cc-name"
+                                placeholder="CHAD VIRGIN"
+                                class="w-full border rounded-lg p-3 uppercase
+                       focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <button
+                            type="button"
+                            id="generateCryptogram"
+                            class="w-full bg-blue-600 hover:bg-blue-700
+                   text-white py-3 rounded-lg font-medium transition">
+                            Создать криптограмму
+                        </button>
+
+                        <p id="cryptoStatus" class="text-sm text-center"></p>
+                    </div>
+                </div>
+
+                {{-- Единственное, что уходит на сервер --}}
+                <input type="hidden" name="cryptogram" id="cryptogram">
+
+                <button id="confirmOrder" disabled class="mt-6 w-full bg-gray-400 text-white py-3 rounded-lg text-lg font-medium shadow cursor-not-allowed">
                     Подтвердить заказ
                 </button>
             </div>
@@ -92,21 +175,63 @@
 
     <script>
         const checkout = new tiptop.Checkout({
-            publicId: "<?php echo $ttpPublicId; ?>",
+            publicId: "{{ $ttpPublicId }}",
         });
 
-        const fieldValues = {
-            cvv: '911',
-            cardNumber: '4242 4242 4242 4242',
-            expDateMonth: '12',
-            expDateYear: '26',
+        const cardInput = document.getElementById('cardNumber');
+        const confirmOrder = document.getElementById('confirmOrder');
+
+        // Маска + ограничение 16–19 цифр
+        cardInput.addEventListener('input', () => {
+            let digits = cardInput.value.replace(/\D/g, '');
+
+            if (digits.length > 19) {
+                digits = digits.substring(0, 19);
+            }
+
+            cardInput.value = digits.replace(/(.{4})/g, '$1 ').trim();
+        });
+
+        document.getElementById('generateCryptogram').addEventListener('click', () => {
+
+            const cardDigits = cardInput.value.replace(/\D/g, '');
+
+            if (cardDigits.length < 16 || cardDigits.length > 19) {
+                showError('Номер карты должен содержать от 16 до 19 цифр');
+                return;
+            }
+
+            const fieldValues = {
+                cardNumber: cardDigits,
+                cvv: document.getElementById('cvv').value,
+                expDateMonth: document.getElementById('expMonth').value,
+                expDateYear: document.getElementById('expYear').value,
+                cardHolderName: document.getElementById('cardHolder').value,
+            };
+
+            checkout.createPaymentCryptogram(fieldValues)
+                .then(cryptogram => {
+                    document.getElementById('cryptogram').value = cryptogram;
+                    confirmOrder.disabled = false;
+                    confirmOrder.className = "mt-6 w-full bg-indigo-600 hover:bg-indigo-700 transition text-white py-3 rounded-lg text-lg font-medium shadow";
+                    confirmOrder.classList.remove('cursor-not-allowed');
+                    showSuccess('Криптограмма успешно создана ✅');
+                })
+                .catch(errors => {
+                    showError(errors.join(', '));
+                });
+        });
+
+        function showError(text) {
+            const el = document.getElementById('cryptoStatus');
+            el.innerText = text;
+            el.className = 'text-sm text-center text-red-600';
         }
 
-        checkout.createPaymentCryptogram(fieldValues)
-            .then((cryptogram) => {
-                console.log(cryptogram);
-            }).catch((errors) => {
-            console.log(errors)
-        });
+        function showSuccess(text) {
+            const el = document.getElementById('cryptoStatus');
+            el.innerText = text;
+            el.className = 'text-sm text-center text-green-600';
+        }
     </script>
 @endsection

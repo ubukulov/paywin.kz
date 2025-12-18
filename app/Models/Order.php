@@ -16,6 +16,7 @@ class Order extends Model
         'total',
         'status',
         'payment_method',
+        'payment_id',
         'shipping_method',
         'shipping_address',
         'meta',
@@ -30,4 +31,10 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function payment(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Payment::class, 'pg_payment_id', 'payment_id');
+    }
+
 }
