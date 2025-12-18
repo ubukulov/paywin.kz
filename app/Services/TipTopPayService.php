@@ -10,7 +10,7 @@ class TipTopPayService
 
     public function __construct()
     {
-        $this->base = rtrim(env('TIPTOPPAY_URL'), '/').'/';
+        $this->base = env('TIPTOPPAY_URL');
 
         $this->client = new Client([
             'base_uri' => $this->base,
