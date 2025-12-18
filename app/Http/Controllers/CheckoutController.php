@@ -93,7 +93,7 @@ class CheckoutController extends Controller
             $paymentResponse = $this->tipTopPayService->payment($data);
 
             if (!isset($paymentResponse['Success']) || !$paymentResponse['Success']) {
-                throw new \Exception('Платеж не прошел.');
+                throw new \Exception('Платеж не прошел.' . $paymentResponse);
             }
 
             // Платеж прошёл, получаем модель транзакции
