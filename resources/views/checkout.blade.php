@@ -28,6 +28,13 @@
             </div>
         @endif
 
+        <div id="threeDsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;">
+            <div style="position:relative;width:400px;height:600px;background:#fff;border-radius:8px;overflow:hidden;">
+                <iframe id="threeDsFrame" name="threeDsFrame" width="100%" height="100%"></iframe>
+                <button id="close3ds" style="position:absolute;top:10px;right:10px;">✖</button>
+            </div>
+        </div>
+
         <form id="checkoutForm" action="{{ route('checkout.store') }}" method="POST"
               class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
             @csrf
@@ -121,6 +128,30 @@
     </div>
 
     <script>
+        const modal = document.getElementById('threeDsModal');
+        const closeBtn = document.getElementById('close3ds');
+
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            document.getElementById('threeDsFrame').src = '';
+        });
+
+        function show3DSForm(acsUrl, pareq, transactionId) {
+            modal.style.display = 'flex';
+            const form3ds = document.createElement('form');
+            form3ds.method = 'POST';
+            form3ds.action = acsUrl;
+            form3ds.target = 'threeDsFrame';
+            form3ds.innerHTML = `
+        <input type="hidden" name="PaReq" value="${pareq}">
+        <input type="hidden" name="MD" value="${transactionId}">
+        <input type="hidden" name="TermUrl" value="{{ route('checkout.3ds.callback') }}">
+    `;
+            document.body.appendChild(form3ds);
+            form3ds.submit();
+            form3ds.remove();
+        }
+
         const checkout = new tiptop.Checkout({ publicId: "{{ $ttpPublicId }}" });
         const cardInput = document.getElementById('cardNumber');
         const confirmOrder = document.getElementById('confirmOrder');
@@ -189,24 +220,7 @@
                 const data = await response.json();
 
                 if (data.status === '3ds_required') {
-                    // iframe 3DS
-                    const iframe = document.createElement('iframe');
-                    iframe.name = 'threeDsFrame';
-                    iframe.width = 400;
-                    iframe.height = 600;
-                    document.body.appendChild(iframe);
-
-                    const form3ds = document.createElement('form');
-                    form3ds.method = 'POST';
-                    form3ds.action = data.acs_url;
-                    form3ds.target = 'threeDsFrame';
-                    form3ds.innerHTML = `
-                <input type="hidden" name="PaReq" value="${data.pareq}">
-                <input type="hidden" name="MD" value="${data.transaction_id}">
-                <input type="hidden" name="TermUrl" value="{{ route('checkout.3ds.callback') }}">
-            `;
-                    document.body.appendChild(form3ds);
-                    form3ds.submit();
+                    show3DSForm(data.acs_url, data.pareq, data.transaction_id);
                 } else if (data.success) {
                     alert('Оплата успешно проведена!');
                     window.location.href = '/checkout/success';
