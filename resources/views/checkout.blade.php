@@ -19,7 +19,6 @@
                         <div class="text-lg font-medium text-gray-900">{{ $gift['title'] }}</div>
                         <div class="text-gray-600 mt-1 text-sm">{{ $gift['description'] }}</div>
                         <div class="mt-3 flex items-center justify-between">
-                            <div class="text-sm text-indigo-600 font-semibold">Шанс: {{ $gift['chance'] }}%</div>
                             <div class="text-indigo-500 text-lg">⭐</div>
                         </div>
                     </div>

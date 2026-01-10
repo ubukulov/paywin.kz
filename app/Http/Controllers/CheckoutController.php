@@ -146,7 +146,7 @@ class CheckoutController extends Controller
             ]);
 
             // 🎁 обработка подарка
-            $winnerGift = $this->partnerGiftService->getAvailableGiftsForUser(Auth::id(), $cart->total);
+            $winnerGift = $this->partnerGiftService->getAvailableGiftForUser(Auth::id(), $cart->total);
 
             if ($winnerGift) {
                 PartnerGiftAllocation::create([

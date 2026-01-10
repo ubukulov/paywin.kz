@@ -43,43 +43,76 @@
                     @endforeach
                 </div>
 
-                @if($gift)
+                @if($gifts->isNotEmpty())
                     <div class="mt-6 p-5 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 shadow-sm">
 
                         <div class="flex items-center gap-3 mb-3">
                             <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
                                 🎁
                             </div>
-                            <h2 class="text-xl font-semibold text-indigo-700">Вы участвуете в розыгрыше подарка!</h2>
+                            <h2 class="text-xl font-semibold text-indigo-700">
+                                Вы участвуете в розыгрыше подарка
+                            </h2>
                         </div>
 
                         <p class="text-gray-700 mb-4">
-                            После оплаты заказа у вас появится шанс выиграть один из следующих подарков:
+                            После оплаты будет разыгран <b>один</b> подарок:
                         </p>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="p-4 bg-white border rounded-xl shadow-sm hover:shadow-md transition">
-                                <div class="text-lg font-medium text-gray-900">{{ $gift['title'] }}</div>
-                                <div class="text-gray-600 mt-1 text-sm">{{ $gift['description'] }}</div>
+                        <div class="relative mx-auto">
 
-                                <div class="mt-3 flex items-center justify-between">
-                                    <div class="text-sm text-indigo-600 font-semibold">
-                                        Шанс выигрыша: {{ $gift['chance'] }}%
-                                    </div>
+                            {{-- кнопка влево --}}
+                            <button onclick="prevGift()"
+                                    class="absolute -left-5 top-1/2 -translate-y-1/2 z-10 bg-white shadow rounded-full w-9 h-9 flex items-center justify-center">
+                                ‹
+                            </button>
 
-                                    <div class="text-indigo-500">
-                                        ⭐
-                                    </div>
+                            {{-- кнопка вправо --}}
+                            <button onclick="nextGift()"
+                                    class="absolute -right-5 top-1/2 -translate-y-1/2 z-10 bg-white shadow rounded-full w-9 h-9 flex items-center justify-center">
+                                ›
+                            </button>
+
+                            {{-- SLIDER --}}
+                            <div class="overflow-hidden">
+                                <div id="giftSlider"
+                                     class="flex transition-transform duration-300 ease-in-out">
+
+                                    @foreach($gifts as $gift)
+                                        <div class="min-w-full px-2">
+                                            <div class="p-4 bg-white border rounded-xl shadow-sm" style="margin: 0 20px;">
+
+                                                @if($gift->image)
+                                                    <img src="{{ $gift->image }}"
+                                                         class="w-full h-40 object-cover rounded-lg mb-3">
+                                                @endif
+
+                                                <div class="text-lg font-medium text-gray-900">
+                                                    {{ $gift->title }}
+                                                </div>
+
+                                                <div class="text-gray-600 mt-1 text-sm">
+                                                    {{ $gift->description }}
+                                                </div>
+
+                                                <div class="mt-3 text-indigo-500 text-sm">
+                                                    ⭐ Возможный приз
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+
                                 </div>
                             </div>
                         </div>
 
-                        <p class="mt-4 text-sm text-gray-500">
-                            Подарок будет разыгран автоматически после успешной оплаты.
+                        <p class="mt-4 text-sm text-gray-500 text-center">
+                            🎲 Победитель определяется автоматически после оплаты
                         </p>
-
                     </div>
                 @endif
+
+
 
 
                 {{-- ИТОГО --}}
@@ -111,6 +144,27 @@
                 method: 'DELETE',
                 headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'},
             }).then(() => location.reload());
+        }
+    </script>
+
+    <script>
+        let currentGift = 0;
+
+        function updateGiftSlide() {
+            const slider = document.getElementById('giftSlider');
+            slider.style.transform = `translateX(-${currentGift * 100}%)`;
+        }
+
+        function nextGift() {
+            const total = document.querySelectorAll('#giftSlider > div').length;
+            currentGift = (currentGift + 1) % total;
+            updateGiftSlide();
+        }
+
+        function prevGift() {
+            const total = document.querySelectorAll('#giftSlider > div').length;
+            currentGift = (currentGift - 1 + total) % total;
+            updateGiftSlide();
         }
     </script>
 

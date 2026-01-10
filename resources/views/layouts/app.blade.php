@@ -349,6 +349,5 @@
         setTimeout(() => data.show = false, 2500);
     };
 </script>
-
 </body>
 </html>

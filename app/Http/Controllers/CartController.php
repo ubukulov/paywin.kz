@@ -22,8 +22,8 @@ class CartController extends Controller
     public function getCart()
     {
         $cart = $this->getOrCreateCart();
-        $gift = $this->partnerGiftService->getAvailableGiftsForUser(Auth::id(), $cart->total);
-        return view('cart.index', compact('cart', 'gift'));
+        $gifts = $this->partnerGiftService->getAvailableGiftsForUser($cart->total);
+        return view('cart.index', compact('cart', 'gifts'));
     }
 
     // Добавить товар

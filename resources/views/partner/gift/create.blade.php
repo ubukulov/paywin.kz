@@ -151,7 +151,7 @@
             <input type="number" min="1000" value="1000" name="min_order_total" required>
 
             <label>Максимальная сумма заказа</label>
-            <input type="number" min="2000" value="2000" name="max_order_total" required>
+            <input type="number" min="0" value="0" name="max_order_total" required>
 
             <label>Вероятность выигрыша, %</label>
             <input type="number" min="0" max="100" value="10" name="chance" required>
