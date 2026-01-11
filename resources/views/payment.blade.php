@@ -16,6 +16,7 @@
     <link rel="manifest" href="/b5/img/favicons/site.webmanifest">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
+    <script src="https://widget.tiptoppay.kz/bundles/widget.js"></script>
     <style>
         .hidden {
             display: none;
@@ -59,9 +60,8 @@
     </div>
 </div>
 <br>
-<form class="payment-page__form" method="post" action="{{ route('payment') }}">
     @csrf
-    <input type="hidden" name="partner_id" value="{{ $id }}">
+    <input type="hidden" id="partner_id" name="partner_id" value="{{ $id }}">
     <div class="actions">
         <h2 style="margin-top: 0px;" class="offer animate__animated animate__fadeIn">Сумма оплаты</h2>
         <p class="payment-page__number">
@@ -146,21 +146,7 @@
         </div>
 
     </div>
-    {{--<div class="keyboard keyboard__wrapper animate__animated animate__fadeIn">
-        <button class="keyboard__item">1</button> <button class="keyboard__item">2</button>
-        <button class="keyboard__item">3</button>
-        <button class="keyboard__item">4</button>
-        <button class="keyboard__item">5</button>
-        <button class="keyboard__item">6</button>
-        <button class="keyboard__item">7</button>
-        <button class="keyboard__item">8</button>
-        <button class="keyboard__item">9</button>
-        <div class="keyboard__item keyboard__item--none"></div>
-        <button class="keyboard__item">0</button>
-        <button class="keyboard__item keyboard__item--delete">
-            <img src="/b5/img/icons/delete.svg" alt="Удалить">
-        </button>
-    </div>--}}
+
     <div class="payment-page__slider-buttons animate__animated animate__fadeIn">
         <div>
             <h2 class="slider__title">Выиграйте один из призов</h2>
@@ -175,13 +161,13 @@
             </div>
         </div>
         <div class="payment-page__buttons">
-            <button type="submit" class="button button--green">оплатить</button>
+            <button type="button" id="paymentBtn" class="button button--green">оплатить</button>
             <a href="{{ route('showPartner', ['slug' => $slug, 'id' => $id]) }}" class="button button--back">
                 вернуться
             </a>
         </div>
     </div>
-</form>
+
 <footer class="footer container animate__animated animate__fadeInUp">
     <a href="{{ route('prizes') }}" class="footer__link">
         <img src="/b5/img/icons/footer-gift.svg" alt="Подарок" class="footer__icon">
@@ -196,6 +182,71 @@
 
 @include('_partials.info')
 
+<div id="paymentLoader" class="payment-loader">
+    <div class="loader-card">
+        <div class="loader-circle">
+            <span>₸</span>
+        </div>
+        <p class="loader-title">Обрабатываем платеж</p>
+        <p class="loader-subtitle">Пожалуйста, не закрывайте страницу</p>
+    </div>
+</div>
+<style>
+    .payment-loader {
+        position: fixed;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.95);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+    }
+
+    .loader-card {
+        text-align: center;
+        padding: 40px;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 10px 40px rgba(0,0,0,.1);
+    }
+
+    .loader-circle {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        border: 4px solid #e5e5e5;
+        border-top-color: #18BE1E;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        animation: spin 1.1s linear infinite;
+    }
+
+    .loader-circle span {
+        font-size: 32px;
+        font-weight: bold;
+        color: #18BE1E;
+    }
+
+    .loader-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .loader-subtitle {
+        font-size: 14px;
+        color: #8b8b8b;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+</style>
 <script>
     $(document).ready(function(){
         let payment_input = $('#payment_input');
@@ -349,6 +400,70 @@
             }
         });
     });
+</script>
+
+<script>
+
+    const btn = document.getElementById("paymentBtn")
+    const loader = document.getElementById("paymentLoader");
+
+    const widget = new tiptop.Widget();
+
+    const launchWidget = () => {
+        const amountInput = document.getElementById('sum_amount_hidden').value;
+        const partnerId = document.getElementById('partner_id').value;
+        const csrf = document.querySelector('input[name="_token"]').value;
+
+        if (!amountInput || isNaN(amountInput) || Number(amountInput) <= 0) {
+            alert('Введите корректную сумму');
+            return;
+        }
+
+        const amountSum = Number(amountInput);
+
+        btn.disabled = true;
+
+        const intentParams = {
+            publicTerminalId: "pk_ee882e56bdffee4bea6f8f97290c6",
+            paymentSchema: 'Dual',
+            currency: "KZT",
+            amount: amountSum, // ✅ берем сумму из input
+            successRedirectUrl: "https://paywin.kz/success/payment",
+            failRedirectUrl: "https://paywin.kz/error/payment",
+            tokenize: true,
+        };
+
+        widget.start(intentParams)
+            .then(result => {
+                if (!result?.data?.transactionId) return;
+
+                loader.style.display = 'flex';
+
+                fetch('/payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf
+                    },
+                    body: JSON.stringify({
+                        transaction_id: result.data.transactionId,
+                        amount: amountSum,
+                        partner_id: partnerId
+                    })
+                })
+                    .then(() => {
+                        loader.style.display = 'none';
+                        window.location.href = '/success/payment';
+                    })
+                    .catch(() => window.location.href= '/error/payment');
+            })
+            .catch(error => {
+                console.error(error);
+                btn.disabled = false;
+            });
+    };
+
+    btn.addEventListener('click', launchWidget)
 </script>
 </body>
 </html>

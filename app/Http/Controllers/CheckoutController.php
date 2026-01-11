@@ -41,7 +41,7 @@ class CheckoutController extends Controller
 
         $ttpPublicId = env('TIPTOPPAY_PUBLIC_ID');
 
-        return view('checkout', compact('cart', 'gift', 'ttpPublicId'));
+        return view('checkout.index', compact('cart', 'gift', 'ttpPublicId'));
     }
 
     public function store(Request $request)

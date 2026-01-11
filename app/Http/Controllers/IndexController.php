@@ -14,7 +14,7 @@ use App\Models\UserDiscount;
 use App\Models\UserProfile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class IndexController extends BaseController
 {
@@ -69,16 +69,25 @@ class IndexController extends BaseController
 
     public function payment(Request $request)
     {
-        $amount = (int) $request->input('sum');
+        $amount = $request->input('amount');
         $partner_id = $request->input('partner_id');
-        $pg_card_id = $request->input('card_id');
-        $balance = $request->input('balance');
-        $discount = $request->input('discount');
+        $transaction_id = $request->input('transaction_id');
+
         $user = Auth::user();
         $partner = User::findOrFail($partner_id);
         $new_amount = $amount;
 
-        $payment = Payment::where(['user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'waiting'])->first();
+
+        $payment = Payment::create([
+            'user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'ok', 'pg_payment_id' => $transaction_id
+        ]);
+
+        $user->givePrize($partner->shares, $payment);
+
+        return redirect()->route('payment.success');
+
+
+        /*$payment = Payment::where(['user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'waiting'])->first();
         if(!$payment) {
 
             if($discount) {
@@ -140,117 +149,13 @@ class IndexController extends BaseController
                     $user_discount->save();
                 }
             }
-        }
-
-//        if($request->has('card_id')) {
-//            $apiUrl = env('PAYBOX_URL')."v1/merchant/".env('PAYBOX_MERCHANT_ID')."/card/init";
-//            $request = [
-//                'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
-//                'pg_amount' => $amount,
-//                'pg_order_id' => $payment->id,
-//                'pg_user_id' => $payment->user_id,
-//                'pg_card_id' => $pg_card_id,
-//                'pg_description' => 'Описание платежа',
-//                'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
-//                'pg_success_url_method' => 'POST',
-//                'pg_failure_url_method' => 'GET',
-//            ];
-//            //generate a signature and add it to the array
-//            ksort($request); //sort alphabetically
-//            array_unshift($request, 'init');
-//            array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
-//            $request['pg_sig'] = md5(implode(';', $request)); // signature
-//            unset($request[0], $request[1]);
-//
-//            $client = new \GuzzleHttp\Client();
-//            $response = $client->request('POST', $apiUrl, [
-//                'headers' => [
-//                    'Content-type' => 'application/x-www-form-urlencoded'
-//                ],
-//                'form_params' => $request
-//            ]);
-//            $response = $response->getBody()->getContents();
-//            $responseXml = simplexml_load_string($response);
-//
-//            if ((string)$responseXml->pg_status == 'new') {
-//                $pg_payment_id = (int) $responseXml->pg_payment_id;
-//                $request = [
-//                    'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
-//                    'pg_payment_id' => $pg_payment_id,
-//                    'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
-//                ];
-//                //generate a signature and add it to the array
-//                ksort($request); //sort alphabetically
-//                array_unshift($request, 'pay');
-//                array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
-//                $request['pg_sig'] = md5(implode(';', $request)); // signature
-//                unset($request[0], $request[1]);
-//
-//                $payUrl = env('PAYBOX_URL') . "v1/merchant/".env('PAYBOX_MERCHANT_ID')."/card/pay";
-//
-//                /*$response = $client->request('POST', $payUrl, [
-//                    'headers' => [
-//                        'Content-type' => 'application/x-www-form-urlencoded'
-//                    ],
-//                    'form_params' => $request
-//                ]);
-//                $response = $response->getBody()->getContents();
-//                dd($response);*/
-//
-//                $query = http_build_query($request);
-//
-//                //redirect a customer to payment page
-//                header("Location: $payUrl?".$query);
-//                exit();
-//            }
-//
-//
-//            /*$redirect_url = (string) $responseXml->pg_redirect_url;
-//            header('Location: ' . $redirect_url);
-//            exit();*/
-//
-//        } else {
-            $request = [
-                'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
-                'pg_amount' => $new_amount,
-                'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
-                'pg_order_id' => $payment->id,
-                'pg_description' => 'Описание заказа',
-                'pg_success_url' => 'https://paywin.kz/success/payment',
-                'pg_failure_url' => 'https://paywin.kz/error/payment',
-                'pg_success_url_method' => 'GET',
-                'pg_failure_url_method' => 'GET',
-            ];
-
-            //$request['pg_testing_mode'] = 1; //add this parameter to request for testing payments
-
-            //if you pass any of your parameters, which you want to get back after the payment, then add them. For example:
-//        $request['client_name'] = $post['first_name'];
-//        $request['office_id'] = $post['office_id'];
-            // $request['client_address'] = 'Earth Planet';
-
-            //generate a signature and add it to the array
-            ksort($request); //sort alphabetically
-            array_unshift($request, 'payment.php');
-            array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
-
-
-            $request['pg_sig'] = md5(implode(';', $request));
-
-            unset($request[0], $request[1]);
-
-            $query = http_build_query($request);
-
-            //redirect a customer to payment page
-            header('Location: '.env('PAYBOX_URL').'payment.php?'.$query);
-            exit();
-//        }
+        }*/
     }
 
     public function paymentSuccess()
     {
         $user = Auth::user();
-        $payment = Payment::where(['user_id' => $user->id, 'pg_status' => 'waiting'])->orderBy('id', 'DESC')->first();
+        /*$payment = Payment::where(['user_id' => $user->id, 'pg_status' => 'waiting'])->orderBy('id', 'DESC')->first();
         if($payment) {
             $request = [
                 'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
@@ -307,7 +212,9 @@ class IndexController extends BaseController
             }
         } else {
             $payment = Payment::where(['user_id' => $user->id, 'pg_status' => 'ok'])->orderBy('id', 'DESC')->first();
-        }
+        }*/
+
+        $payment = Payment::where(['user_id' => $user->id, 'pg_status' => 'ok'])->orderBy('id', 'DESC')->first();
 
         $prize = $payment->prize;
         if($prize) {

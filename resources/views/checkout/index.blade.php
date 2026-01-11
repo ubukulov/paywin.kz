@@ -7,7 +7,7 @@
         <h1 class="text-3xl font-bold mb-8 text-gray-800">Оформление заказа</h1>
 
         {{-- Подарки --}}
-        @if($gift)
+        @if($gift && $gift->count() > 0)
             <div class="mb-8 p-5 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-indigo-200 shadow-sm">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-2xl">🎁</div>
