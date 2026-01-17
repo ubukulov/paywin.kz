@@ -62,6 +62,11 @@
                 <img src="/images/profile/mail.svg" alt="">
                 <span>{{ $user_profile->email }}</span>
             </div>
+
+            <div>
+                <i style="color: #BABABA;" class="fa fa-link"></i>
+                <span style="font-size: 14px; color: #BABABA;">{{ route('referral.link', ['code' => $user->id]) }}</span>
+            </div>
             {{--<p class="profile__active-promocode">Активировать промокод</p>
             <div class="profile__promocode-input">
                 <input type="text" placeholder="Введите промокод">

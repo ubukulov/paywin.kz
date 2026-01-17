@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Smsc;
 use Auth;
+use Illuminate\Support\Facades\Cookie;
+use App\Models\Referral;
 
 class AuthController extends Controller
 {
@@ -46,6 +48,52 @@ class AuthController extends Controller
                 ]);
 
                 $user->create_profile();
+
+                $code = session('ref_code') ?? Cookie::get('ref_code');
+
+                if ($code) {
+
+                    // ❌ запрет самореферала
+                    if ($code != $user->id) {
+
+                        // ❌ если клиент уже привязан
+                        if (!Referral::where('client_id', $user->id)->exists()) {
+
+                            // /ref/12
+                            if (is_numeric($code)) {
+
+                                $agent = User::find($code);
+
+                                if ($agent) {
+                                    Referral::create([
+                                        'agent_id'  => $agent->id,
+                                        'client_id' => $user->id,
+                                        'source'    => 'link',
+                                    ]);
+                                }
+
+                            }
+                            // /ref/AGENT12
+                            else {
+
+                                $promo = Referral::where('promo_code', $code)->first();
+
+                                if ($promo) {
+                                    Referral::create([
+                                        'agent_id'   => $promo->agent_id,
+                                        'client_id'  => $user->id,
+                                        'promo_code' => $promo->promo_code,
+                                        'source'     => 'promo',
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+
+                    // очищаем
+                    session()->forget('ref_code');
+                    Cookie::queue(Cookie::forget('ref_code'));
+                }
 
                 Auth::login($user);
 

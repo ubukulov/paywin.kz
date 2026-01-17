@@ -10,15 +10,15 @@ use App\Models\User;
 use App\Models\UserBalance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Auth;
-use Str;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
     public function cabinet()
     {
         $user_balance = UserBalance::where(['user_id' => Auth::user()->id, 'status' => 'waiting'])->orderBy('id', 'DESC')->first();
-        if($user_balance) {
+        /*if($user_balance) {
             $request = [
                 'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
                 'pg_order_id' => $user_balance->id,
@@ -50,7 +50,7 @@ class UserController extends Controller
                 $user_balance->updated_at = Carbon::now();
                 $user_balance->save();
             }
-        }
+        }*/
 
         $user = Auth::user();
         $user_profile = Auth::user()->profile;

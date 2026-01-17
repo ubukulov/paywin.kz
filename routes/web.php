@@ -14,6 +14,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Partner\ProductController as PartnerProductController;
 use App\Http\Controllers\Partner\GiftController;
 use App\Http\Controllers\Partner\StoreController;
+use App\Http\Controllers\ReferralController;
 
 /*
 |--------------------------------------------------------------------------
@@ -129,7 +130,10 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
     # Referrals
-    Route::get('ref/');
+    #Route::get('ref/');
 
 });
+
+Route::get('/ref/{code}', [ReferralController::class, 'handle'])->name('referral.link');
+
 Route::post('/checkout/3ds-callback', [CheckoutController::class, 'handle3DS'])->name('checkout.3ds.callback');
