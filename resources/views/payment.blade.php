@@ -52,7 +52,7 @@
 
 <div style="display: flex; justify-content: center;" class="partdescr__profile">
     <div style="margin-right: 20px;" class="partdescr__profile-logo">
-        <img @if(empty($profile->logo)) src="/upload/partners/3205aef25d19ee31146a921fc9230d05.svg" @else src="{{ $profile->logo }}" @endif alt="logo">
+        <img @if(empty($profile->logo)) src="/images/partner-description/partner-logo.png" @else src="{{ $profile->logo }}" @endif alt="logo">
     </div>
     <div class="partdescr__profile-block">
         <div style="font-weight: bold;" class="partdescr__profile-name">{{ $profile->company }}</div>
