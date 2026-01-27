@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Smsc;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use App\Models\Referral;
 
@@ -49,53 +49,9 @@ class AuthController extends Controller
 
                 $user->create_profile();
 
-                $code = session('ref_code') ?? Cookie::get('ref_code');
-
-                if ($code) {
-
-                    // ❌ запрет самореферала
-                    if ($code != $user->id) {
-
-                        // ❌ если клиент уже привязан
-                        if (!Referral::where('client_id', $user->id)->exists()) {
-
-                            // /ref/12
-                            if (is_numeric($code)) {
-
-                                $agent = User::find($code);
-
-                                if ($agent) {
-                                    Referral::create([
-                                        'agent_id'  => $agent->id,
-                                        'client_id' => $user->id,
-                                        'source'    => 'link',
-                                    ]);
-                                }
-
-                            }
-                            // /ref/AGENT12
-                            else {
-
-                                $promo = Referral::where('promo_code', $code)->first();
-
-                                if ($promo) {
-                                    Referral::create([
-                                        'agent_id'   => $promo->agent_id,
-                                        'client_id'  => $user->id,
-                                        'promo_code' => $promo->promo_code,
-                                        'source'     => 'promo',
-                                    ]);
-                                }
-                            }
-                        }
-                    }
-
-                    // очищаем
-                    session()->forget('ref_code');
-                    Cookie::queue(Cookie::forget('ref_code'));
-                }
-
                 Auth::login($user);
+
+                $this->applyReferral($user);
 
                 return redirect()->route('home');
             } else {
@@ -113,6 +69,7 @@ class AuthController extends Controller
     public function authenticate(Request $request)
     {
         if(Auth::attempt(['phone' => $this->phoneConvert($request->input('phone')), 'password' => $request->input('password')])) {
+            $this->applyReferral(Auth::user());
             return redirect()->route('home');
         } else {
             return redirect()->back();
@@ -123,5 +80,47 @@ class AuthController extends Controller
     {
         $phone = substr($phone,3);
         return "7".str_replace("-","", $phone);
+    }
+
+    /**
+     * Привязка реферального кода к пользователю
+     */
+    private function applyReferral($user)
+    {
+        $code = session('ref_code') ?? Cookie::get('ref_code');
+
+        if (!$code) return; // кода нет, ничего не делаем
+
+        // запрет самореферала
+        if ($code == $user->id) return;
+
+        if ($user->user_type == 'partner') return;
+
+        // если клиент уже привязан
+        if (Referral::where('client_id', $user->id)->exists()) return;
+
+        if (is_numeric($code)) {
+            $agent = User::find($code);
+
+            if ($agent && $agent->user_type !== 'partner') { // проверка на партнера
+                Referral::create([
+                    'agent_id'  => $agent->id,
+                    'client_id' => $user->id,
+                    'source'    => 'link',
+                ]);
+            }
+
+        } else {
+            Referral::create([
+                'agent_id'   => filter_var($code, FILTER_SANITIZE_NUMBER_INT),
+                'client_id'  => $user->id,
+                'promo_code' => $code,
+                'source'     => 'promo',
+            ]);
+        }
+
+        // очищаем сессию и куки после использования
+        session()->forget('ref_code');
+        Cookie::queue(Cookie::forget('ref_code'));
     }
 }

@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\PartnerGiftAllocation;
 use App\Models\Product;
 use App\Models\ProductStock;
+use App\Models\Referral;
+use App\Models\Share;
+use App\Models\UserBalance;
 use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\CartItem;
@@ -131,7 +134,7 @@ class CheckoutController extends Controller
             }
 
             // Сохраняем Payment
-            Payment::create([
+            $payment = Payment::create([
                 'user_id' => auth()->id(),
                 'partner_id' => null,
                 'pg_payment_id' => $model['Token'] ?? $model['TransactionId'],
@@ -144,6 +147,8 @@ class CheckoutController extends Controller
                 'meta' => json_encode($model, JSON_UNESCAPED_UNICODE),
                 'status' => 'paid'
             ]);
+
+            $this->handleReferralIncome($order, $payment);
 
             // 🎁 обработка подарка
             $winnerGift = $this->partnerGiftService->getAvailableGiftForUser(Auth::id(), $cart->total);
@@ -225,5 +230,40 @@ class CheckoutController extends Controller
     public function success()
     {
         return view('checkout.success');
+    }
+
+    protected function handleReferralIncome(Order $order, Payment $payment): void
+    {
+        // есть ли реферал
+        $referral = Referral::where('client_id', $order->user_id)->first();
+
+        if (!$referral) {
+            return;
+        }
+
+        // защита от повторного начисления
+        if (UserBalance::where([
+            'user_id'    => $referral->agent_id,
+            'payment_id' => $payment->id,
+            'type'       => 'payment',
+        ])->exists()) {
+            return;
+        }
+
+        // 💰 считаем доход агента (1%)
+        $income = round($payment->amount * 0.01, 2);
+
+        if ($income <= 0) {
+            return;
+        }
+
+        // начисляем агенту
+        UserBalance::create([
+            'user_id'    => $referral->agent_id,
+            'payment_id' => $order->id,
+            'type'       => 'payment',
+            'amount'     => $income,
+            'status'     => 'ok',
+        ]);
     }
 }

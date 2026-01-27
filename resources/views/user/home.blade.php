@@ -28,7 +28,7 @@
                 </div>
                 @endif
 
-                <a href="{{ route('user.addMyCard') }}" class="profile__bank-card-upload">+ прикрепить</a>
+                <a href="#" class="profile__bank-card-upload">+ прикрепить</a>
             </div>
         </div>
         <div class="profile__right">
@@ -67,14 +67,17 @@
                 <i style="color: #BABABA;" class="fa fa-link"></i>
                 <span style="font-size: 14px; color: #BABABA;">{{ route('referral.link', ['code' => $user->id]) }}</span>
             </div>
-            {{--<p class="profile__active-promocode">Активировать промокод</p>
+            <p class="profile__active-promocode">Активировать промокод</p>
             <div class="profile__promocode-input">
-                <input type="text" placeholder="Введите промокод">
-                <a href="#" class="profile__promocode-scanner">
-                    <img src="/images/profile/scanner-promocode-icon.svg" alt="scanner">
-                </a>
-                <button class="profile__promocode-btn" type="submit">OK</button>
-            </div>--}}
+                <form action="{{ route('user.promoActivate') }}" method="post">
+                    @csrf
+                    <input type="text" name="promo_code" required placeholder="Введите промокод">
+                    <a href="#" class="profile__promocode-scanner">
+                        <img src="/images/profile/scanner-promocode-icon.svg" alt="scanner">
+                    </a>
+                    <button class="profile__promocode-btn" type="submit">OK</button>
+                </form>
+            </div>
 
             @if($prize)
                 @php
@@ -100,6 +103,13 @@
 
         </div>
     </div>
+
+    @if ($errors->has('message'))
+        <div class="alert alert-danger" style="margin-top: 20px;">
+            {{ $errors->first('message') }}
+        </div>
+    @endif
+
     <div class="profile__info">
         Прикрепи свою банковскую карту для быстрой и удобной оплаты Не беспокойся, твои данные под надежной защитой!
     </div>

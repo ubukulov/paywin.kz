@@ -171,57 +171,9 @@
             </div>
 
             <div class="tab-pane fade" id="promo" role="tabpanel" aria-labelledby="promo-tab">
-                <form action="{{ route('partner.my-shares.store') }}" method="post" class="promo__prise-form">
-                    @csrf
-                    <input type="hidden" name="type" value="promocode">
-                    <div class="promo__prise-input-block">
-                        <label for="gift-name">Название подарка</label>
-                        <input name="title" required placeholder="Введите.."/>
-                    </div>
-
-                    <div class="promo__prise-input-block">
-                        <label for="gift-quantity">Количество</label>
-                        <input type="number" min="1" name="cnt" required>
-                    </div>
-
-                    <div class="promo__promocode-input-block">
-                        {{--<div class="promo__promocode-input-text">
-                            <span>Скидка</span> <input type="checkbox" value="1" name="discount_or_money" width="21px" height="11px"> деньги
-                        </div>--}}
-                        <div style="display: inline-flex; width: 50px;">
-                            <span>Скидка</span>
-                        </div>
-                        <div style="display: inline-flex; width: 100px;" class="custom-control custom-switch">
-                            <input type="checkbox" name="discount_or_money" class="custom-control-input" id="customSwitch1">
-                            <label class="custom-control-label" for="customSwitch1">Деньги</label>
-                        </div>
-                        <input type="number" min="1" name="size" required>
-                    </div>
-
-                    <div class="promo__prise-input-block">
-                        <label for="gift-time">При заказе</label>
-                        от <input type="number" class="time-s" min="1" name="from_order" required>
-                        до <input type="number" class="time-po" min="1" name="to_order" required>
-                    </div>
-
-                    <div class="promo__prise-input-block">
-                        <label for="gift-coeficent-winning">Коэф. выигрыша</label>
-                        <input type="number" min="1" name="c_winning" required>
-                    </div>
-
-                    <div class="promo__prise-input-block">
-                        <label for="gift-time">Время действия</label>
-                        с <input type="text" name="from_date" class="time-s" value="{{ date('d.m.Y') }}">
-                        по <input type="text" name="to_date" class="time-po" value="{{ date('d.m.Y') }}">
-                    </div>
-                    <div class="promo__btn-block">
-                        <div class="promo__back-btn">
-                            <a href="{{ route('partner.my-shares.index') }}"><img src="/images/cabinet/left-arrow.svg" align="left" alt="icon"> &nbsp; &nbsp; вернуться</a>
-                        </div>
-                        <button type="submit" class="promo__form-btn">добавить</button>
-                    </div>
-                </form>
+                @include('partner.shares.promo')
             </div>
+
         </div>
 
         {{--<div class="promo__nav">

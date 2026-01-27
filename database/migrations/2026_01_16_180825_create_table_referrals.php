@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('agent_id');
             $table->unsignedBigInteger('client_id');
-            $table->string('promo_code')->nullable()->unique();
+            $table->string('promo_code')->nullable();
             $table->enum('source', [
                 'link', 'promo'
             ]);

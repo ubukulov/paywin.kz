@@ -102,6 +102,8 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('history', [UserController::class, 'history'])->name('history');
         Route::post('balance-replenishment', [UserController::class, 'balanceReplenishment'])->name('balanceReplenishment');
 
+        Route::post('promo/activate', [UserController::class, 'promoActivate'])->name('promoActivate');
+
         Route::group(['prefix' => 'settings'], function () {
 
             Route::get('/', [UserController::class, 'settings'])->name('settings');

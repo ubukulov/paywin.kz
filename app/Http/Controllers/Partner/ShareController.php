@@ -52,6 +52,7 @@ class ShareController extends Controller
         $data['to_date'] = date('Y-m-d H:i:s', strtotime($data['to_date']));
         $data['promo'] = (isset($data['discount_or_money']) && $data['discount_or_money'] == 'on') ? 'money' : 'discount';
         $data['promo'] = ($data['type'] == 'promocode') ? $data['promo'] : 'none';
+        $data['title'] = ($data['type'] == 'promocode') ? mb_strtoupper($data['title']) : $data['title'];
         Share::create($data);
         return redirect()->route('partner.my-shares.index');
     }

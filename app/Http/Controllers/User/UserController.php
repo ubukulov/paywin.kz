@@ -11,7 +11,9 @@ use App\Models\UserBalance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\Referral;
 
 class UserController extends Controller
 {
@@ -126,7 +128,13 @@ class UserController extends Controller
 
     public function earn()
     {
-        return view('user.earn');
+        $promos = Share::actualPromocodes()->get();
+        $myPromos = Referral::where('agent_id', auth()->id())
+            ->where('source', 'promo')
+            ->get()
+            ->unique('promo_code');
+
+        return view('user.earn', compact('promos', 'myPromos'));
     }
 
     public function history()
@@ -181,5 +189,93 @@ class UserController extends Controller
         //redirect a customer to payment page
         header('Location: '.env('PAYBOX_URL').'payment.php?'.$query);
         exit();
+    }
+
+    public function promoActivate(Request $request)
+    {
+        $promoCode = strtoupper(trim($request->promo_code));
+
+        $promoPartner = preg_replace('/[^A-Z]/', '', $promoCode);
+
+        $user = auth()->user();
+
+        // 1. Получаем ID агента из кода
+        $agentId = (int) filter_var($promoCode, FILTER_SANITIZE_NUMBER_INT);
+
+        if (!$agentId || $agentId === $user->id) {
+            return redirect()
+                ->back()
+                ->withErrors(['message' => 'Некорректный промокод']);
+        }
+
+        // 2. Проверяем, существует ли агент
+        $agent = User::find($agentId);
+
+        if (!$agent || $agent->user_type !== 'user') {
+            return redirect()
+                ->back()
+                ->withErrors(['message' => 'Агент не найден']);
+        }
+
+        // 3. Проверяем промокод в SHARES
+        $share = Share::where('title', $promoPartner)
+            ->where('from_date', '<=', now())
+            ->where('to_date', '>=', now())
+            ->first();
+
+        if (!$share) {
+            return redirect()
+                ->back()
+                ->withErrors(['message' => 'Промокод неактуален']);
+        }
+
+        // 4. Проверка — не активировал ли уже
+        if (Referral::where('client_id', $user->id)->exists()) {
+            return redirect()
+                    ->back()
+                    ->withErrors(['message' => 'Вы уже привязаны к агенту']);
+        }
+
+        // =========================
+        // MONEY — активируем
+        // =========================
+        if ($share->promo === 'money') {
+
+            DB::transaction(function () use ($share, $agentId, $user, $promoCode) {
+
+                // фиксируем реферала
+                Referral::create([
+                    'agent_id'   => $agentId,
+                    'client_id'  => $user->id,
+                    'promo_code' => $promoCode,
+                    'source'     => 'promo',
+                ]);
+
+                // начисляем бонус
+                UserBalance::create([
+                    'user_id'      => $user->id,
+                    'promocode_id' => $share->id,
+                    'type'         => 'promocode',
+                    'amount'       => $share->size,
+                    'status'       => 'ok',
+                ]);
+            });
+
+            return redirect()->route('user.cabinet');
+        }
+
+        // =========================
+        // DISCOUNT — не активируем
+        // =========================
+        if ($share->type === 'discount') {
+
+            return redirect()
+                ->back()
+                ->withErrors(['message' => 'Промокод будет применён при оплате']);
+        }
+
+        return redirect()
+            ->back()
+            ->withErrors(['message' => 'Неизвестный тип промокода']);
     }
 }

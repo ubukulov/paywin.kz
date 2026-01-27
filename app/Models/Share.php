@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Share extends Model
 {
@@ -40,5 +41,25 @@ class Share extends Model
             ->get();
 
         return $clients->sum('amount');
+    }
+
+    public function scopeActualPromocodes($query)
+    {
+        return $query
+            ->where('type', 'promocode')
+            ->whereNotNull('title')
+            ->where(function ($q) {
+                $q->whereNull('from_date')
+                    ->orWhere('from_date', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('to_date')
+                    ->orWhere('to_date', '>=', now());
+            });
+    }
+
+    public function getMyPromoLink(): string
+    {
+        return route('referral.link', ['code' => $this->title . Auth::id()]);
     }
 }

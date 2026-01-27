@@ -13,19 +13,6 @@ class ReferralController extends Controller
     {
         $code = strtoupper(trim($code));
 
-        // /ref/12
-        if (is_numeric($code)) {
-            if (!User::where('id', $code)->exists()) {
-                abort(404);
-            }
-        }
-        // /ref/AGENT12
-        else {
-            if (!Referral::where('promo_code', $code)->exists()) {
-                abort(404);
-            }
-        }
-
         session([
             'ref_code' => $code,
             'ref_set_at' => now(),
