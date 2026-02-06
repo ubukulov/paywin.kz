@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Главная</title>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/fix.css') }}">
     <script src="{{ asset('js/script.js') }}"></script>
     <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ asset('js/home.js') }}"></script>
@@ -49,19 +50,19 @@
             </div>
 
             @if(Route::currentRouteName() !== 'cart.index')
-            <div class="cart">
-                <a href="{{ route('cart.index') }}" class="relative inline-block">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                              d="M2.25 2.25h1.386c.51 0 .957.343 1.087.835L5.25 6.75m0 0h13.5l-1.5 9h-12l-1.5-9zm0 0L4.723 4.085A1.125 1.125 0 0 0 3.636 3.25H2.25M9 21a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm9 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z"/>
-                    </svg>
+                <div class="cart">
+                    <a href="{{ route('cart.index') }}" class="relative inline-block">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                  d="M2.25 2.25h1.386c.51 0 .957.343 1.087.835L5.25 6.75m0 0h13.5l-1.5 9h-12l-1.5-9zm0 0L4.723 4.085A1.125 1.125 0 0 0 3.636 3.25H2.25M9 21a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm9 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z"/>
+                        </svg>
 
-                    <span id="cart-count"
-                          class="absolute -top-1 -right-2 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">
+                        <span id="cart-count"
+                              class="absolute -top-1 -right-2 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">
                         {{ $cartCount ?? 0 }}
                     </span>
-                </a>
-            </div>
+                    </a>
+                </div>
             @endif
         </div>
 

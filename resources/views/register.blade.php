@@ -1,44 +1,112 @@
 @extends('layouts.auth')
-@section('title')
-    Регистрация
-@endsection
+
+@section('title', 'Регистрация')
+
 @section('content')
-    <h1 class="h1 animate__animated animate__fadeInLeft">Регистрация</h1>
-    <h2 class="offer animate__animated animate__fadeIn">Зарегистрируйтесь, используя номер телефона</h2>
-    <form action="{{ route('registration') }}" method="post" class="registration-1-page__inputs">
-        @csrf
-        <label for="reg-1-phone-input">
-            <p class="label__text animate__animated animate__fadeInLeft">Номер телефона</p>
-            <input id="reg-1-phone-input" type="tel" required placeholder="Введите номер телефона…" name="phone" class="input reg-1__input--phone">
-        </label>
+    <div class="min-h-screen flex items-center justify-center px-4">
 
-        <label for="code-input">
-            <p class="label__text animate__animated animate__fadeInLeft">Промокод</p>
-            <input id="code-input" type="text" placeholder="Введите промокод (необязательно)" name="code" class="input reg-1__input--code">
-        </label>
+        <div class="">
 
-        <label for="reg-1-partner" class="reg-1__label--partner animate__animated animate__fadeIn">
-            <input id="reg-1-partner" type="checkbox" name="partner" value="yes" checked="" class="checkbox reg-1__input--partner custom-checkbox">
-            <label for="reg-1-partner"></label>
-            <p class="label__text">Стать партнером</p>
-        </label>
+            <div class="logo">
+                <img src="{{ asset('images/logo_bg_white.jpg') }}" alt="">
+            </div>
 
-        <label for="reg-2-partner" class="reg-1__label--partner animate__animated animate__fadeIn">
-            <input id="reg-2-partner" type="checkbox" disabled name="afferts" value="yes" checked="" class="checkbox reg-1__input--partner custom-checkbox">
-            <label for="reg-2-partner"></label>
-            <p class="label__text"> Подтверждаю ознакомление и согласие с условиями <a href="{{ asset('files/публичная_оферта.pdf') }}" target="_blank">Публичной оферты</a></p>
-        </label>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">
+                Регистрация
+            </h1>
 
-        <div class="registration-1-page__buttons animate__animated animate__fadeInUp">
-            <a href="{{ route('login') }}">Авторизация</a>
-            <button type="submit" style="width: 235px !important;" class="button button--go">Зарегистрироваться</button>
+            <p class="text-gray-500 mb-6">
+                Зарегистрируйтесь, используя номер телефона
+            </p>
+
+            <form action="{{ route('registration') }}" method="post" class="space-y-5">
+                @csrf
+
+                {{-- Телефон --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">
+                        Номер телефона
+                    </label>
+
+                    <input
+                        id="reg-1-phone-input"
+                        type="tel"
+                        name="phone"
+                        required
+                        placeholder="+7 ___ ___ __ __"
+                        class="w-full rounded-xl border border-gray-300 px-4 py-3
+                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           outline-none transition"
+                    >
+                </div>
+
+                {{-- Промокод --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">
+                        Промокод
+                    </label>
+
+                    <input
+                        type="text"
+                        name="code"
+                        placeholder="Необязательно"
+                        class="w-full rounded-xl border border-gray-300 px-4 py-3
+                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           outline-none transition"
+                    >
+                </div>
+
+                {{-- Чекбоксы --}}
+                <div class="space-y-3">
+
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" name="partner" value="yes"
+                               class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm text-gray-700">
+                        Стать партнером
+                    </span>
+                    </label>
+
+                    <label class="flex items-center gap-3">
+                        <input type="checkbox" checked disabled
+                               class="w-5 h-5 rounded border-gray-300 text-blue-600">
+                        <span class="text-sm text-gray-700">
+                        Подтверждаю ознакомление и согласие с условиями
+                        <a href="{{ asset('files/публичная_оферта.pdf') }}"
+                           target="_blank"
+                           class="text-blue-600 hover:underline">
+                            Публичной оферты
+                        </a>
+                    </span>
+                    </label>
+
+                </div>
+
+                {{-- Кнопки --}}
+                <div class="flex items-center justify-between pt-4">
+
+                    <a href="{{ route('login') }}"
+                       class="text-sm text-gray-500 hover:text-blue-600 transition">
+                        Авторизация
+                    </a>
+
+                    <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white
+                               px-6 py-3 rounded-xl font-medium
+                               transition shadow-md hover:shadow-lg">
+                        Зарегистрироваться
+                    </button>
+
+                </div>
+            </form>
         </div>
-    </form>
-@stop
+    </div>
+@endsection
+
 
 @push('js')
     <script>
-        $(document).ready(function(){
+        $(function(){
             $('#reg-1-phone-input').mask('+7 999-999-99-99');
         });
     </script>

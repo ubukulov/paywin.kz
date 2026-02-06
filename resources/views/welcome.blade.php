@@ -12,6 +12,10 @@
     <div class="profile">
         <div class="row">
             <div class="col-md-12">
+                <div class="logo text-center">
+                    <img src="{{ asset('images/logo_bg_white.jpg') }}" alt="">
+                </div>
+
                 <h2 style="text-align: center;">Paywin.kz - призы за покупки!</h2>
 
                 <br><br>
@@ -27,7 +31,7 @@
         </div>
 
         <div class="row">
-            <div class="col">
+            <div class="col text-right">
                 <a class="btn btn-warning" href="{{ route('login') }}">Авторизоваться</a>
             </div>
 

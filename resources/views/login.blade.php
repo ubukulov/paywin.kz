@@ -1,32 +1,90 @@
 @extends('layouts.auth')
-@section('title')
-    Авторизация
-@endsection
+
+@section('title', 'Авторизация')
+
 @section('content')
-    <h1 class="h1 animate__animated animate__fadeInLeft">Авторизация</h1>
-    <h2 class="offer animate__animated animate__fadeIn">Войдите, используя номер телефона</h2>
-    <form method="post" action="{{ route('authenticate') }}" class="auth-page__inputs">
-        @csrf
-        <label for="auth__phone-input">
-            <p class="label__text animate__animated animate__fadeInLeft">Номер телефона</p>
-            <input id="auth-phone-input" type="tel" required placeholder="Введите номер телефона…" name="phone" class="input reg-1__input--phone">
-        </label>
+    <div class="min-h-screen flex items-center justify-center">
 
-        <label for="auth__password-input">
-            <p class="label__text animate__animated animate__fadeInLeft">Пароль</p>
-            <input id="auth__password-input" type="password" required placeholder="" name="password" class="input reg-1__input--code">
-        </label>
+        <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
 
-        <div class="auth__buttons animate__animated animate__fadeInUp">
-            <a href="{{ route('register') }}">Регистрация</a>
-            <button type="submit" class="button button--go">Войти</button>
+            {{-- Лого --}}
+            <div class="flex justify-center mb-6">
+                <img src="{{ asset('images/logo_bg_white.jpg') }}"
+                     class="h-16 object-contain"
+                     alt="Logo">
+            </div>
+
+            <h1 class="text-2xl font-bold text-gray-800 text-center mb-2">
+                Авторизация
+            </h1>
+
+            <p class="text-center text-gray-500 mb-6">
+                Войдите, используя номер телефона
+            </p>
+
+            <form method="post" action="{{ route('authenticate') }}" class="space-y-5">
+                @csrf
+
+                {{-- Телефон --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">
+                        Номер телефона
+                    </label>
+
+                    <input
+                        id="auth-phone-input"
+                        type="tel"
+                        name="phone"
+                        required
+                        placeholder="+7 ___ ___ __ __"
+                        class="w-full rounded-xl border border-gray-300 px-4 py-3
+                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           outline-none transition"
+                    >
+                </div>
+
+                {{-- Пароль --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">
+                        Пароль
+                    </label>
+
+                    <input
+                        type="password"
+                        name="password"
+                        required
+                        placeholder="Введите пароль"
+                        class="w-full rounded-xl border border-gray-300 px-4 py-3
+                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           outline-none transition"
+                    >
+                </div>
+
+                {{-- Кнопки --}}
+                <div class="flex items-center justify-between pt-4">
+
+                    <a href="{{ route('register') }}"
+                       class="text-sm text-gray-500 hover:text-blue-600 transition">
+                        Регистрация
+                    </a>
+
+                    <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white
+                               px-6 py-3 rounded-xl font-medium
+                               transition shadow-md hover:shadow-lg">
+                        Войти
+                    </button>
+
+                </div>
+            </form>
         </div>
-    </form>
-@stop
+    </div>
+@endsection
+
 
 @push('js')
     <script>
-        $(document).ready(function(){
+        $(function(){
             $('#auth-phone-input').mask('+7 999-999-99-99');
         });
     </script>

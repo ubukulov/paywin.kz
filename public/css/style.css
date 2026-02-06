@@ -3705,6 +3705,7 @@ body {
 
 .input {
   width: 100%;
+    box-sizing: border-box;
   padding-top: 13px;
   padding-bottom: 13px;
   padding-left: 22px;
@@ -4629,7 +4630,7 @@ body {
 .camera {
   height: 126px;
   margin-bottom: 48px;
-  background-color: #161616; }
+  background-color: #000; }
   .camera--high {
     height: 380px; }
   .camera .container {
