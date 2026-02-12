@@ -39,7 +39,7 @@
 
             {{-- logo --}}
             <img
-                src="{{ $partner_profile->logo ?: '/images/history/logo.png' }}"
+                src="{{ $partner_profile?->logo ?? '/images/history/logo.png' }}"
                 class="w-10 h-10 rounded-lg object-cover border"
                 alt="logo"
             >
