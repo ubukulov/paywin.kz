@@ -32,7 +32,7 @@
     @foreach($payments as $payment)
 
         @php
-            $partner_profile = $payment->partner->profile;
+            $partner_profile = $payment->partner?->profile;
         @endphp
 
         <div class="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3">
@@ -48,7 +48,7 @@
             <div class="flex-1">
 
                 <div class="font-medium text-sm">
-                    {{ $partner_profile->company }}
+                    {{ $partner_profile->company ?? '-' }}
                 </div>
 
                 <div class="text-xs text-gray-400">
