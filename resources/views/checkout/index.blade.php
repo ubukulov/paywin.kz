@@ -108,18 +108,18 @@
                                    class="w-full border rounded-lg p-3 uppercase focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
 
-                        <button type="button" id="generateCryptogram"
+                        {{--<button type="button" id="generateCryptogram"
                                 class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition">
                             Создать криптограмму
-                        </button>
+                        </button>--}}
 
-                        <p id="cryptoStatus" class="text-sm text-center"></p>
+                        {{--<p id="cryptoStatus" class="text-sm text-center"></p>--}}
                     </div>
                 </div>
 
                 <input type="hidden" name="cryptogram" id="cryptogram">
-                <button id="confirmOrder" disabled
-                        class="mt-6 w-full bg-gray-400 text-white py-3 rounded-lg text-lg font-medium shadow cursor-not-allowed">
+                <button id="confirmOrder"
+                        class="mt-6 w-full bg-indigo-600 text-white py-3 rounded-lg text-lg font-medium shadow cursor-not-allowed">
                     Подтвердить заказ
                 </button>
             </div>
@@ -162,79 +162,57 @@
             cardInput.value = digits.replace(/(.{4})/g, '$1 ').trim();
         });
 
-        // Создание криптограммы
-        document.getElementById('generateCryptogram').addEventListener('click', () => {
-            const fieldValues = {
-                cardNumber: cardInput.value.replace(/\D/g, ''),
-                cvv: document.getElementById('cvv').value,
-                expDateMonth: document.getElementById('expMonth').value,
-                expDateYear: document.getElementById('expYear').value,
-                cardHolderName: document.getElementById('cardHolder').value,
-            };
-
-            checkout.createPaymentCryptogram(fieldValues)
-                .then(cryptogram => {
-                    document.getElementById('cryptogram').value = cryptogram;
-                    confirmOrder.disabled = false;
-                    confirmOrder.className = "mt-6 w-full bg-indigo-600 hover:bg-indigo-700 transition text-white py-3 rounded-lg text-lg font-medium shadow";
-                    showSuccess('Криптограмма успешно создана ✅');
-                })
-                .catch(errors => showError(errors.join(', ')));
-        });
-
-        function showError(text) {
-            const el = document.getElementById('cryptoStatus');
-            el.innerText = text;
-            el.className = 'text-sm text-center text-red-600';
-        }
-
-        function showSuccess(text) {
-            const el = document.getElementById('cryptoStatus');
-            el.innerText = text;
-            el.className = 'text-sm text-center text-green-600';
-        }
-
         // Отправка формы с обработкой 3DS
         document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+
             confirmOrder.disabled = true;
             confirmOrder.innerText = 'Обрабатываем...';
 
-            const payload = {
-                name: e.target.name.value,
-                phone: e.target.phone.value,
-                address: e.target.address.value,
-                cryptogram: document.getElementById('cryptogram').value
-            };
-
             try {
+                // 1️⃣ Сначала создаём криптограмму
+                const cryptogram = await checkout.createPaymentCryptogram({
+                    cardNumber: cardInput.value.replace(/\D/g, ''),
+                    cvv: document.getElementById('cvv').value,
+                    expDateMonth: document.getElementById('expMonth').value,
+                    expDateYear: document.getElementById('expYear').value,
+                    cardHolderName: document.getElementById('cardHolder').value,
+                });
+
+                // 2️⃣ Отправляем запрос
                 const response = await fetch(e.target.action, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        name: e.target.name.value,
+                        phone: e.target.phone.value,
+                        address: e.target.address.value,
+                        cryptogram
+                    })
                 });
+
                 const data = await response.json();
 
                 if (data.status === '3ds_required') {
                     show3DSForm(data.acs_url, data.pareq, data.transaction_id);
-                } else if (data.success) {
-                    alert('Оплата успешно проведена!');
+                    return;
+                }
+
+                if (data.success) {
                     window.location.href = '/checkout/success';
                 } else {
                     alert('Ошибка оплаты: ' + (data.error || 'неизвестная'));
-                    confirmOrder.disabled = false;
-                    confirmOrder.innerText = 'Подтвердить заказ';
                 }
 
             } catch (err) {
-                console.error(err);
-                alert('Ошибка сервера');
-                confirmOrder.disabled = false;
-                confirmOrder.innerText = 'Подтвердить заказ';
+                alert('Ошибка карты: ' + err);
             }
+
+            confirmOrder.disabled = false;
+            confirmOrder.innerText = 'Подтвердить заказ';
         });
     </script>
 @endsection

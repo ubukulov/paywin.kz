@@ -1,120 +1,184 @@
 @extends('partner.partner')
+
 @section('content')
-    <div class="container mt-4">
-        <form action="{{ route('partner.profileUpdate') }}" method="post" enctype="multipart/form-data">
+    <div class="max-w-5xl mx-auto">
+
+        <form action="{{ route('partner.profileUpdate') }}"
+              method="POST"
+              enctype="multipart/form-data"
+              class="rounded-2xl space-y-10">
+
             @csrf
             <input type="hidden" name="user_id" value="{{ $user_profile->user_id }}">
-            <div class="form-group">
-                <label>Компания</label>
-                <input type="text" name="company" value="{{ $user_profile->company }}" class="form-control" required>
+
+            <h2 class="text-2xl font-semibold">Профиль компании</h2>
+
+            {{-- Основные данные --}}
+            <div class="grid md:grid-cols-2 gap-6">
+
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700">Компания</label>
+                    <input type="text" name="company"
+                           value="{{ $user_profile->company }}"
+                           required
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2
+                               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                               outline-none transition">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700">Категория</label>
+                    <select name="category_id"
+                            class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        @foreach($categories as $cat)
+                            <option @if($cat->id == $user_profile->category_id) selected @endif
+                            value="{{ $cat->id }}">
+                                {{ $cat->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label>Телефон</label>
+                    <input type="text" name="phone"
+                           value="{{ $user_profile->phone }}"
+                           required
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2
+                               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                               outline-none transition">
+                </div>
+
+                <div class="space-y-2">
+                    <label>Адрес</label>
+                    <input type="text" name="address"
+                           value="{{ $user_profile->address }}"
+                           required
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2
+                               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                               outline-none transition">
+                </div>
+
+                <div class="space-y-2">
+                    <label>Email</label>
+                    <input type="email" name="email"
+                           value="{{ $user_profile->email }}"
+                           required
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2
+                               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                               outline-none transition">
+                </div>
+
+                <div class="space-y-2">
+                    <label>Сайт</label>
+                    <input type="text" name="site"
+                           value="{{ $user_profile->site }}"
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2
+                               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                               outline-none transition">
+                </div>
+
             </div>
 
-            <div class="form-group">
-                <label>Категория</label>
-                <select name="category_id" class="form-control">
-                    @foreach($categories as $cat)
-                    <option @if($cat->id == $user_profile->category_id) selected @endif value="{{ $cat->id }}">{{ $cat->title }}</option>
-                    @endforeach
-                </select>
+
+            {{-- Текстовые поля --}}
+            <div class="grid md:grid-cols-2 gap-6">
+
+                <div class="space-y-2">
+                    <label>Время работы</label>
+                    <textarea rows="3" name="work_time"
+                              class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">{{ $user_profile->work_time }}</textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label>Описание</label>
+                    <textarea rows="3" name="description"
+                              class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">{{ $user_profile->description }}</textarea>
+                </div>
+
             </div>
 
-            <div class="form-group">
-                <label>Телефон</label>
-                <input type="text" name="phone" value="{{ $user_profile->phone }}" class="form-control" required>
+
+            {{-- Файлы --}}
+            <div class="grid md:grid-cols-2 gap-6">
+
+                <div class="space-y-2">
+                    <label>Логотип</label>
+                    <input type="file"
+                           accept="image/*"
+                           name="logo"
+                           @if(empty($user_profile->logo)) required @endif
+                           class="w-full border rounded-lg p-2 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700">
+                </div>
+
+                <div class="space-y-2">
+                    <label>Договор (PDF)</label>
+                    <input type="file"
+                           accept="application/pdf"
+                           name="agreement"
+                           @if(empty($user_profile->agreement)) required @endif
+                           class="w-full border rounded-lg p-2 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700">
+                </div>
+
             </div>
 
-            <div class="form-group">
-                <label>Адрес</label>
-                <input type="text" name="address" value="{{ $user_profile->address }}" class="form-control" required>
-            </div>
 
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" value="{{ $user_profile->email }}" class="form-control" required>
-            </div>
+            {{-- Реквизиты --}}
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold border-b pb-2">Реквизиты</h3>
 
-            <div class="form-group">
-                <label>Сайт</label>
-                <input type="text" name="site" value="{{ $user_profile->site }}" class="form-control" required>
-            </div>
+                <div class="grid md:grid-cols-3 gap-6">
 
-            <div class="form-group">
-                <label>Время работы</label>
-                <textarea rows="3" cols="30" name="work_time" class="form-control">{{ $user_profile->work_time }}</textarea>
-            </div>
+                    <input type="text"
+                           name="bank_name"
+                           placeholder="Название банка"
+                           value="{{ $user_profile->bank_name }}"
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2
+                               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                               outline-none transition">
 
-            <div class="form-group">
-                <label>Описание</label>
-                <textarea rows="3" cols="30" name="description" class="form-control">{{ $user_profile->description }}</textarea>
-            </div>
+                    <input type="text"
+                           name="bank_account"
+                           placeholder="Банковский счет"
+                           value="{{ $user_profile->bank_account }}"
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2
+                               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                               outline-none transition">
 
-            <div class="form-group">
-                <label>Логотип</label>
-                <div class="custom-file mb-3">
-                    <input type="file" accept="image/*" name="logo" class="custom-file-input" id="validatedCustomFile" @if(empty($user_profile->logo)) required @endif>
-                    <label class="custom-file-label" for="validatedCustomFile">Выберите логотип...</label>
-                    <div class="invalid-feedback">Example invalid custom file feedback</div>
+                    <input type="text"
+                           name="card_number"
+                           placeholder="Номер карты"
+                           value="{{ $user_profile->card_number }}"
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2
+                               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                               outline-none transition">
+
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Договор</label>
-                <div class="custom-file mb-3">
-                    <input type="file" accept="application/pdf" name="agreement" class="custom-file-input" id="validatedCustomFile" @if(empty($user_profile->agreement)) required @endif>
-                    <label class="custom-file-label" for="validatedCustomFile">Выберите договор...</label>
-                    <div class="invalid-feedback">Example invalid custom file feedback</div>
-                </div>
+
+            {{-- Соцсети --}}
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2">Социальные сети</h3>
+                @include('partner.partials._networks')
             </div>
 
-            <h4 style="color: #ccc;" class="mb-2">Реквизиты</h4>
-            <div class="form-group">
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1">
-                            <i class="fa fa-bank" aria-hidden="true"></i> Названия банка
-                        </span>
-                    </div>
-                    <input type="text" class="form-control" name="bank_name" value="{{ $user_profile->bank_name }}" aria-label="Username" aria-describedby="basic-addon1">
-                </div>
+
+            {{-- Кнопки --}}
+            <div class="flex justify-between pt-6 border-t">
+
+                <a href="{{ route('partner.cabinet') }}"
+                   class="px-6 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 transition">
+                    Назад
+                </a>
+
+                <button type="submit"
+                        class="px-6 py-2 rounded-xl bg-green-600 text-white hover:bg-green-700 transition">
+                    Сохранить
+                </button>
+
             </div>
 
-            <div class="form-group">
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1">
-                            <i class="fa fa-usd" aria-hidden="true"></i> Банковский счет
-                        </span>
-                    </div>
-                    <input type="text" class="form-control" name="bank_account" value="{{ $user_profile->bank_account }}" aria-label="Username" aria-describedby="basic-addon1">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1">
-                            <i class="fa fa-credit-card" aria-hidden="true"></i> Номер карты
-                        </span>
-                    </div>
-                    <input type="text" class="form-control" name="card_number" value="{{ $user_profile->card_number }}" aria-label="Username" aria-describedby="basic-addon1">
-                </div>
-            </div>
-
-            <h4 style="color: #ccc;" class="mb-2">Социальные сети</h4>
-
-            @include('partner.partials._networks')
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-success">Сохранить</button>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <a href="{{ route('partner.cabinet') }}" class="btn btn-warning">Назад</a>
-                </div>
-            </div>
         </form>
     </div>
-@stop
+@endsection

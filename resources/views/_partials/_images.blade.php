@@ -1,5 +1,7 @@
 <div class="partdescr__address">
-    <div class="partdescr__address-title"><a href="{{ route('partner.imageLists') }}">Картинки ({{ $partner->images->count() }})</a></div>
+    <div style="font-size: 22px;
+        color: #DEDEDE;
+        font-weight: 700;"><a href="{{ route('partner.imageLists') }}">Картинки ({{ $partner->images->count() }})</a></div>
 
     @if($partner->images->count() == 0)
         <div class="partner__address-subtitle">Вы еще не указали картинки заведения</div>

@@ -7,8 +7,8 @@
 
         <div class="">
 
-            <div class="logo">
-                <img src="{{ asset('images/logo_bg_white.jpg') }}" alt="">
+            <div>
+                <img class="logo" src="{{ asset('images/logo_bg_white.jpg') }}" alt="">
             </div>
 
             <h1 class="text-2xl font-bold text-gray-800 mb-2">

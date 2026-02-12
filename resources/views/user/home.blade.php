@@ -116,7 +116,7 @@
     {{--<a href="#" class="profile__user-agreement">Пользовательское соглашение</a>--}}
 
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    {{--<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form action="{{ route('user.balanceReplenishment') }}" method="post">
@@ -139,5 +139,5 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div>--}}
 @stop

@@ -1,43 +1,59 @@
-<div class="form-group">
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">
-                <i class="fa fa-vk" aria-hidden="true"></i>
-            </span>
-        </div>
-        <input type="text" class="form-control" name="vk" value="{{ $user_profile->vk }}" aria-label="Username" aria-describedby="basic-addon1">
-    </div>
-</div>
+<div class="space-y-4">
 
-<div class="form-group">
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">
-                <i class="fa fa-telegram" aria-hidden="true"></i>
-            </span>
-        </div>
-        <input type="text" class="form-control" name="telegram" value="{{ $user_profile->telegram }}" aria-label="Username" aria-describedby="basic-addon1">
+    {{-- VK --}}
+    <div class="flex items-center gap-3">
+        <span class="w-10 text-center text-blue-600 text-xl">
+            <i class="fa fa-vk"></i>
+        </span>
+        <input type="text"
+               name="vk"
+               value="{{ $user_profile->vk }}"
+               placeholder="Ссылка на VK"
+               class="w-full rounded-lg border border-gray-300 px-4 py-2
+                               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                               outline-none transition">
     </div>
-</div>
 
-<div class="form-group">
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">
-                <i class="fa fa-instagram" aria-hidden="true"></i>
-            </span>
-        </div>
-        <input type="text" class="form-control" value="{{ $user_profile->instagram }}" name="instagram" aria-label="Username" aria-describedby="basic-addon1">
+    {{-- Telegram --}}
+    <div class="flex items-center gap-3">
+        <span class="w-10 text-center text-blue-400 text-xl">
+            <i class="fa fa-telegram"></i>
+        </span>
+        <input type="text"
+               name="telegram"
+               value="{{ $user_profile->telegram }}"
+               placeholder="Ссылка на Telegram"
+               class="w-full rounded-lg border border-gray-300 px-4 py-2
+                               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                               outline-none transition">
     </div>
-</div>
 
-<div class="form-group">
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">
-                <i class="fa fa-facebook" aria-hidden="true"></i>
-            </span>
-        </div>
-        <input type="text" class="form-control" value="{{ $user_profile->facebook }}" name="facebook" aria-label="Username" aria-describedby="basic-addon1">
+    {{-- Instagram --}}
+    <div class="flex items-center gap-3">
+        <span class="w-10 text-center text-pink-500 text-xl">
+            <i class="fa fa-instagram"></i>
+        </span>
+        <input type="text"
+               name="instagram"
+               value="{{ $user_profile->instagram }}"
+               placeholder="Ссылка на Instagram"
+               class="w-full rounded-lg border border-gray-300 px-4 py-2
+                               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                               outline-none transition">
     </div>
+
+    {{-- Facebook --}}
+    <div class="flex items-center gap-3">
+        <span class="w-10 text-center text-blue-700 text-xl">
+            <i class="fa fa-facebook"></i>
+        </span>
+        <input type="text"
+               name="facebook"
+               value="{{ $user_profile->facebook }}"
+               placeholder="Ссылка на Facebook"
+               class="w-full rounded-lg border border-gray-300 px-4 py-2
+                               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                               outline-none transition">
+    </div>
+
 </div>

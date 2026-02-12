@@ -10,7 +10,7 @@
             {{-- Лого --}}
             <div class="flex justify-center mb-6">
                 <img src="{{ asset('images/logo_bg_white.jpg') }}"
-                     class="h-16 object-contain"
+                     class="logo"
                      alt="Logo">
             </div>
 

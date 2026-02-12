@@ -1,10 +1,10 @@
 <script src="https://api-maps.yandex.ru/2.1/?apikey=<?= env('YANDEX_API_KEY') ?>&lang=ru_RU" type="text/javascript"></script>
 
-<div class="partdescr__address">
-    <div class="partdescr__address-title">Адреса ({{ $partner->address->count() }})</div>
+<div class="partdescr__address space-y-4">
+    <div style="color: #dedede; font-size: 22px; font-weight: bold;" class="text-lg font-semibold">Адреса ({{ $partner->address->count() }})</div>
 
     @if($partner->address->count() == 0)
-        <div class="partner__address-subtitle">Вы еще не указали адрес заведения</div>
+        <div class="text-gray-500">Вы еще не указали адрес заведения</div>
     @else
         @php
             $arr = [];
@@ -12,101 +12,72 @@
                 $arr[$item->id] = $item->toArray();
                 $arr[$item->id]['address'] = str_replace('<br>', '', $item->address);
             }
-
             $addresses = $arr;
         @endphp
-        <div class="yanmaps">
-            <div class="slider-container">
-            @foreach($addresses as $item)
-                <div class="yanmaps-item">
-                    <div id="map{{$item['id']}}" style="width: 100%; height: 200px;"></div>
-                    <div>{{ $item['address'] }}</div>
-                </div>
 
-                <script type="text/javascript">
-                    ymaps.ready(init);
-                    function init() {
-                        // Создаем карту с центром в Москве
-                        var myMap = new ymaps.Map("map<?=$item['id']?>", {
-                            center: [69.50, 42.36], // Центр карты (Москва)
-                            zoom: 2
-                        });
+        <div class="yanmaps relative w-full overflow-hidden">
+            <!-- Слайдер -->
+            <div class="slider-container flex transition-transform duration-500 ease-in-out w-full">
+                @foreach($addresses as $item)
+                    <div class="yanmaps-item min-w-full text-center bg-gray-100 border border-gray-300">
+                        <div id="map{{$item['id']}}" class="w-full h-52 mb-2"></div>
+                        <div class="text-sm text-gray-700">{{ $item['address'] }}</div>
+                    </div>
 
-                        // Указываем адрес для геокодирования
-                        var address = "<?=$item['address']?>";
-
-                        // Выполняем запрос к геокодеру
-                        ymaps.geocode(address).then(function (res) {
-                            // Получаем первый результат из ответа геокодера
-                            var firstGeoObject = res.geoObjects.get(0);
-
-                            // Получаем координаты объекта
-                            var coords = firstGeoObject.geometry.getCoordinates();
-
-                            // Добавляем метку на карту
-                            var placemark = new ymaps.Placemark(coords, {
-                                balloonContent: 'Адрес: ' + address
+                    <script type="text/javascript">
+                        ymaps.ready(init);
+                        function init() {
+                            var myMap = new ymaps.Map("map<?=$item['id']?>", {
+                                center: [69.50, 42.36],
+                                zoom: 2
                             });
-
-                            // Центрируем карту на найденные координаты и добавляем метку
-                            myMap.setCenter(coords, 16);
-                            myMap.geoObjects.add(placemark);
-                        });
-                    }
-                </script>
-            @endforeach
+                            var address = "<?=$item['address']?>";
+                            ymaps.geocode(address).then(function (res) {
+                                var firstGeoObject = res.geoObjects.get(0);
+                                var coords = firstGeoObject.geometry.getCoordinates();
+                                var placemark = new ymaps.Placemark(coords, { balloonContent: 'Адрес: ' + address });
+                                myMap.setCenter(coords, 16);
+                                myMap.geoObjects.add(placemark);
+                            });
+                        }
+                    </script>
+                @endforeach
             </div>
-            <div class="dots-container">
+
+            <!-- Навигационные точки -->
+            <div class="dots-container flex justify-center mt-4 space-x-2">
                 @foreach($addresses as $key=>$val)
-                <span class="dot" data-slide="{{$key}}"></span>
+                    <span class="dot w-3 h-3 rounded-full bg-gray-400 cursor-pointer" data-slide="{{$key}}"></span>
                 @endforeach
             </div>
         </div>
 
-        <style>
-            .yanmaps {
-                position: relative;
-                width: 100%;
-                overflow: hidden;
-                display: flex;
-                align-items: center;
-            }
-            .slider-container {
-                display: flex;
-                transition: transform 0.5s ease-in-out;
-                width: 100%;
-            }
-            .yanmaps-item {
-                min-width: 100%; /* Каждая карточка будет занимать 100% ширины контейнера */
-                box-sizing: border-box;
-                padding: 20px;
-                text-align: center;
-                background-color: #f2f2f2;
-                border: 1px solid #ccc;
-            }
-            .dots-container {
-                text-align: center;
-                margin-top: 20px;
-            }
-            .dot {
-                height: 15px;
-                width: 15px;
-                margin: 0 5px;
-                background-color: #bbb;
-                border-radius: 50%;
-                display: inline-block;
-                cursor: pointer;
-                transition: background-color 0.3s ease;
+        <script>
+            const slider = document.querySelector('.slider-container');
+            const dots = document.querySelectorAll('.dot');
+
+            let currentSlide = 0;
+
+            function goToSlide(index) {
+                slider.style.transform = `translateX(-${index * 100}%)`;
+                dots.forEach(dot => dot.classList.remove('bg-gray-700'));
+                dots[index].classList.add('bg-gray-700');
+                currentSlide = index;
             }
 
-            .dot.active {
-                background-color: #717171;
-            }
-        </style>
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => goToSlide(index));
+            });
+
+            // Инициализация первой активной точки
+            if(dots.length) goToSlide(0);
+        </script>
     @endif
 
     @if(Auth::check() && Auth::user()->user_type == 'partner' && Route::currentRouteName() == 'partner.cabinet')
-        <a href="{{ route('partner.addressCreate') }}" class="partner__address-upload-btn">+ добавить адрес</a>
+        <a href="{{ route('partner.addressCreate') }}"
+           class="inline-block mt-2 px-3 py-1 text-xs font-semibold text-white bg-orange-500 rounded hover:bg-orange-600">
+            + добавить адрес
+        </a>
     @endif
-
 </div>

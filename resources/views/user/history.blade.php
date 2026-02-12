@@ -1,50 +1,48 @@
 @extends('user.user')
-@push('user_styles')
-    <style>
-        .hbalance__replenish-btn, .hbalance__output-btn {
-            /*height: 16px !important;*/
-            text-align: center;
-        }
-    </style>
-@endpush
 @section('content')
-    <div class="hbalance">
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a class="nav-link active promo__nav-link" id="balance-tab" data-toggle="tab" href="#balance" role="tab" aria-controls="balance" aria-selected="true">Баланс</a>
-            </li>
+    <div class="w-full max-w-md mx-auto">
+        <div class="flex border-b border-gray-200 justify-center">
+            <button class="tab-btn py-2 px-4 text-blue-600 border-b-2 border-blue-600 font-medium" data-tab="balance">
+                баланс
+            </button>
+            <button class="tab-btn py-2 px-4 text-gray-600 hover:text-blue-600" data-tab="shopping">
+                покупки
+            </button>
+        </div>
 
-            <li class="nav-item" role="presentation">
-                <a class="nav-link promo__nav-link" id="shop-tab" data-toggle="tab" href="#shop" role="tab" aria-controls="shop" aria-selected="false">Покупки</a>
-            </li>
-
-            {{--<li class="nav-item" role="presentation">
-                <a class="nav-link promo__nav-link" id="income-tab" data-toggle="tab" href="#income" role="tab" aria-controls="income" aria-selected="false">Доходы</a>
-            </li>--}}
-        </ul>
-
-        <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="balance" role="tabpanel" aria-labelledby="balance-tab">
+        <div class="mt-4 px-3">
+            <div id="balance" class="tab-content">
                 @include('user.partials._balance')
             </div>
 
-            <div class="tab-pane fade show" id="shop" role="tabpanel" aria-labelledby="shop-tab">
+            <div id="shopping" class="tab-content hidden">
                 @include('user.partials._shopping')
             </div>
-
-            {{--<div class="tab-pane fade show" id="income" role="tabpanel" aria-labelledby="income-tab">
-                @include('user.partials._income')
-            </div>--}}
         </div>
-
-
-        {{--<div class="hbalance__choose">
-            <ul>
-                <li><a href="#" class="hbalance__choose-link is-active">Баланс</a></li>
-                <li><a href="#" class="hbalance__choose-link">Покупки</a></li>
-                <li><a href="#" class="hbalance__choose-link">Доходы</a></li>
-            </ul>
-        </div>--}}
-
     </div>
 @stop
+
+@push('user_scripts')
+    <script>
+        const tabs = document.querySelectorAll(".tab-btn");
+        const contents = document.querySelectorAll(".tab-content");
+
+        tabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                // Сброс активной кнопки
+                tabs.forEach(t => {
+                    t.classList.remove("text-blue-600", "border-b-2", "border-blue-600", "font-medium");
+                    t.classList.add("text-gray-600");
+                });
+                // Скрыть все контенты
+                contents.forEach(c => c.classList.add("hidden"));
+
+                // Активировать выбранную вкладку
+                tab.classList.add("text-blue-600", "border-b-2", "border-blue-600", "font-medium");
+                tab.classList.remove("text-gray-600");
+
+                document.getElementById(tab.dataset.tab).classList.remove("hidden");
+            });
+        });
+    </script>
+@endpush

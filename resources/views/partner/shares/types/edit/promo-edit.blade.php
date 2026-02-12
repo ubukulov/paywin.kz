@@ -1,8 +1,8 @@
-<form action="{{ route('partner.my-shares.store') }}"
+<form action="{{ route('partner.my-shares.update', ['my_share' => $share->id]) }}"
       method="post"
-      class="max-w-2xl mx-auto rounded-2xl p-6 space-y-6">
+      class="max-w-2xl mx-auto rounded-2xl space-y-6 px-3">
     @csrf
-
+    @method('PUT')
     <input type="hidden" name="type" value="promocode">
 
     <!-- Название подарка -->
@@ -12,6 +12,7 @@
         </label>
         <input
             name="title"
+            value="{{ $share->title }}"
             required
             placeholder="Введите название"
             style="text-transform: uppercase"
@@ -47,6 +48,7 @@
             type="number"
             min="1"
             name="size"
+            value="{{ $share->size }}"
             required
             placeholder="Размер"
             class="mt-3 w-full rounded-lg border border-gray-300 px-4 py-2
@@ -67,6 +69,7 @@
                 <input
                     type="datetime-local"
                     name="from_date"
+                    value="{{ $share->from_date }}"
                     class="w-full rounded-lg border border-gray-300 px-4 py-2
                                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
                                outline-none transition"
@@ -78,6 +81,7 @@
                 <input
                     type="datetime-local"
                     name="to_date"
+                    value="{{ $share->to_date }}"
                     class="w-full rounded-lg border border-gray-300 px-4 py-2
                                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
                                outline-none transition"

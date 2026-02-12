@@ -21,8 +21,15 @@
 <body class="home-page">
 <section class="camera">
     <div class="container">
-        <h1 class="home-page__title animate__animated animate__fadeInDown">Наведите камеру на QR код</h1>
-        <button id="scanQR" class="button camera__button">Сканировать</button>
+        <div style="display: flex;">
+            <div>
+                <img class="logo" src="{{ asset('images/logo_bg_black.jpg') }}" alt="">
+            </div>
+
+            <div style="display: block; align-content: center;">
+                <button id="scanQR" class="button camera__button">Сканировать</button>
+            </div>
+        </div>
 
         <div class="camera--hidden animate__animated animate__fadeInDown" style="text-align: center;">
             {{--<img src="/img/icons/qr.svg" alt="Наведите камеру на QR код" class="camera__img">--}}

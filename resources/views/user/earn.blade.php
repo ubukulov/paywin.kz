@@ -91,6 +91,11 @@
     <div class="earn">
         <div class="earn__wrapper">
 
+            @if($promos->isEmpty())
+                <div class="text-center text-gray-500">
+                    В данный момент нет доступных промокодов
+                </div>
+            @else
             <div class="promo-wrapper">
                 <h2 style="margin-bottom: 20px;">🎁 Доступные промокоды</h2>
 
@@ -105,7 +110,7 @@
                             <p>Получите бонус в размере {{ $promo->size }}₸</p>
                         @endif
                         <span style="margin-right: 20px;">⏳ до {{ date('d.m.Y', strtotime($promo->to_date)) }}</span>
-                        <button onclick="copyPromo('{{ $promo->getMyPromoLink() }}')">Получить ссылку</button>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700"> onclick="copyPromo('{{ $promo->getMyPromoLink() }}')">Получить ссылку</button>
                     </div>
                     @endforeach
                 </div>
@@ -115,6 +120,7 @@
                     <button onclick="next()">›</button>
                 </div>
             </div>
+            @endif
 
             @if(count($myPromos) > 0)
             <!-- МОИ ПРОМОКОДЫ -->
@@ -141,8 +147,8 @@
                         </div>
 
                         <div class="actions">
-                            <button class="btn secondary">Поделиться</button>
-                            <button class="btn">Скачать баннер</button>
+                            <button class="flex-1 bg-gray-200 rounded-lg py-2 text-sm px-5">Поделиться</button>
+                            <button class="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm px-5">Скачать баннер</button>
                         </div>
                     </div>
                     @endforeach
@@ -154,44 +160,6 @@
                 </div>
             </div>
             @endif
-            {{--<div class="earn__item">
-                <div class="earn__promocode">newyear2018</div>
-                <div class="earn__promocode-info">
-                    <p>Активировали: <span>10000</span></p>
-                    <p>Поделились: <span>7500</span></p>
-                    <p>Доход: <span>2500</span></p>
-                </div>
-                <a href="#" class="earn__share">
-                    <img src="{{ asset('images/profile/share.svg') }}" alt="">
-                    поделиться
-                </a>
-                <a href="#" class="earn__download-banner">
-                    <img src="{{ asset('images/profile/download-banner.svg') }}" alt="">
-                    скачать баннер
-                </a>
-                <div class="earn__text">
-                    Делитесь своим промо кодом с друзьями, они получат при регистрации бонусные 200тг на счет. Вы будете получать 1% с каждой покупки своего друга
-                </div>
-            </div>
-            <div class="earn__item">
-                <div class="earn__promocode">new8</div>
-                <div class="earn__promocode-info">
-                    <p>Активировали: <span>10000</span></p>
-                    <p>Поделились: <span>7500</span></p>
-                    <p>Доход: <span>2500</span></p>
-                </div>
-                <a href="#" class="earn__share">
-                    <img src="{{ asset('images/profile/share.svg') }}" alt="">
-                    поделиться
-                </a>
-                <a href="#" class="earn__download-banner">
-                    <img src="{{ asset('images/profile/download-banner.svg') }}" alt="">
-                    скачать баннер
-                </a>
-                <div class="earn__text">
-                    Делитесь промо кодом с партнерами или регистрируйте их по своему промо коду и зарабатывайте до 30% с прибыли приложения по партнеру
-                </div>
-            </div>--}}
         </div>
     </div>
 @stop
