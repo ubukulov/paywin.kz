@@ -1,6 +1,6 @@
 <nav class="bg-white shadow-sm cabinet__nav-mobile">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16 items-center mt-1">
+        <div class="flex justify-between h-17 items-center mt-1">
             <!-- ЛОГОТИП СЛЕВА -->
             <a href="{{ route('home') }}" class="flex items-center font-bold partner-logo-a">
                 <img src="/images/logo_bg_white.jpg" alt="logo">

@@ -315,7 +315,7 @@
 
 @yield('content')
 
-<footer class="footer container animate__animated animate__fadeInUp">
+{{--<footer class="footer container animate__animated animate__fadeInUp">
     <a href="{{ route('prizes') }}" class="footer__link">
         <img src="/img/icons/footer-gift.svg" alt="Подарок" class="footer__icon">
     </a>
@@ -325,7 +325,7 @@
     <a @if(Auth::user()->user_type == 'partner') href="{{ route('partner.cabinet') }}" @else href="{{ route('user.cabinet') }}" @endif  class="footer__link">
         <img src="/img/icons/footer-user.svg" alt="Профиль" class="footer__icon">
     </a>
-</footer>
+</footer>--}}
 @include('_partials.info')
 
 <div

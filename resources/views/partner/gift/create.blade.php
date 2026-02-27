@@ -8,7 +8,6 @@
         body {
             font-family: Arial, sans-serif;
             background: #f6f6f7;
-            padding: 20px;
         }
 
         .kaspi-form {

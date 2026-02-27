@@ -17,7 +17,7 @@
     {{-- Telegram --}}
     <div class="flex items-center gap-3">
         <span class="w-10 text-center text-blue-400 text-xl">
-            <i class="fa fa-telegram"></i>
+            <i class="fa fa-send"></i>
         </span>
         <input type="text"
                name="telegram"
