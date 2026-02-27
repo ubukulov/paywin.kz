@@ -27,6 +27,13 @@
                     История
                 </a>
 
+                <a href="{{ route('user.prizes') }}"
+                   class="{{ request()->is('user/history')
+                        ? 'text-blue-600 border-b-2 border-blue-600 pb-1'
+                        : 'text-gray-600 hover:text-blue-600' }}">
+                    Подарки
+                </a>
+
                 <a href="{{ route('user.earn') }}"
                    class="{{ request()->is('user/earn')
                         ? 'text-blue-600 border-b-2 border-blue-600 pb-1'
@@ -55,6 +62,7 @@
 
         <a href="{{ route('user.cabinet') }}" class="block {{ request()->is('user') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">Профиль</a>
         <a href="{{ route('user.history') }}" class="block {{ request()->is('user/history') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">История</a>
+        <a href="{{ route('user.prizes') }}" class="block {{ request()->is('user/prizes') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">Мои призы</a>
         <a href="{{ route('user.earn') }}" class="block {{ request()->is('user/earn') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">Заработать</a>
 
     </nav>

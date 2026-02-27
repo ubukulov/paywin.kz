@@ -22,12 +22,12 @@
 <section class="camera">
     <div class="container">
         <div style="display: flex;">
-            <div>
+            <div style="flex: 1;">
                 <img class="logo" src="{{ asset('images/logo_bg_black.jpg') }}" alt="">
             </div>
 
-            <div style="display: block; align-content: center;">
-                <button id="scanQR" class="button camera__button">Сканировать</button>
+            <div style="display: block; align-content: end;">
+                <button id="scanQR" class="button camera__button">Сканировать QR</button>
             </div>
         </div>
 

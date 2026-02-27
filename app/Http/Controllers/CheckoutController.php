@@ -250,6 +250,24 @@ class CheckoutController extends Controller
             return;
         }
 
+        // 3. Определяем процент вознаграждения
+        $agentPercent = 1.0; // Значение по умолчанию (1%)
+
+        if ($referral->source === 'promo' && $referral->promo_code) {
+            // Извлекаем чистый код (например, из "SPRING34" делаем "SPRING")
+            // Просто удаляем ID агента из строки кода
+            $baseCode = str_replace($referral->agent_id, '', $referral->promo_code);
+
+            // Ищем оригинальную акцию в таблице shares
+            $share = Share::where('title', $baseCode)
+                ->where('type', 'promocode')
+                ->first();
+
+            if ($share && $share->agent_percent > 0) {
+                $agentPercent = (float)$share->agent_percent;
+            }
+        }
+
         // 💰 считаем доход агента (1%)
         $income = round($payment->amount * 0.01, 2);
 

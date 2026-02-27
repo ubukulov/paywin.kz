@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 class Share extends Model
 {
     protected $fillable = [
-        'user_id', 'type', 'title', 'cnt', 'promo', 'size', 'from_order', 'to_order', 'c_winning', 'from_date', 'to_date',
+        'user_id', 'type', 'title', 'cnt', 'promo', 'size', 'gift_title', 'agent_percent', 'from_order', 'to_order', 'c_winning', 'from_date', 'to_date',
         'max_sum'
     ];
 

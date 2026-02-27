@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Share;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class ShareController extends Controller
 {
@@ -48,12 +48,42 @@ class ShareController extends Controller
     {
         $data = $request->all();
         $data['user_id'] = Auth::user()->id;
+
+        // Форматирование дат для БД
         $data['from_date'] = date('Y-m-d H:i:s', strtotime($data['from_date']));
         $data['to_date'] = date('Y-m-d H:i:s', strtotime($data['to_date']));
-        $data['promo'] = (isset($data['discount_or_money']) && $data['discount_or_money'] == 'on') ? 'money' : 'discount';
-        $data['promo'] = ($data['type'] == 'promocode') ? $data['promo'] : 'none';
-        $data['title'] = ($data['type'] == 'promocode') ? mb_strtoupper($data['title']) : $data['title'];
+
+        if ($data['type'] == 'promocode') {
+            // Устанавливаем тип промокода (discount, money, gift)
+            $data['promo'] = $data['bonus_type'];
+            $data['title'] = mb_strtoupper($data['title']);
+
+            // Лимит активаций (в колонку cnt)
+            $data['cnt'] = (int)$data['usage_limit'];
+
+            // Процент для агента
+            $data['agent_percent'] = (float)($data['agent_percent'] ?? 0);
+
+            // Распределение значений по колонкам таблицы shares
+            if ($data['bonus_type'] == 'gift') {
+                $data['gift_title'] = $data['gift_description']; // Новое поле
+                $data['size'] = 0;
+                $data['from_order'] = 0;
+            } elseif ($data['bonus_type'] == 'money') {
+                $data['size'] = (int)$data['size']; // Сумма в ₸
+                $data['from_order'] = 0;
+            } else {
+                // Тип: discount (скидка)
+                $data['size'] = (int)$data['size']; // % скидки
+                $data['from_order'] = (int)($data['min_sum'] ?? 0); // Порог активации
+            }
+        } else {
+            $data['promo'] = 'none'; //
+        }
+
+        // Сохранение записи
         Share::create($data);
+
         return redirect()->route('partner.my-shares.index');
     }
 

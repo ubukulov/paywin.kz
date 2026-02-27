@@ -10,7 +10,7 @@ class Referral extends Model
     protected $table = 'referrals';
 
     protected $fillable = [
-        'agent_id', 'client_id', 'promo_code', 'source'
+        'agent_id', 'client_id', 'share_id', 'promo_code', 'source'
     ];
 
     protected $dates = ['created_at', 'updated_at'];

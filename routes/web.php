@@ -37,7 +37,6 @@ Route::get('about-us', [IndexController::class, 'aboutUs'])->name('aboutUs');
 
 Route::group(['middleware' => 'auth'], function(){
     Route::get('/', [IndexController::class, 'home'])->name('home');
-    Route::get('/prizes', [IndexController::class, 'prizes'])->name('prizes');
 
     Route::get('success/payment', [IndexController::class, 'paymentSuccess'])->name('payment.success');
     Route::get('error/payment', [IndexController::class, 'paymentError'])->name('payment.error');
@@ -99,6 +98,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('add-my-card', [UserController::class, 'addMyCard'])->name('addMyCard');
         Route::get('remove-my-card', [UserController::class, 'removeMyCard']);
         Route::get('earn', [UserController::class, 'earn'])->name('earn');
+        Route::get('prizes', [UserController::class, 'prizes'])->name('prizes');
         Route::get('history', [UserController::class, 'history'])->name('history');
         Route::post('balance-replenishment', [UserController::class, 'balanceReplenishment'])->name('balanceReplenishment');
 

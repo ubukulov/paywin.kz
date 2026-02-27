@@ -20,33 +20,60 @@
                     <div class="tabcontent__slider">
                         <div class="swiper-wrapper">
                             @foreach($shares as $share)
-                            <div class="tabcontent__slider-item swiper-slide">
-                                <a href="{{ route('partner.my-shares.edit', ['my_share' => $share->id]) }}" class="tabcontent__slider-btn">изменить акцию</a>
-                                <div class="tabcontent__slider-top">
-                                    <div class="tabcontent__slider-left">
-                                        <p>Кол-во: <span>{{ $share->cnt }}</span></p>
-                                        <p>Остаток: <span>{{ $share->getRemainder() }}</span></p>
-                                        <p>Клиентов: <span>{{ $share->getClients() }}</span></p>
+                                <div class="tabcontent__slider-item swiper-slide">
+                                    <a href="{{ route('partner.my-shares.edit', ['my_share' => $share->id]) }}" class="tabcontent__slider-btn">изменить акцию</a>
+
+                                    <div class="tabcontent__slider-top">
+                                        <div class="tabcontent__slider-left">
+                                            <p>Кол-во: <span>{{ $share->cnt }}</span></p>
+                                            <p>Остаток: <span>{{ $share->getRemainder() }}</span></p>
+                                            <p>Клиентов: <span>{{ $share->getClients() }}</span></p>
+                                        </div>
+                                        <div class="tabcontent__slider-right">
+                                            <p>При заказе от: <span>{{ $share->from_order }} ₸</span></p>
+                                            {{-- Коэффициент выигрыша показываем только для обычных призов --}}
+                                            @if($share->type !== 'promocode')
+                                                <p>Коэф выигр: <span>{{ $share->c_winning }}%</span></p>
+                                            @else
+                                                <p>Тип: <span>Промокод</span></p>
+                                            @endif
+                                            <p>Доход: <span>{{ $share->getProfit() }} ₸</span></p>
+                                        </div>
                                     </div>
-                                    <div class="tabcontent__slider-right">
-                                        <p>При заказе от: <span>{{ $share->from_order }}</span></p>
-                                        <p>Коэф выигр: <span>{{ $share->c_winning }}%</span></p>
-                                        <p>Доход: <span>{{ $share->getProfit() }} ₸</span></p>
+
+                                    <div class="tabcontent__slider-center">
+                                        <i class="fas fa-star"></i>
+                                        <div class="tabcontent__slider-center-text">Оценка акции: <span>4.6</span></div>
+                                        <button class="tabcontent__slider-center-btn">отзывы</button>
+                                    </div>
+
+                                    <div class="tabcontent__slider-bottom">
+                                        <div class="tabcontent__slider-card">
+                                            <img src="/images/mypromo/slider-card-elem.svg" alt="element">
+
+                                            {{-- Динамический текст на билете в зависимости от типа --}}
+                                            <p>
+                                                <strong style="font-size: 1.1em;">{{ \Illuminate\Support\Str::limit($share->title, 14) }}</strong><br>
+
+                                                @if($share->type == 'promocode')
+                                                    @if($share->promo == 'discount')
+                                                        Скидка {{ $share->size }}% @if($share->from_order > 0) от {{ $share->from_order }}₸ @endif
+                                                    @elseif($share->promo == 'money')
+                                                        Бонус {{ $share->size }} ₸ на баланс
+                                                    @elseif($share->promo == 'gift')
+                                                        Подарок: {{ \Illuminate\Support\Str::limit($share->gift_title, 20) }}
+                                                    @endif
+                                                @elseif($share->type == 'discount')
+                                                    Скидка {{ $share->size }}% при заказе
+                                                @elseif($share->type == 'cashback')
+                                                    Кэшбек {{ $share->size }}%
+                                                @else
+                                                    при заказе от {{ $share->from_order }}₸
+                                                @endif
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="tabcontent__slider-center">
-                                    <i class="fas fa-star"></i>
-                                    <div class="tabcontent__slider-center-text">Оценка акции: <span>4.6</span></div>
-                                    <button class="tabcontent__slider-center-btn">отзывы</button>
-                                </div>
-                                <div class="tabcontent__slider-bottom">
-                                    <div class="tabcontent__slider-card">
-                                        <img src="/images/mypromo/slider-card-elem.svg" alt="element">
-                                        <p>{{ \Illuminate\Support\Str::limit($share->title, 14) }} <br>
-                                            при заказе от {{ $share->from_order }}₸</p>
-                                    </div>
-                                </div>
-                            </div>
                             @endforeach
                         </div>
                         <div class="tabcontent__slider-next"><img src="/images/mypromo/next-arrow.svg" alt="btn"></div>

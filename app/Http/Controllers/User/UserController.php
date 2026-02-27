@@ -8,7 +8,10 @@ use App\Models\Prize;
 use App\Models\Share;
 use App\Models\User;
 use App\Models\UserBalance;
+use App\Services\PromoService;
+use App\Services\UserPrizeService;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,43 +20,14 @@ use App\Models\Referral;
 
 class UserController extends Controller
 {
+    protected UserPrizeService $userPrizeService;
+
+    public function __construct(UserPrizeService $userPrizeService){
+        $this->userPrizeService = $userPrizeService;
+    }
+
     public function cabinet()
     {
-        $user_balance = UserBalance::where(['user_id' => Auth::user()->id, 'status' => 'waiting'])->orderBy('id', 'DESC')->first();
-        /*if($user_balance) {
-            $request = [
-                'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
-                'pg_order_id' => $user_balance->id,
-                'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
-            ];
-
-            //generate a signature and add it to the array
-            ksort($request); //sort alphabetically
-            array_unshift($request, 'get_status2.php');
-            array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
-
-            $request['pg_sig'] = md5(implode(';', $request)); // signature
-
-            unset($request[0], $request[1]);
-
-            $apiUrl = env('PAYBOX_URL') . "get_status2.php";
-            $client = new \GuzzleHttp\Client();
-            $response = $client->request('POST', $apiUrl, [
-                'headers' => [
-                    'Content-type' => 'application/x-www-form-urlencoded'
-                ],
-                'form_params' => $request
-            ]);
-            $response = $response->getBody()->getContents();
-            $responseXml = simplexml_load_string($response);
-            if((string)$responseXml->pg_status == 'ok') {
-                $user_balance->status = 'ok';
-                $user_balance->pg_payment_id = (int) $responseXml->pg_payment_id;
-                $user_balance->updated_at = Carbon::now();
-                $user_balance->save();
-            }
-        }*/
-
         $user = Auth::user();
         $user_profile = Auth::user()->profile;
         $prize = Prize::where(['user_id' => $user->id, 'status' => 'waiting'])->first();
@@ -191,91 +165,53 @@ class UserController extends Controller
         exit();
     }
 
-    public function promoActivate(Request $request)
+    public function promoActivate(Request $request, PromoService $promoService): \Illuminate\Http\RedirectResponse
     {
-        $promoCode = strtoupper(trim($request->promo_code));
+        try {
+            $promoService->activate(auth()->user(), $request->promo_code);
 
-        $promoPartner = preg_replace('/[^A-Z]/', '', $promoCode);
+            return redirect()->route('user.cabinet')
+                ->with('success', 'Промокод успешно активирован');
 
-        $user = auth()->user();
-
-        // 1. Получаем ID агента из кода
-        $agentId = (int) filter_var($promoCode, FILTER_SANITIZE_NUMBER_INT);
-
-        if (!$agentId || $agentId === $user->id) {
+        } catch (Exception $e) {
             return redirect()
                 ->back()
-                ->withErrors(['message' => 'Некорректный промокод']);
+                ->withErrors(['message' => $e->getMessage()]);
+        }
+    }
+
+    public function prizes()
+    {
+        /*$shares = Share::where('cnt', '>', 0)
+            ->with('user')
+            ->get();
+
+        $prizes = Prize::where(['user_id' => Auth::user()->id])
+            ->with('user', 'share', 'payment')
+            ->get();
+
+        $winners = Prize::whereRaw('DATE_FORMAT(prizes.created_at, "%m") = '.date('m'))
+            //->with('user', 'share', 'payment')
+            ->selectRaw('prizes.*, shares.user_id as partner_id, shares.title as share_title, shares.type as share_type, user_profile.full_name')
+            ->join('shares', 'shares.id', 'prizes.share_id')
+            ->join('user_profile', 'user_profile.user_id', 'prizes.user_id')
+            ->where('prizes.status', '=', 'got')
+            ->get();
+
+        $ids = [];
+
+        foreach($winners as $winner) {
+            if(!in_array($winner->partner_id, $ids)) {
+                $ids[] = $winner->partner_id;
+            }
         }
 
-        // 2. Проверяем, существует ли агент
-        $agent = User::find($agentId);
+        $top_partners = User::whereIn('id', $ids)->with('profile')->get();
 
-        if (!$agent || $agent->user_type !== 'user') {
-            return redirect()
-                ->back()
-                ->withErrors(['message' => 'Агент не найден']);
-        }
+        return view('user.prizes', compact('shares', 'prizes', 'winners', 'top_partners'));*/
 
-        // 3. Проверяем промокод в SHARES
-        $share = Share::where('title', $promoPartner)
-            ->where('from_date', '<=', now())
-            ->where('to_date', '>=', now())
-            ->first();
-
-        if (!$share) {
-            return redirect()
-                ->back()
-                ->withErrors(['message' => 'Промокод неактуален']);
-        }
-
-        // 4. Проверка — не активировал ли уже
-        if (Referral::where('client_id', $user->id)->exists()) {
-            return redirect()
-                    ->back()
-                    ->withErrors(['message' => 'Вы уже привязаны к агенту']);
-        }
-
-        // =========================
-        // MONEY — активируем
-        // =========================
-        if ($share->promo === 'money') {
-
-            DB::transaction(function () use ($share, $agentId, $user, $promoCode) {
-
-                // фиксируем реферала
-                Referral::create([
-                    'agent_id'   => $agentId,
-                    'client_id'  => $user->id,
-                    'promo_code' => $promoCode,
-                    'source'     => 'promo',
-                ]);
-
-                // начисляем бонус
-                UserBalance::create([
-                    'user_id'      => $user->id,
-                    'promocode_id' => $share->id,
-                    'type'         => 'promocode',
-                    'amount'       => $share->size,
-                    'status'       => 'ok',
-                ]);
-            });
-
-            return redirect()->route('user.cabinet');
-        }
-
-        // =========================
-        // DISCOUNT — не активируем
-        // =========================
-        if ($share->type === 'discount') {
-
-            return redirect()
-                ->back()
-                ->withErrors(['message' => 'Промокод будет применён при оплате']);
-        }
-
-        return redirect()
-            ->back()
-            ->withErrors(['message' => 'Неизвестный тип промокода']);
+        return view('user.prizes', [
+            'prizes' => $this->userPrizeService->getMyPrizes()
+        ]);
     }
 }

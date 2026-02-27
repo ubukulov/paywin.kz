@@ -73,6 +73,9 @@
         <a href="{{ route('partner.store.index') }}" class="block {{ request()->is('partner/stores') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
             Магазины
         </a>
+        <a href="{{ route('logout') }}" class="block px-3 py-2 rounded-md text-base font-medium">
+            Выйти из кабинета
+        </a>
     </div>
 
     <script>

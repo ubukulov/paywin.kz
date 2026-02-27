@@ -9,6 +9,7 @@ use Smsc;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use App\Models\Referral;
+use App\Models\Share;
 
 class AuthController extends Controller
 {
@@ -89,37 +90,57 @@ class AuthController extends Controller
     {
         $code = session('ref_code') ?? Cookie::get('ref_code');
 
-        if (!$code) return; // кода нет, ничего не делаем
+        if (!$code) return;
 
-        // запрет самореферала
-        if ($code == $user->id) return;
+        // Запрет самореферала и партнеров
+        if ($code == $user->id || $user->user_type == 'partner') return;
 
-        if ($user->user_type == 'partner') return;
-
-        // если клиент уже привязан
+        // Если клиент уже привязан — выходим
         if (Referral::where('client_id', $user->id)->exists()) return;
 
         if (is_numeric($code)) {
+            // Логика для прямых реферальных ссылок (по ID агента)
             $agent = User::find($code);
-
-            if ($agent && $agent->user_type !== 'partner') { // проверка на партнера
+            if ($agent && $agent->user_type !== 'partner') {
                 Referral::create([
                     'agent_id'  => $agent->id,
                     'client_id' => $user->id,
                     'source'    => 'link',
                 ]);
             }
-
         } else {
-            Referral::create([
-                'agent_id'   => filter_var($code, FILTER_SANITIZE_NUMBER_INT),
-                'client_id'  => $user->id,
-                'promo_code' => $code,
-                'source'     => 'promo',
-            ]);
+            // Логика для ПРОМОКОДОВ (например, SPRING34)
+
+            // 1. Парсим код: отделяем текст от ID агента
+            // ([A-ZА-Я0-9]+) — буквы и цифры промокода, (\d+) — ID агента в конце
+            if (preg_match('/^([A-ZА-Я0-9]+?)(\d+)$/u', strtoupper($code), $matches)) {
+                $baseTitle = $matches[1]; // SPRING
+                $agentId   = $matches[2]; // 34
+
+                // 2. Ищем агента, чтобы узнать, к какому партнеру он привязан
+                $agent = User::find($agentId);
+
+                if ($agent) {
+                    // 3. Ищем акцию именно этого партнера с таким названием
+                    // Это защитит, если два партнера создали одинаковый код "SPRING"
+                    $share = Share::where('title', $baseTitle)
+                        ->where('user_id', $agent->partner_id) // Связь агента с его партнером
+                        ->where('type', 'promocode')
+                        ->first();
+
+                    // 4. Создаем запись с привязкой к конкретной акции (share_id)
+                    Referral::create([
+                        'agent_id'   => $agent->id,
+                        'client_id'  => $user->id,
+                        'share_id'   => $share ? $share->id : null, // Сохраняем ID акции для расчета %
+                        'promo_code' => $code,
+                        'source'     => 'promo',
+                    ]);
+                }
+            }
         }
 
-        // очищаем сессию и куки после использования
+        // Очищаем данные
         session()->forget('ref_code');
         Cookie::queue(Cookie::forget('ref_code'));
     }
