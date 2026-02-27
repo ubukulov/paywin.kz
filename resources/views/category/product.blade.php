@@ -230,6 +230,34 @@
                 const el = document.getElementById('cart-qty');
                 el.value = Math.max(1, parseInt(el.value || 1) - 1);
             }
+
+            window.showToast = function(message) {
+                // Создаем контейнер, если его еще нет
+                let container = document.getElementById('toast-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'toast-container';
+                    document.body.appendChild(container);
+                }
+
+                // Создаем само уведомление
+                const toast = document.createElement('div');
+                toast.className = 'toast-notification';
+                toast.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+        <span>${message}</span>
+    `;
+
+                container.appendChild(toast);
+
+                // Удаляем через 3 секунды
+                setTimeout(() => {
+                    toast.classList.add('fade-out');
+                    setTimeout(() => toast.remove(), 500);
+                }, 3000);
+            };
         </script>
     </div>
 @endsection

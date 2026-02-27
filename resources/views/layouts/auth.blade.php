@@ -17,12 +17,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     @stack('css')
 </head>
-<body class="container registration-1-page" style="padding: 0 10px !important;">
-@yield('content')
+<body class="registration-1-page">
 
-<script src="{{ asset('js/jquery-3.6.0.min.js') }}" type="text/javascript"></script>
-<script src="{{ asset('js/jquery.maskedinput.min.js') }}" type="text/javascript"></script>
+    @yield('content')
 
-@stack('js')
+    <script src="{{ asset('js/jquery-3.6.0.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('js/jquery.maskedinput.min.js') }}" type="text/javascript"></script>
+
+    @include("_partials.info")
+
+    @stack('js')
+
 </body>
 </html>

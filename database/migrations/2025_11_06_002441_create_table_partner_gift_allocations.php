@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('partner_gift_allocations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('partner_gift_id');
+            $table->unsignedBigInteger('partner_gift_id')->nullable();
             $table->unsignedBigInteger('order_id')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->enum('status', [

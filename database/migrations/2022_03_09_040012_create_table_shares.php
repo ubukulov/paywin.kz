@@ -22,9 +22,11 @@ class CreateTableShares extends Migration
             $table->string('title');
             $table->integer('cnt')->nullable();
             $table->enum('promo', [
-                'none', 'discount', 'money'
+                'none', 'discount', 'money', 'gift'
             ]);
             $table->integer('size')->nullable();
+            $table->string('gift_title')->nullable();
+            $table->decimal('agent_percent', 5.2)->default(0.00);;
             $table->integer('from_order')->nullable();
             $table->integer('to_order')->nullable();
             $table->integer('c_winning')->nullable();

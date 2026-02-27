@@ -58,8 +58,8 @@ class PromoService
                 'user_id'      => $user->id,
                 'promocode_id' => $share->id,
                 'type'         => 'promocode',
-                'amount'       => ($share->promo === 'money') ? $share->size : 0,
-                'status'       => ($share->promo === 'money') ? 'ok' : 'active',
+                'amount'       => ($share->promo == 'money') ? $share->size : 0,
+                'status'       => ($share->promo == 'money') ? 'ok' : 'active',
             ]);
 
             return match ($share->promo) {

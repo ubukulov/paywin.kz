@@ -6,11 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paywin.kz - призы за покупки!</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+    <script src="{{ asset('css/tailwindcss.css') }}"></script>
     <link rel="stylesheet" href="{{ asset('css/fix.css') }}">
 </head>
 <body>
-<div class="container" style="margin: 25% auto;">
-    <div class="profile">
+<div>
+    <div class="profile p-10">
         <div class="row">
             <div class="col-md-12">
                 <div class="logo text-center">

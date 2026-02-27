@@ -4,40 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Главная</title>
+
+    {{-- Стили --}}
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/fix.css') }}">
-    <script src="{{ asset('js/script.js') }}"></script>
-    <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
-    <script src="{{ asset('js/home.js') }}"></script>
+
+    {{-- Иконки и мета-данные --}}
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('img/favicons/apple-touch-icon.png') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('img/favicons/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('img/favicons/favicon-16x16.png') }}">
     <link rel="manifest" href="{{ asset('img/favicons/site.webmanifest') }}">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
+
+    {{-- Скрипты --}}
+    <script src="{{ asset('js/script.js') }}"></script>
+    <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('js/home.js') }}"></script>
+
+    {{-- Внешние библиотеки (Tailwind и Alpine с фиксом defer) --}}
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <style>
+        /* Стили для корректной работы Alpine.js (скрывает элементы до загрузки) */
+        [x-cloak] { display: none !important; }
+
+        div { margin-bottom: 0px; }
+        .header-line { display: flex; justify-content: center; gap: 50px; }
+        .cart {
+            padding: 0 10px;
+            margin-top: 25px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.18);
+        }
+        #video-container { line-height: 0; max-width: 100%; }
+        #video-container.example-style-1 .scan-region-highlight-svg,
+        #video-container.example-style-1 .code-outline-highlight {
+            stroke: #64a2f3 !important;
+        }
+        #video-container.example-style-2 {
+            position: relative;
+            width: max-content;
+            height: max-content;
+            overflow: hidden;
+        }
+        #video-container.example-style-2 .scan-region-highlight {
+            border-radius: 30px;
+            outline: rgba(0, 0, 0, .25) solid 50vmax;
+        }
+        #video-container.example-style-2 .scan-region-highlight-svg { display: none; }
+        #video-container.example-style-2 .code-outline-highlight {
+            stroke: rgba(255, 255, 255, .5) !important;
+            stroke-width: 15 !important;
+            stroke-dasharray: none !important;
+        }
+        #flash-toggle { display: none; }
+        hr { margin-top: 32px; }
+        input[type="file"] { display: block; margin-bottom: 16px; }
+    </style>
 </head>
 <body class="home-page">
+
 <section class="camera">
     <div class="container">
         <div style="display: flex;">
             <div style="flex: 1;">
-                <img class="logo" src="{{ asset('images/logo_bg_black.jpg') }}" alt="">
+                <img class="logo" src="{{ asset('images/logo_bg_black.jpg') }}" alt="Logo">
             </div>
-
             <div style="display: block; align-content: end;">
                 <button id="scanQR" class="button camera__button">Сканировать QR</button>
             </div>
         </div>
 
         <div class="camera--hidden animate__animated animate__fadeInDown" style="text-align: center;">
-            {{--<img src="/img/icons/qr.svg" alt="Наведите камеру на QR код" class="camera__img">--}}
-            {{--<video style="max-width: 100%; height: 200px; transform: scaleX(1) !important;" id="preview">
-                <div id="video-container">
-                    <video id="qr-video"></video>
-                </div>
-            </video>--}}
             <div id="video-container" style="width: 100% !important;">
                 <video id="qr-video" style="max-width: 100%; height: 200px; transform: scaleX(1) !important;"></video>
             </div>
@@ -63,78 +104,33 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                   d="M2.25 2.25h1.386c.51 0 .957.343 1.087.835L5.25 6.75m0 0h13.5l-1.5 9h-12l-1.5-9zm0 0L4.723 4.085A1.125 1.125 0 0 0 3.636 3.25H2.25M9 21a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm9 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z"/>
                         </svg>
-
                         <span id="cart-count"
                               class="absolute -top-1 -right-2 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">
-                        {{ $cartCount ?? 0 }}
-                    </span>
+                            {{ $cartCount ?? 0 }}
+                        </span>
                     </a>
                 </div>
             @endif
         </div>
 
-
-
-
-        {{--<div id="video-container">
-            <video id="qr-video"></video>
-        </div>--}}
-
+        {{-- Скрытые настройки QR-сканера (необходимы для JS-логики) --}}
         <div style="display: none;">
-            <div>
-                <label>
-                    Highlight Style
-                    <select id="scan-region-highlight-style-select">
-                        <option value="default-style">Default style</option>
-                        <option value="example-style-1">Example custom style 1</option>
-                        <option value="example-style-2">Example custom style 2</option>
-                    </select>
-                </label>
-                <label>
-                    <input id="show-scan-region" type="checkbox">
-                    Show scan region canvas
-                </label>
-            </div>
-            <div>
-                <select id="inversion-mode-select">
-                    <option value="original">Scan original (dark QR code on bright background)</option>
-                    <option value="invert">Scan with inverted colors (bright QR code on dark background)</option>
-                    <option value="both">Scan both</option>
-                </select>
-                <br>
-            </div>
-            <b>Device has camera: </b>
+            <select id="scan-region-highlight-style-select"><option value="default-style">Default</option></select>
+            <input id="show-scan-region" type="checkbox">
+            <select id="inversion-mode-select"><option value="original">Original</option></select>
             <span id="cam-has-camera"></span>
-            <br>
-            <div>
-                <b>Preferred camera:</b>
-                <select id="cam-list">
-                    <option value="environment" selected>Environment Facing (default)</option>
-                    <option value="user">User Facing</option>
-                </select>
-            </div>
-            <b>Camera has flash: </b>
+            <select id="cam-list"><option value="environment" selected>Environment</option></select>
             <span id="cam-has-flash"></span>
-            <div>
-                <button id="flash-toggle">📸 Flash: <span id="flash-state">off</span></button>
-            </div>
-            <br>
-            <b>Detected QR code: </b>
+            <button id="flash-toggle"><span id="flash-state">off</span></button>
             <span id="cam-qr-result">None</span>
-            <br>
-            <b>Last detected at: </b>
             <span id="cam-qr-result-timestamp"></span>
-            <br>
             <button id="start-button">Start</button>
             <button id="stop-button">Stop</button>
-            <hr>
-
-            <h1>Scan from File:</h1>
             <input type="file" id="file-selector">
-            <b>Detected QR code: </b>
             <span id="file-qr-result">None</span>
         </div>
 
+        {{-- Логика QR сканера --}}
         <script type="module">
             import QrScanner from "/js/qr-scanner.min.js";
 
@@ -155,18 +151,13 @@
                 label.textContent = result.data;
                 camQrResultTimestamp.textContent = new Date().toString();
                 label.style.color = 'teal';
-                clearTimeout(label.highlightTimeout);
-                label.highlightTimeout = setTimeout(() => label.style.color = 'inherit', 100);
                 window.location.href = result.data;
                 scanner.stop();
             }
 
-            // ####### Web Cam Scanning #######
-
             const scanner = new QrScanner(video, result => setResult(camQrResult, result), {
                 onDecodeError: error => {
                     camQrResult.textContent = error;
-                    camQrResult.style.color = 'inherit';
                 },
                 highlightScanRegion: true,
                 highlightCodeOutline: true,
@@ -174,59 +165,7 @@
 
             scanner.stop();
 
-            const updateFlashAvailability = () => {
-                scanner.hasFlash().then(hasFlash => {
-                    camHasFlash.textContent = hasFlash;
-                    flashToggle.style.display = hasFlash ? 'inline-block' : 'none';
-                });
-            };
-
-            /*scanner.start().then(() => {
-                updateFlashAvailability();
-                // List cameras after the scanner started to avoid listCamera's stream and the scanner's stream being requested
-                // at the same time which can result in listCamera's unconstrained stream also being offered to the scanner.
-                // Note that we can also start the scanner after listCameras, we just have it this way around in the demo to
-                // start the scanner earlier.
-                QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
-                    const option = document.createElement('option');
-                    option.value = camera.id;
-                    option.text = camera.label;
-                    camList.add(option);
-                }));
-            });*/
-
             QrScanner.hasCamera().then(hasCamera => camHasCamera.textContent = hasCamera);
-
-            // for debugging
-            window.scanner = scanner;
-
-            document.getElementById('scan-region-highlight-style-select').addEventListener('change', (e) => {
-                videoContainer.className = e.target.value;
-                scanner._updateOverlay(); // reposition the highlight because style 2 sets position: relative
-            });
-
-            document.getElementById('show-scan-region').addEventListener('change', (e) => {
-                const input = e.target;
-                const label = input.parentNode;
-                label.parentNode.insertBefore(scanner.$canvas, label.nextSibling);
-                scanner.$canvas.style.display = input.checked ? 'block' : 'none';
-            });
-
-            document.getElementById('inversion-mode-select').addEventListener('change', event => {
-                scanner.setInversionMode(event.target.value);
-            });
-
-            camList.addEventListener('change', event => {
-                scanner.setCamera(event.target.value).then(updateFlashAvailability);
-            });
-
-            flashToggle.addEventListener('click', () => {
-                scanner.toggleFlash().then(() => flashState.textContent = scanner.isFlashOn() ? 'on' : 'off');
-            });
-
-            /*document.getElementById('start-button').addEventListener('click', () => {
-                scanner.start();
-            });*/
 
             document.getElementById('scanQR').addEventListener('click', () => {
                 scanner.start();
@@ -236,117 +175,50 @@
                 scanner.stop();
             });
 
-            // ####### File Scanning #######
-
             fileSelector.addEventListener('change', event => {
                 const file = fileSelector.files[0];
-                if (!file) {
-                    return;
-                }
+                if (!file) return;
                 QrScanner.scanImage(file, { returnDetailedScanResult: true })
                     .then(result => setResult(fileQrResult, result))
                     .catch(e => setResult(fileQrResult, e || 'No QR code found.'));
             });
         </script>
-
-        <style>
-            div {
-                margin-bottom: 0px;
-            }
-
-            .header-line {
-                display: flex;
-                justify-content: center;
-                gap: 50px;
-            }
-
-            .cart {
-                padding: 0 10px;
-                margin-top: 25px;
-                background-color: #fff;
-                border-radius: 20px;
-                -webkit-box-shadow: 0px 2px 8px 0px #000000 0.18;
-                box-shadow: 0px 2px 8px 0px #000000 0.18;
-            }
-
-            #video-container {
-                line-height: 0;
-                max-width: 100%;
-            }
-
-            #video-container.example-style-1 .scan-region-highlight-svg,
-            #video-container.example-style-1 .code-outline-highlight {
-                stroke: #64a2f3 !important;
-            }
-
-            #video-container.example-style-2 {
-                position: relative;
-                width: max-content;
-                height: max-content;
-                overflow: hidden;
-            }
-            #video-container.example-style-2 .scan-region-highlight {
-                border-radius: 30px;
-                outline: rgba(0, 0, 0, .25) solid 50vmax;
-            }
-            #video-container.example-style-2 .scan-region-highlight-svg {
-                display: none;
-            }
-            #video-container.example-style-2 .code-outline-highlight {
-                stroke: rgba(255, 255, 255, .5) !important;
-                stroke-width: 15 !important;
-                stroke-dasharray: none !important;
-            }
-
-            #flash-toggle {
-                display: none;
-            }
-
-            hr {
-                margin-top: 32px;
-            }
-            input[type="file"] {
-                display: block;
-                margin-bottom: 16px;
-            }
-        </style>
     </div>
 </section>
 
+{{-- Контент страницы --}}
 @yield('content')
 
+{{-- Подключаемые шаблоны --}}
 @include('_partials.bottom_menu')
-
 @include('_partials.info')
 
+{{-- НОВОЕ: Универсальное уведомление (Toast) --}}
 <div
     x-data="{ show: false, message: '' }"
-    x-ref="toast"
+    x-on:show-toast.window="message = $event.detail; show = true; setTimeout(() => show = false, 3000)"
     x-show="show"
-    x-transition
-    class="fixed bottom-6 right-6 z-50 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg"
+    x-cloak
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 translate-y-4"
+    x-transition:enter-end="opacity-100 translate-y-0"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100 translate-y-0"
+    x-transition:leave-end="opacity-0 translate-y-4"
+    class="fixed bottom-24 right-6 z-[9999] bg-green-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3"
 >
-    <span x-text="message"></span>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+    </svg>
+    <span x-text="message" class="font-medium"></span>
 </div>
 
 <script>
+    // Глобальная функция для вызова уведомления
     window.showToast = function(msg) {
-        const toastEl = document.querySelector('[x-ref="toast"]');
-        if (!toastEl) return;
-
-        // Проверяем Alpine
-        if (!toastEl.__x) {
-            console.warn("Alpine.js еще не инициализирован");
-            return;
-        }
-
-        const data = toastEl.__x.$data;
-        data.message = msg;
-        data.show = true;
-
-        // Сбрасываем через 2.5 сек
-        setTimeout(() => data.show = false, 2500);
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: msg }));
     };
 </script>
+
 </body>
 </html>

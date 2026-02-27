@@ -3,7 +3,7 @@
 @section('title', 'Регистрация')
 
 @section('content')
-    <div class="min-h-screen flex items-center justify-center px-4">
+    <div class="flex items-center justify-center px-4">
 
         <div class="">
 

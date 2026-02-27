@@ -3,7 +3,7 @@
 @section('title', 'Авторизация')
 
 @section('content')
-    <div class="min-h-screen flex items-center justify-center">
+    <div class="flex items-center justify-center p-6">
 
         <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
 

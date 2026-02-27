@@ -51,6 +51,7 @@ class CartController extends Controller
             'success' => true,
             'total_items' => $cart->items()->sum('quantity'),
             'cart_total' => $cart->total,
+            'message' => 'Товар успешно добавлен'
         ]);
     }
 

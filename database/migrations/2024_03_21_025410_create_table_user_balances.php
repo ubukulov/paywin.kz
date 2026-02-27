@@ -23,11 +23,11 @@ class CreateTableUserBalances extends Migration
             $table->unsignedBigInteger('pg_payment_id')->nullable();
             $table->unsignedBigInteger('promocode_id')->nullable();
             $table->enum('type', [
-                'payment', 'cashback', 'promocode'
+                'payment', 'cashback', 'promocode', 'referral'
             ]);
             $table->bigInteger('amount');
             $table->enum('status', [
-                'waiting', 'ok', 'error', 'withdraw'
+                'waiting', 'ok', 'error', 'withdraw', 'active'
             ]);
 
             $table->timestamps();
