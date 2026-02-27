@@ -17,65 +17,73 @@ class PromoService
         $promoPartner = preg_replace('/[^A-Z]/', '', $promoCode);
         $agentId = (int) filter_var($promoCode, FILTER_SANITIZE_NUMBER_INT);
 
-        // Бизнес-валидация
-        $this->validatePromo($user, $agentId, $promoPartner);
-
+        // 1. Поиск акции
         $share = Share::where('title', $promoPartner)
             ->where('from_date', '<=', now())
             ->where('to_date', '>=', now())
             ->first();
 
         if (!$share) {
-            throw new Exception('Промокод неактуален');
+            throw new Exception('Промокод неактуален или не существует');
         }
 
-        // Логика активации
-        if ($share->promo === 'money') {
-            return $this->applyMoneyPromo($user, $agentId, $promoCode, $share);
-        }
+        // 2. Валидация
+        $this->validateActivation($user, $agentId, $share);
 
-        if ($share->type === 'discount') {
-            throw new Exception('Промокод будет применён при оплате');
-        }
-
-        throw new Exception('Неизвестный тип промокода');
-    }
-
-    protected function validatePromo(User $user, $agentId, $promoPartner)
-    {
-        if (!$agentId || $agentId === $user->id) {
-            throw new Exception('Некорректный промокод');
-        }
-
-        $agent = User::find($agentId);
-        if (!$agent || $agent->user_type !== 'user') {
-            throw new Exception('Агент не найден');
-        }
-
-        if (Referral::where('client_id', $user->id)->exists()) {
-            throw new Exception('Вы уже привязаны к агенту');
-        }
-    }
-
-    protected function applyMoneyPromo($user, $agentId, $promoCode, $share)
-    {
+        // 3. Логика применения в зависимости от типа
         return DB::transaction(function () use ($share, $agentId, $user, $promoCode) {
-            Referral::create([
-                'agent_id'   => $agentId,
-                'client_id'  => $user->id,
-                'promo_code' => $promoCode,
-                'source'     => 'promo',
-            ]);
 
+            // Атомарное уменьшение лимита
+            $affected = Share::where('id', $share->id)
+                ->where('cnt', '>', 0)
+                ->decrement('cnt');
+
+            if (!$affected) {
+                throw new Exception('Лимит активаций этого промокода исчерпан');
+            }
+
+            // Создаем реферальную связь, если её еще нет (First Click)
+            if ($agentId !== 0 && !Referral::where('client_id', $user->id)->exists()) {
+                Referral::create([
+                    'agent_id'   => $agentId,
+                    'share_id'   => $share->id,
+                    'client_id'  => $user->id,
+                    'promo_code' => $promoCode,
+                    'source'     => 'promo',
+                ]);
+            }
+
+            // Начисление сущности (Деньги или метка активации для Скидок/Подарков)
             UserBalance::create([
                 'user_id'      => $user->id,
                 'promocode_id' => $share->id,
                 'type'         => 'promocode',
-                'amount'       => $share->size,
-                'status'       => 'ok',
+                'amount'       => ($share->promo === 'money') ? $share->size : 0,
+                'status'       => ($share->promo === 'money') ? 'ok' : 'active',
             ]);
 
-            return true;
+            return match ($share->promo) {
+                'money'    => "Бонус {$share->size} начислен на ваш баланс",
+                'discount' => "Скидка {$share->size}% будет применена при оформлении заказа",
+                'gift'     => "Подарок будет добавлен к вашему следующему заказу",
+                default    => "Промокод успешно активирован"
+            };
         });
+    }
+
+    protected function validateActivation(User $user, $agentId, $share)
+    {
+        if ($agentId !== 0 && $agentId === $user->id) {
+            throw new Exception('Нельзя использовать собственный промокод');
+        }
+
+        // Проверка: использовал ли юзер этот промокод ранее
+        $alreadyUsed = UserBalance::where('user_id', $user->id)
+            ->where('promocode_id', $share->id)
+            ->exists();
+
+        if ($alreadyUsed) {
+            throw new Exception('Вы уже активировали этот промокод');
+        }
     }
 }

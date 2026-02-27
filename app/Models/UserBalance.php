@@ -20,4 +20,9 @@ class UserBalance extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function share()
+    {
+        return $this->belongsTo(Share::class, 'promocode_id');
+    }
 }

@@ -3,42 +3,39 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Services\UserService;
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class SettingController extends Controller
 {
-    public function profile()
+    protected UserService $userService;
+
+    public function __construct(UserService $userService)
     {
-        $user = Auth::user();
-        $user_profile = $user->profile;
-        return view('user.profile', compact('user_profile'));
+        $this->userService = $userService;
     }
 
     public function profileUpdate(Request $request)
     {
-        $user = Auth::user();
-        $user_profile = $user->profile;
-        $user_profile->update($request->all());
-        return redirect()->route('user.cabinet');
-    }
+        $data = $request->validate([
+            'first_name' => 'required|string|max:255',
+        ]);
 
-    public function passwordChangeForm()
-    {
-        return view('user.change_password');
+        $this->userService->updateProfile(Auth::user(), $data);
+
+        return redirect()->route('user.cabinet')->with('success', 'Успешно обновлено');
     }
 
     public function passwordUpdate(Request $request)
     {
         $request->validate([
-            'password' => 'required',
-            'new_password' => 'min:4|required_with:confirm_new_password|same:confirm_new_password',
-            'confirm_new_password' => 'required|min:4',
+            'current_password' => 'required|current_password',
+            'new_password'     => 'required|min:8|confirmed',
         ]);
 
-        $user = Auth::user();
-        $user->password = bcrypt($request->input('new_password'));
-        $user->save();
-        return redirect()->route('user.settings');
+        $this->userService->changePassword(Auth::user(), $request->new_password);
+
+        return redirect()->route('user.settings')->with('success', 'Пароль изменен');
     }
 }

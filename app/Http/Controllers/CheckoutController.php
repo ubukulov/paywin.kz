@@ -32,19 +32,47 @@ class CheckoutController extends Controller
 
     public function index()
     {
-        $cart = Cart::where('user_id', Auth::id())->first();
+        $user = Auth::user();
+
+        // 1. Получаем корзину
+        $cart = Cart::where('user_id', $user->id)->first();
 
         if (!$cart || $cart->items()->count() === 0) {
-            return redirect()->route('cart.index')
-                ->with('error', 'Корзина пуста');
+            return redirect()->route('cart.index')->with('error', 'Корзина пуста');
         }
 
-        $gift = $this->partnerGiftService
-            ->getAvailableGiftsForUser(Auth::id(), $cart->total);
+        // 2. Ищем активный промокод на скидку или подарок
+        $activePromo = UserBalance::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->where('type', 'promocode')
+            ->with('share')
+            ->first();
+
+        // 3. Инициализируем переменные (важно, чтобы они были даже если промокода нет)
+        $discount = 0;
+
+        if ($activePromo && $activePromo->share && $activePromo->share->promo === 'discount') {
+            // Рассчитываем сумму скидки
+            $discount = ($cart->total * $activePromo->share->size) / 100;
+        }
+
+        // 4. Итоговая сумма для оплаты
+        $finalTotal = $cart->total - $discount;
+
+        // 5. Получаем доступные подарки
+        $gift = $this->partnerGiftService->getAvailableGiftsForUser($user->id, $finalTotal);
 
         $ttpPublicId = env('TIPTOPPAY_PUBLIC_ID');
 
-        return view('checkout.index', compact('cart', 'gift', 'ttpPublicId'));
+        // ПЕРЕДАЕМ ВСЕ ПЕРЕМЕННЫЕ В VIEW
+        return view('checkout.index', compact(
+            'cart',
+            'gift',
+            'ttpPublicId',
+            'activePromo',
+            'discount',
+            'finalTotal'
+        ));
     }
 
     public function store(Request $request)
@@ -53,18 +81,34 @@ class CheckoutController extends Controller
         try {
             $cryptogram = $request->get('cryptogram');
             $cart = Cart::where('user_id', Auth::id())->first();
+            $total = $cart->total;
+            $discountValue = 0;
 
             if (!$cart || $cart->items->isEmpty()) {
                 return redirect()->route('cart.index');
+            }
+
+            // 1. Проверяем наличие активного промокода
+            $promo = $this->getActivePromoEffect(Auth::id());
+
+            if ($promo) {
+                $share = $promo->share;
+                if ($share && $share->promo === 'discount') {
+                    // Рассчитываем скидку
+                    $discountValue = ($total * $share->size) / 100;
+                    $total = $total - $discountValue;
+                }
+
+                // Если это подарок, логика может быть в добавлении записи в OrderItem с ценой 0
             }
 
             // Создаём заказ
             $order = Order::create([
                 'user_id' => auth()->id(),
                 'subtotal' => $cart->subtotal,
-                'discount' => 0,
+                'discount' => $discountValue,
                 'shipping_cost' => 0,
-                'total' => $cart->total,
+                'total' => $total,
                 'status' => 'pending',
                 'payment_method' => 'card', // по умолчанию карта
                 'shipping_method' => 'courier',
@@ -147,6 +191,11 @@ class CheckoutController extends Controller
                 'meta' => json_encode($model, JSON_UNESCAPED_UNICODE),
                 'status' => 'paid'
             ]);
+
+            if ($promo) {
+                $promo->update(['status' => 'ok']);
+            }
+
 
             $this->handleReferralIncome($order, $payment);
 
@@ -253,35 +302,47 @@ class CheckoutController extends Controller
         // 3. Определяем процент вознаграждения
         $agentPercent = 1.0; // Значение по умолчанию (1%)
 
-        if ($referral->source === 'promo' && $referral->promo_code) {
-            // Извлекаем чистый код (например, из "SPRING34" делаем "SPRING")
-            // Просто удаляем ID агента из строки кода
-            $baseCode = str_replace($referral->agent_id, '', $referral->promo_code);
-
-            // Ищем оригинальную акцию в таблице shares
-            $share = Share::where('title', $baseCode)
-                ->where('type', 'promocode')
-                ->first();
-
-            if ($share && $share->agent_percent > 0) {
-                $agentPercent = (float)$share->agent_percent;
-            }
+        // Если в реферальной записи есть share_id, берем процент напрямую (самый надежный путь)
+        if ($referral->share_id) {
+            $share = Share::find($referral->share_id);
+        } else {
+            // Запасной вариант: поиск по названию промокода
+            $baseCode = preg_replace('/[0-9]+/', '', $referral->promo_code);
+            $share = Share::where('title', $baseCode)->first();
         }
 
-        // 💰 считаем доход агента (1%)
-        $income = round($payment->amount * 0.01, 2);
+        if ($share && $share->agent_percent > 0) {
+            $agentPercent = (float) $share->agent_percent;
+        }
+
+        // 4. Считаем доход
+        // Делим на 100, так как в базе процент лежит как число (например, 5 или 10)
+        $income = round(($payment->amount * $agentPercent) / 100, 2);
 
         if ($income <= 0) {
             return;
         }
 
-        // начисляем агенту
+        // 5. Начисляем агенту
         UserBalance::create([
             'user_id'    => $referral->agent_id,
-            'payment_id' => $order->id,
-            'type'       => 'payment',
+            'payment_id' => $payment->id,
+            'order_id'   => $order->id, // полезно для истории
+            'type'       => 'referral',
             'amount'     => $income,
             'status'     => 'ok',
         ]);
+    }
+
+    protected function getActivePromoEffect($userId)
+    {
+        // Ищем последнюю запись в балансе, которая является промокодом с суммой 0 и статусом active
+        return UserBalance::where('user_id', $userId)
+            ->where('type', 'promocode')
+            ->where('status', 'active')
+            ->where('amount', 0)
+            ->with('share') // Подгружаем саму акцию
+            ->latest()
+            ->first();
     }
 }

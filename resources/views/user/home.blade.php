@@ -120,10 +120,27 @@
                     </div>
 
                     <div class="mt-10">
+
+                        @if(session('success'))
+                            <div class="mb-4 p-4 rounded-2xl bg-green-50 border border-green-100 text-green-700 flex items-center gap-3 animate-fade-in">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span class="font-medium text-sm">{{ session('success') }}</span>
+                            </div>
+                        @endif
+
+                        @if(session('error') || $errors->has('promo_code'))
+                            <div class="mb-4 p-4 rounded-2xl bg-red-50 border border-red-100 text-red-700 flex items-center gap-3 animate-fade-in">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                <span class="font-medium text-sm">
+                                    {{ session('error') ?? $errors->first('promo_code') }}
+                                </span>
+                            </div>
+                        @endif
+
                         <form action="{{ route('user.promoActivate') }}" method="post" class="relative group">
                             @csrf
                             <input type="text" name="promo_code" required placeholder="Введите промокод"
-                                   class="w-full bg-gray-50 border-none rounded-2xl py-4 pl-6 pr-32 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-gray-400 font-medium text-gray-700 shadow-inner">
+                                   class="w-full uppercase bg-gray-50 border-none rounded-2xl py-4 pl-6 pr-32 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-gray-400 font-medium text-gray-700 shadow-inner">
                             <div class="absolute right-2 top-2 flex items-center gap-2">
                                 <a href="#" class="p-2 hover:bg-white rounded-lg transition-colors">
                                     <img src="/images/profile/scanner-promocode-icon.svg" alt="" class="w-5 h-5 opacity-40">
