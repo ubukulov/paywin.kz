@@ -16,13 +16,15 @@ class SettingController extends Controller
         $this->userService = $userService;
     }
 
+    public function profile()
+    {
+        $user_profile = Auth::user()->profile;
+        return view('user.profile', compact('user_profile'));
+    }
+
     public function profileUpdate(Request $request)
     {
-        $data = $request->validate([
-            'first_name' => 'required|string|max:255',
-        ]);
-
-        $this->userService->updateProfile(Auth::user(), $data);
+        $this->userService->updateProfile(Auth::user(), $request->all());
 
         return redirect()->route('user.cabinet')->with('success', 'Успешно обновлено');
     }
