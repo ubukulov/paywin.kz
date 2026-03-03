@@ -14,14 +14,23 @@ class PromoService
     public function activate(User $user, string $rawCode)
     {
         $promoCode = strtoupper(trim($rawCode));
-        $promoPartner = preg_replace('/[^A-Z]/', '', $promoCode);
-        $agentId = (int) filter_var($promoCode, FILTER_SANITIZE_NUMBER_INT);
-
         // 1. Поиск акции
-        $share = Share::where('title', $promoPartner)
+
+        $share = Share::where('title', $promoCode)
             ->where('from_date', '<=', now())
             ->where('to_date', '>=', now())
             ->first();
+
+        if ($share) {
+            $agentId = 0;
+        } else {
+            $promoPartner = preg_replace('/[^A-Z]/', '', $promoCode);
+            $agentId = (int) filter_var($promoCode, FILTER_SANITIZE_NUMBER_INT);
+            $share = Share::where('title', $promoPartner)
+                ->where('from_date', '<=', now())
+                ->where('to_date', '>=', now())
+                ->first();
+        }
 
         if (!$share) {
             throw new Exception('Промокод неактуален или не существует');
