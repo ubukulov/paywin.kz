@@ -1,62 +1,57 @@
 @extends('layouts.app')
-@section('content')
-    <style>
-        .review__form-btn{
-            display: block;
-            margin: 30px auto 0;
-            background: #FD9B11;
-            border: none;
-            border-radius: 28px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 16px;
-            line-height: 20px;
-            -webkit-box-shadow: #FD9B11 28px;
-            box-shadow: #FD9B11 28px;
-            padding: 6px 55px 8px 42px;
-            cursor: pointer;
-            -webkit-box-shadow: 0px 0px 23px #fd9b11;
-            box-shadow: 0px 0px 23px #fd9b11;
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-column-gap: 7.5px;
-            -moz-column-gap: 7.5px;
-            column-gap: 7.5px;
-        }
-    </style>
-    <div class="container prizes-page">
-        <main>
-            @foreach($partners as $partner)
 
+@section('content')
+    <div class="container mx-auto px-4 py-8 prizes-page">
+        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach($partners as $partner)
                 @php
+                    $shares = $partner->shares;
                     $profile = $partner->profile;
                     $cashback = $partner->getCashbackSizeAndAmount();
-                    $shares = $partner->shares;
                 @endphp
 
-                @if(count($shares) == 0)
+                @if($shares->isEmpty())
                     @continue
                 @endif
 
-                <div class="prize prize--1 prizes__item">
-                    <div class="company prize__company">
-                        <img @if(empty($profile->logo)) src="/images/cabinet/papa-johns-pizza.svg" @else src="{{ $profile->logo }}" @endif alt="{{ $profile->company }}" class="company__logo">
-                        <h2 class="company__title">{{ $profile->company }}</h2>
+                <div class="prize bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between transition-all hover:shadow-md">
+
+                    {{-- Секция компании --}}
+                    <div class="company flex items-center gap-4 mb-5">
+                        <img
+                            src="{{ empty($profile->logo) ? '/images/cabinet/papa-johns-pizza.svg' : $profile->logo }}"
+                            alt="{{ $profile->company }}"
+                            class="w-12 h-12 object-contain rounded-md"
+                        >
+                        <h2 class="text-xl font-bold text-gray-800">{{ $profile->company }}</h2>
                     </div>
 
+                    {{-- Инфо о призах --}}
                     <div class="prize__info">
-                        <p class="prize__text">Призов: <b>{{ $shares->sum('cnt') }}<b><br>Заказ от: <b>{{ $shares->min('from_order') }}₸</b></p>
-                        <div class="prize__slider">
+                        <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                            Призов: <b class="text-gray-900">{{ $shares->sum('cnt') }}</b><br>
+                            Заказ от: <b class="text-gray-900">{{ number_format($shares->min('from_order'), 0, '.', ' ') }}₸</b>
+                        </p>
 
+                        <div class="prize__slider space-y-4">
                             @if($cashback && count($cashback) > 0)
-                                <div class="slider__item">
-                                    <p class="slide__text">Cashback {{ $cashback->size }}%<br>при заказе от {{ $cashback->from_order }}₸</p>
+                                <div class="bg-orange-50 p-3 rounded-lg border-l-4 border-[#FD9B11]">
+                                    <p class="text-sm font-medium text-gray-700">
+                                        Cashback <span class="text-[#FD9B11] font-bold">{{ $cashback->size }}%</span><br>
+                                        <span class="text-xs text-gray-500 text-nowrap">при заказе от {{ number_format($cashback->from_order, 0, '.', ' ') }}₸</span>
+                                    </p>
                                 </div>
                             @endif
 
-                            <div>
-                                <a href="{{ route('showPartner', ['slug' => $profile->category->slug, 'id' => $profile->user_id]) }}" class="review__form-btn btn btn-success">подробнее</a>
+                            <div class="flex justify-center mt-auto">
+                                <a href="{{ route('showPartner', ['slug' => $profile->category->slug, 'id' => $profile->user_id]) }}"
+                                   class="inline-flex items-center justify-center gap-[7.5px]
+                                          bg-[#FD9B11] text-white font-bold text-base leading-5
+                                          py-[8px] pl-[42px] pr-[55px] rounded-[28px]
+                                          shadow-[0_0_23px_#fd9b11] hover:brightness-110
+                                          transition-all duration-300 active:scale-95">
+                                    подробнее
+                                </a>
                             </div>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 .logo {
     display: flex;
     justify-content: center;
+    height: 100px;
 }
 
 .navbar-toggler {
@@ -71,6 +72,7 @@
     }
     .logo {
         max-width: 100%;
+        height: auto;
     }
     .auth-btns a{
         width: 100%;

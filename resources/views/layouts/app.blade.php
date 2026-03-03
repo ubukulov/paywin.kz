@@ -16,14 +16,13 @@
     <link rel="manifest" href="{{ asset('img/favicons/site.webmanifest') }}">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
-
     {{-- Скрипты --}}
-    <script src="{{ asset('js/script.js') }}"></script>
     <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('js/script.js') }}"></script>
     <script src="{{ asset('js/home.js') }}"></script>
 
     {{-- Внешние библиотеки (Tailwind и Alpine с фиксом defer) --}}
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ asset('css/tailwindcss.css') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     <style>

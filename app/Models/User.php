@@ -62,7 +62,7 @@ class User extends Authenticatable
     public function shares()
     {
         return $this->hasMany(Share::class)
-            ->whereDate('to_date', '>=', Carbon::now());
+            ->whereDate('to_date', '>', Carbon::now());
     }
 
     public function create_profile()

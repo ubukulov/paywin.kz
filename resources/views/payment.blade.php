@@ -1,469 +1,319 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Оплата</title>
-    <link rel="stylesheet" href="/b5/css/style.css">
-    <script src="/b5/js/jquery-3.6.0.min.js"></script>
-    <script src="/b5/js/script.js"></script>
-    <script src="/b5/js/slick.min.js"></script>
-    <script src="/b5/js/payment.js"></script>
-    <link rel="apple-touch-icon" sizes="180x180" href="/b5/img/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/b5/img/favicons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/b5/img/favicons/favicon-16x16.png">
-    <link rel="manifest" href="/b5/img/favicons/site.webmanifest">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
-    <script src="https://widget.tiptoppay.kz/bundles/widget.js"></script>
-    <style>
-        .hidden {
-            display: none;
-        }
-        .form-check-input:checked{
-            background-color: #18BE1E !important;
-            border-color: #18BE1E !important;
-        }
-        .form-switch .form-check-input{
-            font-size: 20px;
-        }
-        .actions{
-            width: 380px !important;
-        }
-        .action__flex {
-            justify-content: space-between;
-        }
-        .action__warning {
-            position: relative;
-            top: 0px;
-            right: 0px;
-            font-size: 18px;
-        }
-    </style>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-</head>
-<body class="container payment-page">
-<h1 class="h1 animate__animated animate__fadeInLeft">Оплата</h1>
-<br>
-@php
-    $profile = $partner->profile;
-@endphp
+@extends('layouts.app')
 
-<div style="display: flex; justify-content: center;" class="partdescr__profile">
-    <div style="margin-right: 20px;" class="partdescr__profile-logo">
-        <img @if(empty($profile->logo)) src="/images/partner-description/partner-logo.png" @else src="{{ $profile->logo }}" @endif alt="logo">
-    </div>
-    <div class="partdescr__profile-block">
-        <div style="font-weight: bold;" class="partdescr__profile-name">{{ $profile->company }}</div>
-        <div style="color: #9B9B9B;" class="partdescr__profile-descr">{{ $profile->category->title }}</div>
-    </div>
-</div>
-<br>
-    @csrf
-    <input type="hidden" id="partner_id" name="partner_id" value="{{ $id }}">
-    <div class="actions">
-        <h2 style="margin-top: 0px;" class="offer animate__animated animate__fadeIn">Сумма оплаты</h2>
-        <p class="payment-page__number">
-            <input id="payment_input" style="width: 200px;
-            max-width: 100%;
-            height: 35px;
-            border-radius: 5px;
-            border: 1px solid #ccc; text-align: center;" required type="text" name="sum">
-        </p>
+@section('content')
+    <div class="max-w-xl mx-auto px-4 py-6 pb-32">
+        {{-- Заголовок --}}
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-6 animate__animated animate__fadeInLeft text-center sm:text-left">Оплата</h1>
 
-        @if($cards = $user->getMyCards())
-        <div class="action action--card actions__action">
-            <h3 class="action__subtitle">Метод оплаты</h3>
-            @include('_partials._payment_cards', $cards)
+        @php $profile = $partner->profile; @endphp
+
+        {{-- Профиль партнера --}}
+        <div class="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8 animate__animated animate__fadeIn">
+            <div class="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100">
+                <img src="{{ empty($profile->logo) ? '/images/partner-description/partner-logo.png' : $profile->logo }}"
+                     alt="logo" class="w-full h-full object-contain">
+            </div>
+            <div>
+                <div class="text-lg font-bold text-gray-900 leading-tight">{{ $profile->company }}</div>
+                <div class="text-sm text-gray-500">{{ $profile->category->title }}</div>
+            </div>
         </div>
-        @endif
 
-        @if($user_balance = $user->getBalanceForUser())
-        <div class="action action--wallet actions__action">
-            <h3 class="action__subtitle">Потратить баланс</h3>
-            <div class="action__flex">
-                <img src="/b5/img/icons/wallet.svg" alt="кошёлек" class="action__icon action__icon--wallet">
-                <p id="balance" class="action__number">{{ $user_balance }} ₸</p>
-{{--                <p class="action__warning">-250</p>--}}
-{{--                <button id="balance_switch" class="switch-btn action__button action__button--checkbox"></button>--}}
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
-                </div>
-            </div>
-            <input type="hidden" id="balance_hidden" name="balance" value="0">
-        </div>
-        @endif
+        @csrf
+        <input type="hidden" id="partner_id" name="partner_id" value="{{ $id }}">
 
-        @if($user_discount = $user->getDiscountForUser())
-        <div class="action action--precent actions__action">
-            <h3 class="action__subtitle">Применить скидку</h3>
-            <div class="action__flex">
-                <img src="/b5/img/icons/precent.svg" alt="проценты" class="action__icon action__icon--precent">
-                <p class="action__number"><span id="discount">{{ $user_discount->size }}%</span><span id="discount_max_sum" data-sum="{{ $user_discount->max_sum }}" style="font-size: 12px;"> (до {{ $user_discount->max_sum }} тг)</span></p>
-
-{{--                <button class="switch-btn switch-on action__button action__button--checkbox"></button>--}}
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="discount_input">
-                </div>
-            </div>
-            <input type="hidden" id="discount_hidden" name="discount" value="0">
-        </div>
-        @endif
-
-        <hr>
-
-        <div id="to_payment" class="to_payment hidden">
-            <h3 style="margin-top: 0px;" class="offer animate__animated animate__fadeIn">К оплате</h3>
-
-            <div id="balance_size_hidden" class="action action--wallet actions__action hidden">
-                <h3 class="action__subtitle">С баланса</h3>
-                <div class="action__flex">
-                    <img src="/b5/img/icons/wallet.svg" alt="кошёлек" class="action__icon action__icon--wallet">
-                    <p class="action__number"></p>
-                    <p id="balance_size" class="action__warning"></p>
+        <div class="space-y-6">
+            {{-- Ввод суммы --}}
+            <div class="bg-gray-50 p-6 rounded-3xl border border-gray-200 text-center">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4 animate__animated animate__fadeIn">Сумма оплаты</h2>
+                <div class="relative inline-block w-full max-w-[240px]">
+                    <input id="payment_input"
+                           type="number"
+                           inputmode="numeric"
+                           required
+                           name="sum"
+                           placeholder="0"
+                           class="w-full text-3xl font-bold text-center bg-transparent border-b-2 border-gray-300 focus:border-[#18BE1E] focus:outline-none pb-2 transition-colors">
+                    <span class="absolute right-4 bottom-2 text-xl font-bold text-gray-400">₸</span>
                 </div>
             </div>
 
-            <div id="discount_size_hidden" class="action action--precent actions__action hidden">
-                <h3 class="action__subtitle">Скидка</h3>
-                <div class="action__flex">
-                    <img src="/b5/img/icons/precent.svg" alt="проценты" class="action__icon action__icon--precent">
-                    <p class="action__number"></p>
-                    <p id="discount_size" class="action__warning"></p>
+            {{-- Карты --}}
+            @if($cards = $user->getMyCards())
+                <div class="action bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-3 text-nowrap">Метод оплаты</h3>
+                    @include('_partials._payment_cards', $cards)
                 </div>
-            </div>
+            @endif
 
-            <div class="action action--precent actions__action" style="margin-bottom: 20px;">
-                <h3 class="action__subtitle">Итоговая сумма</h3>
-                <div class="action__flex">
-                    <img src="/b5/img/icons/wallet.svg" alt="кошёлек" class="action__icon action__icon--wallet">
-                    <p class="action__number"></p>
-                    <p id="sum_amount" class="action__warning"></p>
-                    <input type="hidden" id="sum_amount_hidden" name="sum_amount" value="0">
+            {{-- Баланс --}}
+            @if($user_balance = $user->getBalanceForUser())
+                <div class="action bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-3">Потратить баланс</h3>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center">
+                                <img src="/b5/img/icons/wallet.svg" alt="кошёлек" class="w-5 h-5">
+                            </div>
+                            <p id="balance" class="text-lg font-bold text-gray-800">{{ $user_balance }} ₸</p>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input scale-125 cursor-pointer accent-[#18BE1E]" type="checkbox" id="flexSwitchCheckDefault">
+                        </div>
+                    </div>
+                    <input type="hidden" id="balance_hidden" name="balance" value="0">
+                </div>
+            @endif
+
+            {{-- Скидка --}}
+            @if($user_discount = $user->getDiscountForUser())
+                <div class="action bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-3">Применить скидку</h3>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center">
+                                <img src="/b5/img/icons/precent.svg" alt="проценты" class="w-5 h-5">
+                            </div>
+                            <div>
+                                <p class="text-lg font-bold text-gray-800"><span id="discount">{{ $user_discount->size }}%</span></p>
+                                <span id="discount_max_sum" data-sum="{{ $user_discount->max_sum }}" class="text-[10px] text-gray-400">до {{ number_format($user_discount->max_sum, 0, '.', ' ') }} тг</span>
+                            </div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input scale-125 cursor-pointer accent-[#18BE1E]" type="checkbox" id="discount_input">
+                        </div>
+                    </div>
+                    <input type="hidden" id="discount_hidden" name="discount" value="0">
+                </div>
+            @endif
+
+            <hr class="border-gray-100 my-8">
+
+            {{-- Итоговый блок (Чек) --}}
+            <div id="to_payment" class="hidden animate__animated animate__fadeIn space-y-3 bg-gray-900 text-white rounded-3xl p-6 shadow-2xl my-6">
+                <h3 class="text-xs font-bold uppercase text-gray-400 tracking-widest mb-4">Детали платежа</h3>
+
+                <div class="flex justify-between items-center text-sm border-b border-gray-800 pb-2">
+                    <span class="text-gray-400">Сумма заказа:</span>
+                    <span id="base_sum_val" class="font-bold text-white">0 ₸</span>
+                </div>
+
+                <div id="discount_row" class="hidden flex justify-between items-center text-sm border-b border-gray-800 pb-2">
+                    <span class="text-gray-400">Скидка:</span>
+                    <span id="discount_size_val" class="font-bold text-[#18BE1E]">-0 ₸</span>
+                </div>
+
+                <div id="balance_row" class="hidden flex justify-between items-center text-sm border-b border-gray-800 pb-2">
+                    <span class="text-gray-400">С баланса:</span>
+                    <span id="balance_size_val" class="font-bold text-red-400">-0 ₸</span>
+                </div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-lg font-bold">Итого к оплате:</span>
+                    <div class="text-right">
+                        <p id="final_sum_display" class="text-3xl font-black text-[#18BE1E]">0 ₸</p>
+                        <input type="hidden" id="sum_amount_hidden" name="sum_amount" value="0">
+                    </div>
                 </div>
             </div>
         </div>
 
-    </div>
-
-    <div class="payment-page__slider-buttons animate__animated animate__fadeIn">
-        <div>
-            <h2 class="slider__title">Выиграйте один из призов</h2>
-            <div class="slider">
-
+        {{-- Слайдер призов --}}
+        <div class="mt-12 mb-8 animate__animated animate__fadeIn">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Выиграйте один из призов</h2>
+            <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
                 @foreach($partner->shares as $share)
-                <div class="slide slider__item">
-                    <p class="slide__text">{{ \Illuminate\Support\Str::limit($share->title, 14) }}<br>до {{ $share->to_order }}₸</p>
-                </div>
+                    <div class="flex-shrink-0 bg-white border border-gray-100 p-4 rounded-2xl shadow-sm min-w-[180px]">
+                        <p class="text-sm font-bold text-gray-800 leading-snug">
+                            {{ \Illuminate\Support\Str::limit($share->title, 14) }}<br>
+                            <span class="text-xs font-medium text-[#18BE1E]">до {{ number_format($share->to_order, 0, '.', ' ') }}₸</span>
+                        </p>
+                    </div>
                 @endforeach
-
             </div>
         </div>
-        <div class="payment-page__buttons">
-            <button type="button" id="paymentBtn" class="button button--green">оплатить</button>
-            <a href="{{ route('showPartner', ['slug' => $slug, 'id' => $id]) }}" class="button button--back">
-                вернуться
-            </a>
+
+        {{-- Футер с кнопками --}}
+        <div class="fixed bottom-0 left-0 right-0 p-6 bg-white border-t border-gray-100 z-50 flex items-center justify-center max-w-xl mx-auto shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+            <div class="flex items-center gap-4 w-full">
+                <a href="{{ route('showPartner', ['slug' => $slug, 'id' => $id]) }}"
+                   class="flex-1 text-center py-4 bg-gray-50 text-gray-400 font-bold rounded-3xl hover:bg-gray-100 transition-colors uppercase tracking-wider text-sm">
+                    вернуться
+                </a>
+                <button type="button" id="paymentBtn"
+                        class="flex-[2] py-4 bg-[#18BE1E] text-white font-black rounded-3xl shadow-[0_10px_20px_rgba(24,190,30,0.4)] hover:scale-[1.02] transition-transform active:scale-95 uppercase tracking-wider text-lg">
+                    оплатить
+                </button>
+            </div>
         </div>
     </div>
 
-<footer class="footer container animate__animated animate__fadeInUp">
-    <a href="{{ route('prizes') }}" class="footer__link">
-        <img src="/b5/img/icons/footer-gift.svg" alt="Подарок" class="footer__icon">
-    </a>
-    <a href="{{ route('home') }}" class="footer__link">
-        <img src="/b5/img/icons/footer-qr.svg" alt="QR код" class="footer__icon">
-    </a>
-    <a @if(Auth::user()->user_type == 'partner') href="{{ route('partner.cabinet') }}" @else href="{{ route('user.cabinet') }}" @endif class="footer__link">
-        <img src="/b5/img/icons/footer-user.svg" alt="Профиль" class="footer__icon">
-    </a>
-</footer>
-
-@include('_partials.info')
-
-<div id="paymentLoader" class="payment-loader">
-    <div class="loader-card">
-        <div class="loader-circle">
-            <span>₸</span>
+    {{-- Загрузчик --}}
+    <div id="paymentLoader" class="fixed inset-0 bg-white/95 hidden items-center justify-center z-[99999] backdrop-blur-sm">
+        <div class="text-center p-10 bg-white rounded-3xl shadow-2xl border border-gray-100">
+            <div class="w-24 h-24 rounded-full border-4 border-gray-100 border-t-[#18BE1E] flex items-center justify-center mx-auto mb-6 animate-spin">
+                <span class="text-3xl font-black text-[#18BE1E] animate-pulse">₸</span>
+            </div>
+            <p class="text-xl font-bold text-gray-900 mb-2">Обрабатываем платеж</p>
+            <p class="text-sm text-gray-400">Пожалуйста, не закрывайте страницу</p>
         </div>
-        <p class="loader-title">Обрабатываем платеж</p>
-        <p class="loader-subtitle">Пожалуйста, не закрывайте страницу</p>
     </div>
-</div>
-<style>
-    .payment-loader {
-        position: fixed;
-        inset: 0;
-        background: rgba(255, 255, 255, 0.95);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 99999;
-    }
 
-    .loader-card {
-        text-align: center;
-        padding: 40px;
-        border-radius: 16px;
-        background: #fff;
-        box-shadow: 0 10px 40px rgba(0,0,0,.1);
-    }
+    <script src="https://widget.tiptoppay.kz/bundles/widget.js"></script>
 
-    .loader-circle {
-        width: 90px;
-        height: 90px;
-        border-radius: 50%;
-        border: 4px solid #e5e5e5;
-        border-top-color: #18BE1E;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 20px;
-        animation: spin 1.1s linear infinite;
-    }
+    <script>
+        $(document).ready(function() {
+            // 1. Инициализация элементов
+            const $input = $('#payment_input');
+            const $block = $('#to_payment');
+            const $balanceSwitch = $('#flexSwitchCheckDefault');
+            const $discountSwitch = $('#discount_input');
 
-    .loader-circle span {
-        font-size: 32px;
-        font-weight: bold;
-        color: #18BE1E;
-    }
+            const $baseDisplay = $('#base_sum_val');
+            const $discountDisplay = $('#discount_size_val');
+            const $balanceDisplay = $('#balance_size_val');
+            const $finalDisplay = $('#final_sum_display');
+            const $finalHiddenInput = $('#sum_amount_hidden');
 
-    .loader-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 6px;
-    }
+            const $discountRow = $('#discount_row');
+            const $balanceRow = $('#balance_row');
+            const $paymentBtn = $('#paymentBtn');
+            const $loader = $('#paymentLoader');
 
-    .loader-subtitle {
-        font-size: 14px;
-        color: #8b8b8b;
-    }
+            // Данные пользователя
+            const userBalance = parseInt($('#balance').text()) || 0;
+            const discountPercent = parseInt($('#discount').text()) || 0;
+            const discountMax = parseInt($('#discount_max_sum').data('sum')) || 0;
 
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
+            // === Функция пересчета ===
+            function updateAll() {
+                let amount = parseInt($input.val()) || 0;
 
-</style>
-<script>
-    $(document).ready(function(){
-        let payment_input = $('#payment_input');
-        let to_payment    = $('#to_payment');
-        let balance    = $('#balance');
-        let discount    = $('#discount');
-        let balance_switch     = $('#flexSwitchCheckDefault');
-        let discount_switch    = $('#discount_input');
-        let balance_size       = $('#balance_size');
-        let discount_size      = $('#discount_size');
-        let sum_amount         = $('#sum_amount');
-        let balance_size_hidden         = $('#balance_size_hidden');
-        let discount_size_hidden         = $('#discount_size_hidden');
-        let balance_hidden         = $('#balance_hidden');
-        let discount_hidden         = $('#discount_hidden');
-        let sum_amount_hidden         = $('#sum_amount_hidden');
-        let discount_max_sum         = $('#discount_max_sum');
+                if (amount <= 0) {
+                    $block.addClass('hidden').hide();
+                    $finalHiddenInput.val(0);
+                    return;
+                }
 
-        payment_input.on("focusout", function(){
-            let amount = payment_input.val();
-            if(amount.length > 0) {
-                to_payment.removeClass('hidden');
-                sum_amount.html(amount + " ₸");
-                sum_amount_hidden.val(amount);
-                balance_switch.prop('checked', false);
-                discount_switch.prop('checked', false);
+                $block.removeClass('hidden').show();
+                $baseDisplay.text(amount + " ₸");
+
+                let currentTotal = amount;
+
+                // Расчет скидки
+                if ($discountSwitch.prop('checked')) {
+                    let calcDiscount = Math.floor((amount * discountPercent) / 100);
+                    let finalDiscount = Math.min(calcDiscount, discountMax);
+                    currentTotal -= finalDiscount;
+                    $discountDisplay.text("-" + finalDiscount + " ₸");
+                    $discountRow.removeClass('hidden');
+                    $('#discount_hidden').val(1);
+                } else {
+                    $discountRow.addClass('hidden');
+                    $('#discount_hidden').val(0);
+                }
+
+                // Расчет баланса
+                if ($balanceSwitch.prop('checked')) {
+                    let balanceToUse = Math.min(currentTotal, userBalance);
+                    currentTotal -= balanceToUse;
+                    $balanceDisplay.text("-" + balanceToUse + " ₸");
+                    $balanceRow.removeClass('hidden');
+                    $('#balance_hidden').val(1);
+                } else {
+                    $balanceRow.addClass('hidden');
+                    $('#balance_hidden').val(0);
+                }
+
+                // Итоговые значения
+                $finalDisplay.text(currentTotal + " ₸");
+                $finalHiddenInput.val(currentTotal);
             }
-        });
 
-        balance_switch.click(function(){
-            let amount = parseInt(payment_input.val());
-            if(balance_switch.prop("checked")) {
-                let balance_amount = parseInt(balance.html());
-                if(balance_amount >= amount) {
-                    balance_size.html("-" + amount);
-                    sum_amount.html("0 ₸");
-                    sum_amount_hidden.val(0);
-                } else {
-                    balance_size.html("-" + balance_amount);
-                    let d = amount - balance_amount;
-                    sum_amount.html(d + " ₸");
-                    sum_amount_hidden.val(d);
+            // Слушатели ввода
+            $input.on('input', updateAll);
+            $balanceSwitch.on('change', updateAll);
+            $discountSwitch.on('change', updateAll);
+
+            // === Логика оплаты ===
+            $paymentBtn.on('click', function(e) {
+                e.preventDefault();
+
+                // Принудительно обновляем расчеты перед оплатой
+                updateAll();
+
+                let amountSum = Number($finalHiddenInput.val());
+
+                // Если в итоговом поле 0, пробуем взять из основного ввода (на случай сбоя расчета)
+                if (!amountSum || amountSum <= 0) {
+                    amountSum = Number($input.val());
                 }
 
-                if(discount_switch.prop("checked")) {
-                    let discount_amount = parseInt(discount.html());
-                    let d = ((amount * discount_amount) / 100);
-                    let need_amount = amount - Math.abs(d);
-                    if(balance_amount >= need_amount) {
-                        balance_size.html("-" + need_amount);
-                        sum_amount.html("0 ₸");
-                        sum_amount_hidden.val(0);
-                    } else {
-                        let c = need_amount - balance_amount;
-                        balance_size.html("-" + balance_amount);
-                        sum_amount.html(c + " ₸");
-                        sum_amount_hidden.val(c);
-                    }
+                const partnerId = $('#partner_id').val();
+                const csrf = $('input[name="_token"]').val();
+
+                if (!amountSum || isNaN(amountSum) || amountSum <= 0) {
+                    alert('Пожалуйста, введите корректную сумму оплаты');
+                    $input.focus();
+                    return;
                 }
 
-                balance_size_hidden.removeClass('hidden');
-                balance_hidden.val(1);
-            } else {
-                if(discount_switch.prop("checked")) {
-                    let discount_amount = parseInt(discount.html());
-                    let dd;
-                    let d = ((amount * discount_amount) / 100);
-                    let max_d = discount_max_sum.data('sum');
-                    if(Math.abs(d) >= max_d) {
-                        discount_size.html("-" + Math.abs(max_d));
-                        dd = max_d;
-                    } else {
-                        discount_size.html("-" + Math.abs(d));
-                        dd = d;
-                    }
-                    let need_amount = amount - Math.abs(dd);
-                    sum_amount.html(need_amount + " ₸");
-                    sum_amount_hidden.val(need_amount);
-                } else {
-                    sum_amount.html(amount + " ₸");
-                    sum_amount_hidden.val(amount);
+                if (typeof tiptop === 'undefined') {
+                    alert('Ошибка: Платежный модуль не загружен. Обновите страницу.');
+                    return;
                 }
 
-                balance_size_hidden.addClass('hidden');
-                balance_size.html('');
-                balance_hidden.val(0);
-            }
-        });
+                const widget = new tiptop.Widget();
 
-        discount_switch.click(function(){
-            let amount = parseInt(payment_input.val());
-            if(discount_switch.prop("checked")) {
-                let discount_amount = parseInt(discount.html());
-                discount_size_hidden.removeClass('hidden');
-                let dd;
-                let d = ((amount * discount_amount) / 100);
-                let max_d = discount_max_sum.data('sum');
-                if(Math.abs(d) >= max_d) {
-                    discount_size.html("-" + Math.abs(max_d));
-                    dd = max_d;
-                } else {
-                    discount_size.html("-" + Math.abs(d));
-                    dd = d;
-                }
+                // Визуальная блокировка кнопки
+                $paymentBtn.prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
 
-                discount_hidden.val(1);
+                const intentParams = {
+                    publicTerminalId: "pk_ee882e56bdffee4bea6f8f97290c6",
+                    paymentSchema: 'Dual',
+                    currency: "KZT",
+                    amount: amountSum,
+                    successRedirectUrl: "https://paywin.kz/success/payment",
+                    failRedirectUrl: "https://paywin.kz/error/payment",
+                    tokenize: true,
+                };
 
-                let need_amount = amount - Math.abs(dd);
+                widget.start(intentParams)
+                    .then(result => {
+                        if (result?.data?.transactionId) {
+                            $loader.css('display', 'flex').show();
 
-                if(balance_switch.prop("checked")) {
-                    let balance_amount = parseInt(balance.html());
-                    if(balance_amount >= need_amount) {
-                        balance_size.html("-" + need_amount);
-                        balance_hidden.val(1);
-                        sum_amount.html("0 ₸");
-                        sum_amount_hidden.val(0);
-                    } else {
-                        let c = need_amount - balance_amount;
-                        balance_size.html("-" + balance_amount);
-                        balance_hidden.val(1);
-                        sum_amount.html(c + " ₸");
-                        sum_amount_hidden.val(c);
-                    }
-                } else {
-                    sum_amount.html(need_amount + " ₸");
-                    sum_amount_hidden.val(need_amount);
-                }
-            } else {
-                if(balance_switch.prop("checked")) {
-                    let balance_amount = parseInt(balance.html());
-                    if(balance_amount >= amount) {
-                        balance_size.html("-" + amount);
-                        sum_amount.html("0 ₸");
-                        sum_amount_hidden.val(0);
-                    } else {
-                        balance_size.html("-" + balance_amount);
-                        let d = amount - balance_amount;
-                        sum_amount.html(d + " ₸");
-                        sum_amount_hidden.val(d);
-                    }
-                } else {
-                    balance_size_hidden.addClass('hidden');
-                    balance_size.html('');
-                    balance_hidden.val(0);
-                    sum_amount.html(amount + " ₸");
-                    sum_amount_hidden.val(amount);
-                }
-                discount_size_hidden.addClass('hidden');
-                discount_size.html('');
-                discount_hidden.val(0);
-            }
-        });
-    });
-</script>
-
-<script>
-
-    const btn = document.getElementById("paymentBtn")
-    const loader = document.getElementById("paymentLoader");
-
-    const widget = new tiptop.Widget();
-
-    const launchWidget = () => {
-        const amountInput = document.getElementById('sum_amount_hidden').value;
-        const partnerId = document.getElementById('partner_id').value;
-        const csrf = document.querySelector('input[name="_token"]').value;
-
-        if (!amountInput || isNaN(amountInput) || Number(amountInput) <= 0) {
-            alert('Введите корректную сумму');
-            return;
-        }
-
-        const amountSum = Number(amountInput);
-
-        btn.disabled = true;
-
-        const intentParams = {
-            publicTerminalId: "pk_ee882e56bdffee4bea6f8f97290c6",
-            paymentSchema: 'Dual',
-            currency: "KZT",
-            amount: amountSum, // ✅ берем сумму из input
-            successRedirectUrl: "https://paywin.kz/success/payment",
-            failRedirectUrl: "https://paywin.kz/error/payment",
-            tokenize: true,
-        };
-
-        widget.start(intentParams)
-            .then(result => {
-                if (!result?.data?.transactionId) return;
-
-                loader.style.display = 'flex';
-
-                fetch('/payment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrf
-                    },
-                    body: JSON.stringify({
-                        transaction_id: result.data.transactionId,
-                        amount: amountSum,
-                        partner_id: partnerId
+                            fetch('/payment', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': csrf
+                                },
+                                body: JSON.stringify({
+                                    transaction_id: result.data.transactionId,
+                                    amount: amountSum,
+                                    partner_id: partnerId
+                                })
+                            })
+                                .then(() => {
+                                    window.location.href = '/success/payment';
+                                })
+                                .catch(() => {
+                                    $loader.hide();
+                                    window.location.href = '/error/payment';
+                                });
+                        } else {
+                            $paymentBtn.prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
+                        }
                     })
-                })
-                    .then(() => {
-                        loader.style.display = 'none';
-                        window.location.href = '/success/payment';
-                    })
-                    .catch(() => window.location.href= '/error/payment');
-            })
-            .catch(error => {
-                console.error(error);
-                btn.disabled = false;
+                    .catch(error => {
+                        console.error("Payment error:", error);
+                        $paymentBtn.prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
+                    });
             });
-    };
 
-    btn.addEventListener('click', launchWidget)
-</script>
-</body>
-</html>
+            // Первичный запуск
+            updateAll();
+        });
+    </script>
+@stop

@@ -55,6 +55,7 @@ class CategoryController extends Controller
     public function allPartners()
     {
         $partners = User::where(['user_type' => 'partner'])
+            ->selectRaw('users.*')
             ->join('user_profile', 'user_profile.user_id', 'users.id')
             ->get();
         return view('category.all-partners', compact('partners'));
