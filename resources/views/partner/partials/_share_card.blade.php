@@ -1,5 +1,5 @@
 <div class="swiper-slide h-auto">
-    <div class="h-full bg-white rounded-[2.5rem] border {{ $isActive ? 'border-gray-50 shadow-sm hover:shadow-xl' : 'border-gray-100 grayscale-[0.8] opacity-80' }} transition-all duration-500 p-7 flex flex-col relative group/card">
+    <div class="h-full bg-white rounded-[2.5rem] border {{ $isActive ? 'border-gray-50 shadow-sm shadow-xl' : 'border-gray-100 grayscale-[0.8] opacity-80' }} transition-all duration-500 p-7 flex flex-col relative group/card">
 
         <div class="absolute top-6 left-8">
             <span class="text-[9px] font-black uppercase tracking-[0.15em] {{ $isActive ? 'text-green-500' : 'text-gray-400' }} flex items-center gap-1.5">

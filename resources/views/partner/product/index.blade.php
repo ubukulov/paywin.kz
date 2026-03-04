@@ -33,7 +33,7 @@
             <div class="tabcontent">
                 <div class="tabcontent__slider swiper !pb-12"> <div class="swiper-wrapper">
                         @foreach($products as $product)
-                            <div class="swiper-slide h-auto"> <article class="group h-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:border-indigo-100 transition-all duration-300 flex flex-col">
+                            <div class="swiper-slide h-auto"> <article class="group h-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl border-indigo-100 transition-all duration-300 flex flex-col">
 
                                     <div class="relative overflow-hidden aspect-square">
                                         <img src="{{ $product->mainImage->url }}"

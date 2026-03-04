@@ -10,19 +10,17 @@
     @stack('user_styles')
 </head>
 <body>
-<div class="container">
-    <div class="profile">
+<div class="profile">
 
-        @include('user.partials.menu')
+    @include('user.partials.menu')
 
-        <div id="content">
-            @yield('content')
-        </div>
-
-        {{--@include('user.partials.bottom_menu')--}}
-
-        @include('_partials.info')
+    <div id="content">
+        @yield('content')
     </div>
+
+    {{--@include('user.partials.bottom_menu')--}}
+
+    @include('_partials.info')
 </div>
 <script>
     const btn = document.getElementById('burgerBtn')

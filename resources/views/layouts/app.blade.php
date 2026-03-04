@@ -70,7 +70,9 @@
     <div class="container">
         <div style="display: flex;">
             <div style="flex: 1;">
-                <img class="logo" src="{{ asset('images/logo_bg_black.jpg') }}" alt="Logo">
+                <a href="{{ route('home') }}">
+                    <img class="logo" src="{{ asset('images/logo_bg_black.jpg') }}" alt="Logo">
+                </a>
             </div>
             <div style="display: block; align-content: end;">
                 <button id="scanQR" class="button camera__button">Сканировать QR</button>

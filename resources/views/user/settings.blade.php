@@ -9,7 +9,7 @@
                     <div class="relative">
                         <div class="absolute -inset-1 bg-gradient-to-tr from-blue-400 to-purple-400 rounded-full blur opacity-20"></div>
                         <div class="relative w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden">
-                            <img src="/images/profile/avatar.png" alt="Avatar" class="w-full h-full object-cover">
+                            <img src="{{ asset('images/profile/no-image.png') }}" alt="Avatar" class="w-full h-full object-cover">
                         </div>
                     </div>
 

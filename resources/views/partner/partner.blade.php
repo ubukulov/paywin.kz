@@ -9,10 +9,6 @@
     <link rel="stylesheet" href="{{ asset('css/fix.css') }}">
     @stack('partner_styles')
     <style>
-        #content {
-            max-width: 450px;
-            margin: 0 auto;
-        }
         .partner__address-upload-btn {
             font-size: 12px !important;
         }
@@ -42,19 +38,16 @@
     </style>
 </head>
 <body>
+<div class="profile">
+    <header class="cabinet__header">
+        @include('partner.partials.menu')
+    </header>
 
-<div class="container">
-    <div class="cabinet">
-        <header class="cabinet__header">
-            @include('partner.partials.menu')
-        </header>
-
-        <div id="content">
-            @yield('content')
-        </div>
-
-        @include('_partials.info')
+    <div id="content">
+        @yield('content')
     </div>
+
+    @include('_partials.info')
 </div>
 {{--<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>

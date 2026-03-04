@@ -3,15 +3,11 @@
     <style>
         body {
             font-family: Inter, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
         }
 
         .promo-wrapper {
             width: 100%;
-            max-width: 420px;
             text-align: center;
             color: #000;
         }
@@ -110,7 +106,7 @@
                             <p>Получите бонус в размере {{ $promo->size }}₸</p>
                         @endif
                         <span style="margin-right: 20px;">⏳ до {{ date('d.m.Y', strtotime($promo->to_date)) }}</span>
-                        <button class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700" onclick="copyPromo('{{ $promo->getMyPromoLink() }}')">Получить ссылку</button>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700" onclick="copyPromo('{{ $promo->getMyPromoLink() }}')">Поделиться</button>
                     </div>
                     @endforeach
                 </div>

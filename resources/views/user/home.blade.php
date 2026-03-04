@@ -10,7 +10,7 @@
                         <div class="relative group">
                             <div class="absolute -inset-1 bg-gradient-to-tr from-blue-600 to-purple-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                             <div class="relative w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden">
-                                <img src="/images/profile/avatar.png" alt="Avatar" class="w-full h-full object-cover">
+                                <img src="{{ asset('images/profile/no-image.png') }}" alt="Avatar" class="w-full h-full object-cover">
                             </div>
                         </div>
 

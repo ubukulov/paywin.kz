@@ -6,7 +6,7 @@
 
             {{-- LOGO --}}
             <a href="{{ route('home') }}" class="flex items-center font-bold partner-logo-a">
-                <img src="/images/logo_bg_white.jpg" alt="logo">
+                <img class="cabinet-logo" src="/images/logo_bg_white.jpg" alt="logo">
             </a>
 
 
@@ -28,7 +28,7 @@
                 </a>
 
                 <a href="{{ route('user.prizes') }}"
-                   class="{{ request()->is('user/history')
+                   class="{{ request()->is('user/prizes')
                         ? 'text-blue-600 border-b-2 border-blue-600 pb-1'
                         : 'text-gray-600 hover:text-blue-600' }}">
                     Подарки
@@ -39,6 +39,11 @@
                         ? 'text-blue-600 border-b-2 border-blue-600 pb-1'
                         : 'text-gray-600 hover:text-blue-600' }}">
                     Заработать
+                </a>
+
+                <a href="{{ route('logout') }}"
+                   class="text-gray-600 hover:text-blue-600">
+                    Выйти
                 </a>
 
             </nav>

@@ -3,7 +3,7 @@
         <div class="flex justify-between h-17 items-center mt-1">
             <!-- ЛОГОТИП СЛЕВА -->
             <a href="{{ route('home') }}" class="flex items-center font-bold partner-logo-a">
-                <img src="/images/logo_bg_white.jpg" alt="logo">
+                <img class="cabinet-logo" src="/images/logo_bg_white.jpg" alt="logo">
             </a>
 
             <!-- БУРГЕР СПРАВА -->
@@ -20,11 +20,11 @@
             <!-- МЕНЮ -->
             <div class="hidden sm:flex sm:items-center sm:space-x-4">
                 <a href="{{ route('partner.cabinet') }}" class="nav-link {{ request()->is('partner') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
-                    О партнере
+                    Профил
                 </a>
 
                 <a href="{{ route('partner.my-shares.index') }}" class="nav-link {{ request()->is('partner/my-shares*') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
-                    Мои акции
+                    Акции
                 </a>
 
                 <a href="{{ route('partner.qr') }}" class="nav-link {{ request()->is('partner/qr') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
@@ -45,6 +45,10 @@
 
                 <a href="{{ route('partner.store.index') }}" class="nav-link {{ request()->is('partner/stores') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
                     Магазины
+                </a>
+
+                <a href="{{ route('logout') }}" class="nav-link text-gray-700 hover:bg-orange-500 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    Выйти
                 </a>
             </div>
         </div>

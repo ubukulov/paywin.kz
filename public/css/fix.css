@@ -1,7 +1,15 @@
+body {
+    background-color: #f8fafc;
+}
 .logo {
     display: flex;
     justify-content: center;
     height: 100px;
+}
+.cabinet-logo {
+    display: flex;
+    justify-content: center;
+    height: 140px;
 }
 
 .navbar-toggler {
@@ -25,6 +33,12 @@
 
 #content {
     background-color: #f8fafc;
+    padding: 0 20px;
+}
+.profile {
+    max-width: 1090px;
+    margin: 0 auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Стили для уведомления */
@@ -74,6 +88,10 @@
         max-width: 100%;
         height: auto;
     }
+    .cabinet-logo {
+        max-width: 100%;
+        height: auto;
+    }
     .auth-btns a{
         width: 100%;
     }
@@ -88,5 +106,8 @@
     }
     .settings {
         height: auto !important;
+    }
+    .promo-wrapper {
+        max-width: 420px;
     }
 }

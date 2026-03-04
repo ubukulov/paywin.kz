@@ -28,7 +28,7 @@
                 <div class="swiper-wrapper">
                     @foreach($partnerGifts as $partnerGift)
                         <div class="swiper-slide h-auto">
-                            <div class="h-full bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 p-6 flex flex-col">
+                            <div class="h-full bg-white rounded-3xl border border-gray-100 shadow-sm shadow-xl transition-all duration-300 p-6 flex flex-col">
 
                                 <div class="grid grid-cols-2 gap-4 mb-6">
                                     <div class="space-y-2">
