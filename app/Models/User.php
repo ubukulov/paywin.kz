@@ -68,7 +68,7 @@ class User extends Authenticatable
     public function create_profile()
     {
         UserProfile::create([
-            'user_id' => $this->id
+            'user_id' => $this->id, 'category_id' => 4
         ]);
     }
 
