@@ -20,7 +20,7 @@
             <!-- МЕНЮ -->
             <div class="hidden sm:flex sm:items-center sm:space-x-4">
                 <a href="{{ route('partner.cabinet') }}" class="nav-link {{ request()->is('partner') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
-                    Профил
+                    Профиль
                 </a>
 
                 <a href="{{ route('partner.my-shares.index') }}" class="nav-link {{ request()->is('partner/my-shares*') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
@@ -39,12 +39,12 @@
                     Товары
                 </a>
 
-                <a href="{{ route('partner.gift.index') }}" class="nav-link {{ request()->is('partner/gifts') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
+                {{--<a href="{{ route('partner.gift.index') }}" class="nav-link {{ request()->is('partner/gifts') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
                     Подарки
-                </a>
+                </a>--}}
 
                 <a href="{{ route('partner.store.index') }}" class="nav-link {{ request()->is('partner/stores') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
-                    Магазины
+                    Склады
                 </a>
 
                 <a href="{{ route('logout') }}" class="nav-link text-gray-700 hover:bg-orange-500 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
@@ -57,10 +57,10 @@
     <!-- Мобильное меню -->
     <div id="mobileMenu" class="sm:hidden hidden px-2 pt-2 pb-3 space-y-1">
         <a href="{{ route('partner.cabinet') }}" class="block {{ request()->is('partner') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
-            О партнере
+            Профиль
         </a>
         <a href="{{ route('partner.my-shares.index') }}" class="block {{ request()->is('partner/my-shares*') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
-            Мои акции
+            Акции
         </a>
         <a href="{{ route('partner.qr') }}" class="block {{ request()->is('partner/qr') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
             Мой QR
@@ -71,11 +71,11 @@
         <a href="{{ route('partner.product.index') }}" class="block {{ request()->is('partner/products') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
             Товары
         </a>
-        <a href="{{ route('partner.gift.index') }}" class="block {{ request()->is('partner/gifts') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
+        {{--<a href="{{ route('partner.gift.index') }}" class="block {{ request()->is('partner/gifts') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
             Подарки
-        </a>
+        </a>--}}
         <a href="{{ route('partner.store.index') }}" class="block {{ request()->is('partner/stores') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
-            Магазины
+            Склады
         </a>
         <a href="{{ route('logout') }}" class="block px-3 py-2 rounded-md text-base font-medium">
             Выйти из кабинета

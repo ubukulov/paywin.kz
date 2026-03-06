@@ -37,11 +37,7 @@
                 </div>
 
                 <div class="text-sm font-medium">
-                    @if($balance->status == 'ok')
-                        Пополнение
-                    @elseif($balance->status == 'withdraw')
-                        Вывод
-                    @endif
+                    {{ $balance->getText() }}
                 </div>
             </div>
 

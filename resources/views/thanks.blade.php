@@ -31,7 +31,7 @@
 
                     <p class="text-white text-xl font-bold leading-tight relative z-10">
                         {{ $share->title }}<br>
-                        <span class="text-white/80 text-sm font-medium">до {{ number_format($share->to_order, 0, '.', ' ') }}₸</span>
+                        {{--<span class="text-white/80 text-sm font-medium">до {{ number_format($share->to_order, 0, '.', ' ') }}₸</span>--}}
                     </p>
                 </div>
             </div>

@@ -117,7 +117,7 @@
 @section('content')
     <div class="mypromo">
         <div id="createGood" class="kaspi-form">
-            <h2>Создание магазина</h2>
+            <h2>Создайте склад для продаж</h2>
             <p class="subtitle">Подробно заполните указанные ниже поля.</p>
             <form action="{{ route('partner.store.store') }}" method="post">
                 @csrf

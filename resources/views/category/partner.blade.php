@@ -30,10 +30,10 @@
                                 <div class="bg-orange-50 border border-orange-100 rounded-2xl p-4 min-w-[200px] h-full flex flex-col justify-between">
                                     <div class="text-[10px] font-bold text-orange-400 uppercase mb-2">при заказе от {{ number_format($share->from_order, 0, '.', ' ') }} ₸</div>
                                     <div class="flex items-start gap-3">
-                                        <img src="/images/partner-description/slider-elem.svg" alt="" class="w-8 h-8">
+                                        <img src="/images/partner-description/slider-elem.svg" alt="" class="">
                                         <p class="text-sm font-semibold text-gray-800 leading-snug">
                                             {{ \Illuminate\Support\Str::limit($share->title, 14) }} <br>
-                                            <span class="text-xs font-normal text-gray-500">до {{ number_format($share->to_order, 0, '.', ' ') }}₸</span>
+                                            {{--<span class="text-xs font-normal text-gray-500">до {{ number_format($share->to_order, 0, '.', ' ') }}₸</span>--}}
                                         </p>
                                     </div>
                                 </div>

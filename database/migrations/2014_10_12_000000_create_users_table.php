@@ -18,9 +18,7 @@ class CreateUsersTable extends Migration
             $table->string('name')->nullable();
             $table->string('phone')->unique();
             $table->string('password');
-            $table->enum('user_type', [
-                'user', 'partner'
-            ]);
+            $table->string('user_type')->default('user');
             $table->rememberToken();
             $table->timestamps();
         });

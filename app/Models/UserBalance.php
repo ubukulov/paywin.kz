@@ -25,4 +25,15 @@ class UserBalance extends Model
     {
         return $this->belongsTo(Share::class, 'promocode_id');
     }
+
+    public function getText(): string
+    {
+        if ($this->status == 'ok' && $this->type == 'promocode') return "Активация промокода";
+        if ($this->status == 'ok' && $this->type == 'payment') return "Пополнение";
+        if ($this->status == 'ok' && $this->type == 'cashback') return "Кешбек";
+        if ($this->status == 'ok' && $this->type == 'referral') return "Доход от реферала";
+        if ($this->status == 'withdraw') return "Вывод";
+
+        return "Пополнение/Вывод";
+    }
 }

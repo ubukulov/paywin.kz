@@ -8,16 +8,28 @@ use Illuminate\Support\Facades\Auth;
 class Share extends Model
 {
     protected $fillable = [
-        'user_id', 'type', 'title', 'cnt', 'promo', 'size', 'gift_title', 'agent_percent', 'from_order', 'to_order', 'c_winning', 'from_date', 'to_date'
+        'partner_id',
+        'type',
+        'title',
+        'code',
+        'from_date',
+        'to_date',
+        'data'
+    ];
+
+    protected $casts = [
+        'data' => 'array',
+        'from_date' => 'datetime',
+        'to_date' => 'datetime',
     ];
 
     protected $dates = [
         'created_at', 'updated_at'
     ];
 
-    public function user()
+    public function partner()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'partner_id');
     }
 
     public function getClients()

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTableUserProfile extends Migration
+class CreateTablePartnerProfiles extends Migration
 {
     /**
      * Run the migrations.
@@ -13,20 +13,23 @@ class CreateTableUserProfile extends Migration
      */
     public function up()
     {
-        Schema::create('user_profile', function (Blueprint $table) {
+        Schema::create('partner_profiles', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('partner_id');
+            $table->unsignedBigInteger('category_id')->nullable();
             $table->string('company')->nullable();
             $table->string('logo')->nullable();
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
             $table->string('email')->nullable();
             $table->string('site')->nullable();
-            $table->text('work_time')->nullable();
+            $table->json('work_time')->nullable();
             $table->text('description')->nullable();
+            $table->string('bank_name')->nullable();
+            $table->string('bank_account')->nullable();
+            $table->string('card_number')->nullable();
 
-            $table->foreign('user_id')
+            $table->foreign('partner_id')
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade');

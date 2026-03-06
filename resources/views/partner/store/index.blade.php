@@ -13,13 +13,13 @@
 
             <div class="relative z-10">
                 <h1 class="text-3xl md:text-4xl font-black text-white leading-tight tracking-tight uppercase">
-                    Создавайте <br> <span class="text-cyan-100">Магазин</span>
+                    Создайте склад <br> <span class="text-cyan-100">для продаж</span>
                 </h1>
             </div>
 
             <a href="{{ route('partner.store.create') }}"
                class="relative z-10 inline-flex items-center justify-center px-8 py-4 bg-white text-cyan-700 font-bold rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all active:scale-95 whitespace-nowrap">
-                <span class="mr-2 text-2xl">+</span> новый магазин
+                <span class="mr-2 text-2xl">+</span> новый склад
             </a>
         </div>
 
