@@ -4,7 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
-use App\Models\Prize;
+use App\Models\UserGift;
 use App\Models\Share;
 use App\Models\User;
 use App\Models\UserBalance;
@@ -30,7 +30,7 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $user_profile = Auth::user()->profile;
-        $prize = Prize::where(['user_id' => $user->id, 'status' => 'waiting'])->first();
+        $prize = UserGift::where(['user_id' => $user->id, 'status' => 'waiting'])->first();
         return view('user.home', compact('user_profile', 'user', 'prize'));
     }
 
@@ -47,18 +47,30 @@ class UserController extends Controller
     public function earn()
     {
         $promos = Share::actualPromocodes()->get();
+
+        // Получаем список рефералов агента и оставляем по одной записи на каждую уникальную акцию
         $myPromos = Referral::where('agent_id', auth()->id())
-            ->where('source', 'promo')
+            ->with('share')
             ->get()
-            ->unique('promo_code');
+            ->unique('share_id');
 
         return view('user.earn', compact('promos', 'myPromos'));
     }
 
-    public function history()
+    public function history(Request $request)
     {
-        $payments = Payment::where(['user_id' => Auth::user()->id, 'pg_status' => 'ok'])->orderby('id', 'DESC')->get();
-        return view('user.history', compact('payments'));
+        $user = auth()->user();
+
+        $transactions = $user->transactions()
+            ->latest()
+            ->paginate(15, ['*'], 't_page'); // 't_page' чтобы пагинация не конфликтовала
+
+        $orders = $user->orders()
+            ->with(['items.product']) // Подгружаем товары в заказе
+            ->latest()
+            ->paginate(15, ['*'], 'o_page');
+
+        return view('user.history', compact('transactions', 'orders'));
     }
 
     public function settings()
@@ -99,11 +111,11 @@ class UserController extends Controller
             ->with('user')
             ->get();
 
-        $prizes = Prize::where(['user_id' => Auth::user()->id])
+        $prizes = UserGift::where(['user_id' => Auth::user()->id])
             ->with('user', 'share', 'payment')
             ->get();
 
-        $winners = Prize::whereRaw('DATE_FORMAT(prizes.created_at, "%m") = '.date('m'))
+        $winners = UserGift::whereRaw('DATE_FORMAT(prizes.created_at, "%m") = '.date('m'))
             //->with('user', 'share', 'payment')
             ->selectRaw('prizes.*, shares.user_id as partner_id, shares.title as share_title, shares.type as share_type, user_profile.full_name')
             ->join('shares', 'shares.id', 'prizes.share_id')

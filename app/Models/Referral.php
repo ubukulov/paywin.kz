@@ -4,44 +4,56 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Referral extends Model
 {
     protected $table = 'referrals';
 
     protected $fillable = [
-        'agent_id', 'client_id', 'share_id', 'promo_code', 'source'
+        'agent_id',
+        'share_id',
+        'user_id',
+        'percent',
     ];
 
-    protected $dates = ['created_at', 'updated_at'];
-
-    public function agent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function agent(): BelongsTo
     {
         return $this->belongsTo(User::class, 'agent_id');
     }
 
-    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'client_id');
+        return $this->belongsTo(User::class);
+    }
+
+    public function share(): BelongsTo
+    {
+        return $this->belongsTo(Share::class);
     }
 
     /**
-     * Количество активировавших клиентов
+     * Статистика: сколько человек пришло по этой акции к этому агенту
      */
     public function activatedCount(): int
     {
-        return $this->where('promo_code', $this->promo_code)
+        return self::where('agent_id', $this->agent_id)
+            ->where('share_id', $this->share_id)
             ->count();
     }
 
-    public function getEarn(): int
+    /**
+     * Статистика: сколько заработано денег по этой конкретной акции
+     */
+    public function getEarn(): float
     {
-        $promoPartner = preg_replace('/[^A-Z]/', '', $this->promo_code);
-        $share = Share::where(['title' => $promoPartner, 'promo' => 'discount'])->first();
-        if (!$share) {
-            return 0;
-        }
-
-        return UserBalance::where(['user_id' => Auth::id(), 'promocode_id' => $share->id, 'status' => 'ok', 'type' => 'payment'])->sum('amount');
+        // Ищем все транзакции типа referral_income, связанные с этим агентом
+        // и через таблицу referrals (source) привязанные к этой акции
+        return Transaction::where('user_id', $this->agent_id)
+            ->where('type', 'referral_income')
+            ->whereHasMorph('source', [self::class], function($query) {
+                $query->where('share_id', $this->share_id);
+            })
+            ->sum('amount');
     }
 }

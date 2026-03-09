@@ -13,15 +13,18 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('product_id');
-            $table->integer('quantity')->default(1);
-            $table->decimal('price', 12, 2); // цена за единицу
-            $table->decimal('total', 12, 2); // цена * количество
-            $table->timestamps();
+            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+            $table->foreignId('product_id')->nullable()->constrained('products')->onDelete('set null');
 
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-            $table->foreign('product_id')->references('id')->on('product');
+            // Снапшоты данных
+            $table->string('product_name'); // Чтобы имя не поменялось в истории
+            $table->string('product_sku')->nullable();
+
+            $table->integer('quantity')->default(1);
+            $table->decimal('price', 12, 2); // Цена за 1 шт.
+            $table->decimal('total', 12, 2); // Итого по позиции
+
+            $table->timestamps();
         });
     }
 

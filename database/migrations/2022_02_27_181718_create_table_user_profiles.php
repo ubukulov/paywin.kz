@@ -18,6 +18,12 @@ return new class extends Migration
             $table->string('full_name')->nullable();
             $table->tinyInteger('sex')->nullable();
             $table->date('birth_date')->nullable();
+            $table->string('vk')->nullable();
+            $table->string('telegram')->nullable();
+            $table->string('instagram')->nullable();
+            $table->string('facebook')->nullable();
+            $table->string('bank_name')->nullable();
+            $table->string('bank_account')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')

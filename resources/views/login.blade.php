@@ -22,6 +22,16 @@
                 Войдите, используя номер телефона
             </p>
 
+            @if ($errors->any())
+                <div class="mb-4 p-4 rounded-xl bg-red-50 border border-red-200">
+                    <ul class="list-disc list-inside text-sm text-red-600">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <form method="post" action="{{ route('authenticate') }}" class="space-y-5">
                 @csrf
 

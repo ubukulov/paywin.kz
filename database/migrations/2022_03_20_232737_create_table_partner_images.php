@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTablePromocodes extends Migration
+class CreateTablePartnerImages extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,15 @@ class CreateTablePromocodes extends Migration
      */
     public function up()
     {
-        Schema::create('promocodes', function (Blueprint $table) {
+        Schema::create('partner_images', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->string('name');
-            $table->string('amount');
-            $table->dateTime('start');
-            $table->dateTime('end');
+            $table->unsignedBigInteger('partner_id');
+            $table->string('image');
+
+            $table->foreign('partner_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -31,6 +33,6 @@ class CreateTablePromocodes extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('promocodes');
+        Schema::dropIfExists('partner_images');
     }
 }

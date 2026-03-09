@@ -5,37 +5,55 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Product extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'category_id', 'sku', 'name', 'slug', 'description', 'active', 'meta'
+        'partner_id',
+        'category_id',
+        'sku',
+        'name',
+        'description',
+        'is_active',
+        'data',
     ];
 
     protected $casts = [
-        'meta' => 'array',
+        'data' => 'array',
     ];
 
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function partner(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'partner_id');
     }
 
-    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function images(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function images(): HasMany
     {
-        return $this->hasMany(ProductImage::class);
+        return $this->hasMany(ProductImage::class)->orderBy('position');
     }
 
-    public function mainImage(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function mainImage(): HasOne
     {
-        return $this->hasOne(ProductImage::class)->where('main', true);
+        return $this->hasOne(ProductImage::class)->where('main', true)->withDefault([
+            'path' => 'defaults/no-image.png' // Картинка-заглушка
+        ]);
+    }
+
+    // Пример метода в модели ProductImage
+    public function setAsMain()
+    {
+        self::where('product_id', $this->product_id)->update(['main' => false]);
+        $this->update(['main' => true]);
     }
 
     protected static function booted(): void

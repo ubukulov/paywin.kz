@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProductStock extends Model
 {
@@ -13,24 +14,19 @@ class ProductStock extends Model
 
     protected $fillable = [
         'product_id',
-        'city_id',
-        'store_point_id',
+        'warehouse_id',
         'price',
+        'old_price',
         'quantity'
     ];
 
-    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    public function city(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function warehouse(): BelongsTo
     {
-        return $this->belongsTo(City::class);
-    }
-
-    public function storePoint(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(StorePoint::class);
+        return $this->belongsTo(PartnerWarehouse::class, 'warehouse_id');
     }
 }

@@ -27,7 +27,7 @@
                             </div>
                             <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
                             <div class="text-sm font-bold text-blue-600">
-                                Баланс: {{ Auth::user()->getBalanceForUser() }} ₸
+                                Баланс: {{ Auth::user()->getBalanceAttribute() }} ₸
                             </div>
                         </div>
                     </div>

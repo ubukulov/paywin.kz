@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('product_stocks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id');
-            $table->unsignedBigInteger('city_id');
-            $table->unsignedBigInteger('store_point_id');
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->foreignId('warehouse_id')->constrained('partner_warehouses')->onDelete('cascade');
             $table->decimal('price', 12, 2);
+            $table->decimal('old_price', 12, 2)->nullable();
             $table->integer('quantity')->default(0);
             $table->timestamps();
+
+            $table->unique(['product_id', 'warehouse_id']);
         });
     }
 

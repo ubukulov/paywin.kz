@@ -6,8 +6,11 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Str;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -21,7 +24,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'phone', 'password', 'user_type'
+        'name', 'email', 'phone', 'password', 'user_type', 'balance'
     ];
 
     /**
@@ -44,19 +47,34 @@ class User extends Authenticatable
         return $this->hasOne(UserProfile::class)/*->whereNotNull('category_id')*/;
     }
 
-    public function address()
+    public function address() : HasMany
     {
-        return $this->hasMany(UserAddress::class);
+        return $this->hasMany(PartnerAddress::class, 'partner_id');
     }
 
-    public function images()
+    public function images() : HasMany
     {
-        return $this->hasMany(UserImage::class);
+        return $this->hasMany(PartnerImage::class, 'partner_id');
     }
 
-    public function discounts()
+    public function discounts() : HasMany
     {
         return $this->hasMany(UserDiscount::class)->whereStatus('active');
+    }
+
+    public function transactions() : HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function orders() : HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function gifts() : HasMany
+    {
+        return $this->hasMany(UserGift::class);
     }
 
     public function shares()
@@ -65,11 +83,28 @@ class User extends Authenticatable
             ->whereDate('to_date', '>', Carbon::now());
     }
 
-    public function create_profile()
+    public function userProfile(): HasOne
     {
-        UserProfile::create([
-            'user_id' => $this->id, 'category_id' => 4
-        ]);
+        return $this->hasOne(UserProfile::class, 'user_id');
+    }
+
+    public function partnerProfile(): HasOne
+    {
+        return $this->hasOne(PartnerProfile::class, 'partner_id');
+    }
+
+    public function createProfile()
+    {
+        if ($this->user_type === 'partner') {
+            return $this->partnerProfile()->create(array_merge([
+                'company' => 'Новая компания',
+                'category_id'   => 4,
+            ]));
+        }
+
+        return $this->userProfile()->create(array_merge([
+            'user_id' => $this->id,
+        ]));
     }
 
     public function getBalance()
@@ -98,7 +133,7 @@ class User extends Authenticatable
 
     public static function isPrize($user_id, $payment_id)
     {
-        $prize = Prize::where(['user_id' => $user_id, 'payment_id' => $payment_id])->first();
+        $prize = UserGift::where(['user_id' => $user_id, 'payment_id' => $payment_id])->first();
         return ($prize) ? true : false;
     }
 
@@ -159,7 +194,7 @@ class User extends Authenticatable
 
     public function getCountOfAwardedPrizes()
     {
-        $prizes = Prize::where(['prizes.status' => 'got', 'shares.user_id' => $this->id])
+        $prizes = UserGift::where(['prizes.status' => 'got', 'shares.user_id' => $this->id])
             ->join('shares', 'shares.id', 'prizes.share_id')
             ->whereRaw('DATE_FORMAT(prizes.created_at, "%m") = '.date('m'))
             ->get();
@@ -231,7 +266,7 @@ class User extends Authenticatable
         if (count($shares) != 0) {
             foreach($shares->shuffle() as $share) {
                 if(($share->from_order >= $payment->amount) && ($payment->amount <= $share->to_order)) {
-                    $prize = new Prize();
+                    $prize = new UserGift();
                     $prize->payment_id = $payment->id;
                     $prize->user_id = $payment->user_id;
                     $prize->share_id = $share->id;
@@ -249,8 +284,28 @@ class User extends Authenticatable
 
     public function getStorePoints()
     {
-        return StorePoint::where(['user_id' => $this->id])
+        return PartnerWarehouse::where(['user_id' => $this->id])
             ->with('city')
             ->get();
+    }
+
+    /**
+     * Получить текущий баланс (из кэшированного поля)
+     */
+    public function getBalanceAttribute()
+    {
+        return $this->attributes['balance'] ?? 0;
+    }
+
+    /**
+     * Пересчитать баланс на основе истории транзакций (если случился сбой)
+     */
+    public function recalculateBalance()
+    {
+        $actualBalance = $this->transactions()->sum('amount');
+
+        $this->update(['balance' => $actualBalance]);
+
+        return $actualBalance;
     }
 }

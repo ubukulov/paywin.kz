@@ -28,7 +28,7 @@
                                     </button>
                                 </div>
                                 <p class="mt-4 text-xs text-gray-400 uppercase tracking-widest">Текущий баланс</p>
-                                <p class="text-3xl font-bold mt-1 tabular-nums">{{ $user->getBalanceForUser() }} <span class="text-lg font-light">₸</span></p>
+                                <p class="text-3xl font-bold mt-1 tabular-nums">{{ $user->getBalanceAttribute() }} <span class="text-lg font-light">₸</span></p>
                             </div>
                             <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl"></div>
                         </div>

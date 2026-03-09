@@ -2,15 +2,16 @@
 
 namespace App\Services;
 
-use App\Models\Prize;
+use App\Models\UserGift;
 use Illuminate\Support\Facades\Auth;
 
 class UserPrizeService
 {
     public function getMyPrizes()
     {
-        return Prize::where(['user_id' => Auth::user()->id])
-            ->with('user', 'share', 'payment')
+        return Auth::user()->gifts()
+            ->with(['share.partner.partnerProfile', 'source'])
+            ->latest()
             ->get();
     }
 }

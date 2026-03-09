@@ -27,7 +27,10 @@ class CreateTablePartnerProfiles extends Migration
             $table->text('description')->nullable();
             $table->string('bank_name')->nullable();
             $table->string('bank_account')->nullable();
-            $table->string('card_number')->nullable();
+            $table->string('vk')->nullable();
+            $table->string('telegram')->nullable();
+            $table->string('instagram')->nullable();
+            $table->string('facebook')->nullable();
 
             $table->foreign('partner_id')
                 ->references('id')

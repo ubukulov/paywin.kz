@@ -5,19 +5,19 @@ namespace App\Http\Controllers\Partner;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Payment;
-use App\Models\UserAddress;
-use App\Models\UserImage;
+use App\Models\PartnerAddress;
+use App\Models\PartnerImage;
 use App\Models\UserProfile;
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class PartnerController extends Controller
 {
     public function cabinet()
     {
         $partner = Auth::user();
-        $user_profile = Auth::user()->profile;
-        return view('partner.home', compact('user_profile', 'partner'));
+        $partnerProfile = Auth::user()->partnerProfile;
+        return view('partner.home', compact('partnerProfile', 'partner'));
     }
 
     public function qr()
@@ -108,7 +108,7 @@ class PartnerController extends Controller
     {
         $data = $request->all();
         $data['user_id'] = Auth::user()->id;
-        UserAddress::create($data);
+        PartnerAddress::create($data);
         return redirect()->route('partner.cabinet');
     }
 
@@ -129,7 +129,7 @@ class PartnerController extends Controller
             $img->move($dir, $name);
             $data['user_id'] = $user->id;
             $data['image'] = $path.$name;
-            UserImage::create($data);
+            PartnerImage::create($data);
         }
 
         return redirect()->route('partner.cabinet');
@@ -137,13 +137,13 @@ class PartnerController extends Controller
 
     public function imageLists()
     {
-        $images = UserImage::where(['user_id' => Auth::user()->id])->get();
+        $images = PartnerImage::where(['user_id' => Auth::user()->id])->get();
         return view('partner.images', compact('images'));
     }
 
     public function imageDelete($id)
     {
-        $image = UserImage::findOrFail($id);
+        $image = PartnerImage::findOrFail($id);
         $image->delete();
         return redirect()->route('partner.cabinet');
     }

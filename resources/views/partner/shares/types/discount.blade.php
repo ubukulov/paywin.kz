@@ -24,7 +24,7 @@
         <input
             type="number"
             min="1"
-            name="cnt"
+            name="count"
             required
             class="w-full rounded-lg border border-gray-300 px-4 py-2
                        focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
@@ -67,7 +67,6 @@
                 min="1"
                 name="to_order"
                 placeholder="до"
-                required
                 class="w-full rounded-lg border border-gray-300 px-4 py-2
                        focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
                        outline-none transition"

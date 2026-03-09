@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Smsc;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -32,33 +34,32 @@ class AuthController extends Controller
     {
         $data = $request->all();
         $phone = $this->phoneConvert($data['phone']);
-        $password = rand(1000,9999);
 
-
-        $message = "Регистрация прошло успешно. Ваш SMS-пароль: $password";
-        $balance = Smsc::get_balance();
-
-        if (User::exists($phone)) {
-            return redirect()->back();
-        } else {
-            if ((int) $balance > 50) {
-                Smsc::send_sms($phone, $message);
-                $user_type = (isset($data['partner']) && $data['partner'] == 'yes') ? 'partner' : 'user';
-                $user = User::create([
-                    'phone' => $phone, 'password' => bcrypt($password), 'user_type' => $user_type
-                ]);
-
-                $user->create_profile();
-
-                Auth::login($user);
-
-                $this->applyReferral($user);
-
-                return redirect()->route('home');
-            } else {
-                return redirect()->back();
-            }
+        if ((int) Smsc::get_balance() <= 50) {
+            return redirect()->back()->withErrors(['sms' => 'Технические работы на сервере SMS. Попробуйте позже.']);
         }
+
+        $password = rand(1000, 9999);
+
+        return DB::transaction(function () use ($phone, $password, $request) {
+            $user_type = ($request->partner == 'yes') ? 'partner' : 'user';
+
+            $user = User::create([
+                'phone' => $phone,
+                'password' => Hash::make($password),
+                'user_type' => $user_type
+            ]);
+
+            $user->createProfile();
+
+            // Отправка SMS
+            Smsc::send_sms($phone, "Регистрация прошло успешно. Ваш SMS-пароль: $password");
+
+            Auth::login($user);
+            $this->applyReferral($user);
+
+            return redirect()->route('home');
+        });
     }
 
     public function logout()
@@ -72,9 +73,9 @@ class AuthController extends Controller
         if(Auth::attempt(['phone' => $this->phoneConvert($request->input('phone')), 'password' => $request->input('password')])) {
             $this->applyReferral(Auth::user());
             return redirect()->route('home');
-        } else {
-            return redirect()->back();
         }
+
+        return redirect()->back()->withErrors(['login' => 'Неверный логин или пароль']);
     }
 
     public function phoneConvert($phone)

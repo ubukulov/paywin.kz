@@ -15,23 +15,20 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('agent_id');
             $table->unsignedBigInteger('share_id');
-            $table->unsignedBigInteger('client_id');
-            $table->string('promo_code')->nullable();
-            $table->enum('source', [
-                'link', 'promo'
-            ]);
+            $table->unsignedBigInteger('user_id');
+            $table->decimal('percent', 5, 2);
 
             $table->timestamps();
 
-            $table->unique('client_id');
+            $table->unique('user_id');
 
             $table->index('agent_id');
             $table->index('share_id');
-            $table->index('client_id');
+            $table->index('user_id');
 
             $table->foreign('agent_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('share_id')->references('id')->on('shares')->onDelete('cascade');
-            $table->foreign('client_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

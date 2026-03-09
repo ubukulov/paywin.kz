@@ -11,19 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product', function (Blueprint $table) {
+        Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('category_id');
-            $table->string('sku')->nullable()->index();
+            $table->foreignId('partner_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            $table->string('sku')->nullable();
+            $table->unique(['partner_id', 'sku']);
             $table->string('name');
             $table->text('description')->nullable();
-            $table->boolean('active')->default(true);
-            $table->json('meta')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->json('data')->nullable();
             $table->timestamps();
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
         });
     }
 

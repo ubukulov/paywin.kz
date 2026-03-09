@@ -29,6 +29,11 @@ class SettingController extends Controller
         return redirect()->route('user.cabinet')->with('success', 'Успешно обновлено');
     }
 
+    public function passwordChangeForm()
+    {
+        return view('user.change_password');
+    }
+
     public function passwordUpdate(Request $request)
     {
         $request->validate([

@@ -13,10 +13,17 @@ return new class extends Migration
     {
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('session_id')->nullable();
-            $table->decimal('subtotal', 10,2)->default(0);
-            $table->decimal('total', 10,2)->default(0);
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('session_id')->nullable()->index(); // Для гостей
+
+            // В каком городе собрана корзина (важно для цен и стоков)
+            $table->foreignId('city_id')->nullable()->constrained('cities');
+
+            // Можно добавить поле для промокода, если он применяется к корзине
+            $table->string('promo_code')->nullable();
+
+            $table->decimal('subtotal', 12, 2)->default(0);
+            $table->decimal('total', 12, 2)->default(0);
             $table->timestamps();
         });
     }

@@ -34,20 +34,20 @@ class Share extends Model
 
     public function getClients()
     {
-        $clients = Prize::where(['share_id' => $this->id, 'status' => 'got'])->get();
+        $clients = UserGift::where(['share_id' => $this->id, 'status' => 'got'])->get();
         return count($clients);
     }
 
     // Получить остаток
     public function getRemainder()
     {
-        $clients = Prize::where(['share_id' => $this->id, 'status' => 'got'])->get();
+        $clients = UserGift::where(['share_id' => $this->id, 'status' => 'got'])->get();
         return $this->cnt - count($clients);
     }
 
     public function getProfit()
     {
-        $clients = Prize::where(['prizes.share_id' => $this->id, 'prizes.status' => 'got', 'payments.pg_status' => 'ok'])
+        $clients = UserGift::where(['prizes.share_id' => $this->id, 'prizes.status' => 'got', 'payments.pg_status' => 'ok'])
             ->join('payments', 'payments.id', '=', 'prizes.payment_id')
             ->get();
 

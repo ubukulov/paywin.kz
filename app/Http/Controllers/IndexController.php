@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Middleware\Partner;
 use App\Models\Category;
 use App\Models\Payment;
-use App\Models\Prize;
+use App\Models\UserGift;
 use App\Models\Share;
 use App\Models\User;
 use App\Models\UserBalance;

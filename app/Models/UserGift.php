@@ -6,15 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class UserDiscount extends Model
+class UserGift extends Model
 {
-    protected $table = 'user_discounts';
+    protected $table = 'user_gifts';
 
     protected $fillable = [
         'user_id',
         'share_id',
-        'percent',
-        'amount',
+        'name',
         'status',
         'valid_until',
         'source_type',
@@ -27,17 +26,17 @@ class UserDiscount extends Model
         'valid_until' => 'datetime',
     ];
 
-    public function user() : BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function share() : BelongsTo
+    public function share(): BelongsTo
     {
         return $this->belongsTo(Share::class);
     }
 
-    public function source() : MorphTo
+    public function source(): MorphTo
     {
         return $this->morphTo();
     }

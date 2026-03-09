@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('cart_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('cart_id');
-            $table->unsignedBigInteger('product_id');
-            $table->integer('quantity')->default(1);
-            $table->decimal('price', 10,2);
-            $table->decimal('total', 10,2);
-            $table->timestamps();
+            $table->foreignId('cart_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->constrained('products');
 
-            $table->foreign('cart_id')->references('id')->on('carts');
-            $table->foreign('product_id')->references('id')->on('product');
+            // Указываем склад, чтобы зафиксировать цену и доступность
+            $table->foreignId('warehouse_id')->nullable()->constrained('partner_warehouses');
+
+            $table->integer('quantity')->default(1);
+            $table->decimal('price', 12, 2); // Цена на момент добавления
+            $table->decimal('total', 12, 2); // price * quantity
+            $table->timestamps();
         });
     }
 

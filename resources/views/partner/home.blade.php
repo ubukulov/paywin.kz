@@ -14,13 +14,13 @@
 
         <div class="px-6 pb-10 -mt-20 flex flex-col items-center relative z-10">
             <div class="w-32 h-32 md:w-44 md:h-44 rounded-[2.5rem] overflow-hidden border-[6px] border-white shadow-2xl bg-white flex items-center justify-center transition-transform duration-500 hover:scale-105">
-                <img src="{{ empty($user_profile->logo) ? '/images/cabinet/papa-johns-pizza.svg' : $user_profile->logo }}"
+                <img src="{{ empty($partnerProfile->logo) ? '/images/cabinet/papa-johns-pizza.svg' : $partnerProfile->logo }}"
                      alt="logo" class="max-w-full h-auto object-contain p-4">
             </div>
 
             <div class="text-center mt-6 w-full max-w-4xl">
                 <h1 class="text-3xl md:text-5xl font-black text-gray-900 tracking-tight mb-8">
-                    {{ $user_profile->company }}
+                    {{ $partnerProfile->company }}
                 </h1>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 w-full max-w-4xl mx-auto">
@@ -28,7 +28,7 @@
                     <div class="bg-indigo-600 rounded-[2rem] p-6 text-white shadow-lg shadow-indigo-100 flex flex-col items-center justify-center relative overflow-hidden group">
                         <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <p class="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mb-1">Ваш баланс</p>
-                        <div class="text-2xl font-black mb-4">{{ number_format($partner->getBalance(), 0, '.', ' ') }} ₸</div>
+                        <div class="text-2xl font-black mb-4">{{ number_format($partner->getBalanceAttribute(), 0, '.', ' ') }} ₸</div>
                         <button class="w-full bg-white text-indigo-600 text-[11px] font-black uppercase py-3 rounded-xl hover:bg-indigo-50 transition-colors shadow-sm active:scale-95">
                             Вывести
                         </button>
@@ -40,7 +40,7 @@
                         </div>
                         <p class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">Активный тариф</p>
                         <div class="text-3xl font-black text-orange-600 leading-none">
-                            {{$user_profile->percent}}%
+                            {{$partnerProfile->percent}}%
                         </div>
                         <p class="text-[10px] text-orange-400/80 mt-2 font-medium">комиссия сервиса</p>
                     </div>
@@ -70,8 +70,8 @@
                         Настройки
                     </a>
 
-                    @if(!empty($user_profile->agreement))
-                        <a href="{{$user_profile->getAgreementUrl()}}" target="_blank"
+                    @if(!empty($partnerProfile->agreement))
+                        <a href="{{$partnerProfile->getAgreementUrl()}}" target="_blank"
                            class="flex items-center gap-3 px-8 py-4 bg-white text-gray-700 rounded-2xl font-bold border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-95">
                             <div class="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center">
                                 <img src="/images/cabinet/add-file.svg" alt="icon" class="w-4 h-4 opacity-60">
@@ -97,10 +97,10 @@
                     <div class="space-y-4">
                         @php
                             $contacts = [
-                                ['icon' => 'phone-icon.svg', 'text' => $user_profile->phone, 'link' => '#'],
-                                ['icon' => 'location.svg', 'text' => $user_profile->address, 'link' => null],
-                                ['icon' => 'mail.svg', 'text' => $user_profile->email, 'link' => '#'],
-                                ['icon' => 'website-icon.svg', 'text' => $user_profile->site, 'link' => '#'],
+                                ['icon' => 'phone-icon.svg', 'text' => $partnerProfile->phone, 'link' => '#'],
+                                ['icon' => 'location.svg', 'text' => $partnerProfile->address, 'link' => null],
+                                ['icon' => 'mail.svg', 'text' => $partnerProfile->email, 'link' => '#'],
+                                ['icon' => 'website-icon.svg', 'text' => $partnerProfile->site, 'link' => '#'],
                             ];
                         @endphp
 
@@ -125,7 +125,7 @@
                                 <img src="/images/cabinet/clock-graphic.svg" class="w-5 h-5">
                             </div>
                             <div class="text-sm text-gray-600 mt-2 leading-relaxed">
-                                {!! $user_profile->work_time !!}
+                                {!! $partnerProfile->work_time !!}
                             </div>
                         </div>
 
@@ -152,7 +152,7 @@
                             </div>
                             <div class="flex gap-4 text-xl tracking-widest font-mono">
                                 <span>****</span><span>****</span><span>****</span>
-                                <span class="text-blue-400">{{ $user_profile->getLastNumberOfCard() }}</span>
+                                <span class="text-blue-400"></span>
                             </div>
                         </div>
                         <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white opacity-5 rounded-full"></div>
@@ -163,14 +163,14 @@
                             <label class="flex items-center gap-2 text-xs text-gray-500 mb-1">
                                 <img src="/images/cabinet/bank-name.svg" class="w-4 h-4"> Название банка
                             </label>
-                            <input value="{{ $user_profile->bank_name }}" disabled
+                            <input value="{{ $partnerProfile->bank_name }}" disabled
                                    class="w-full bg-gray-100 border-none rounded-lg px-4 py-2 text-sm text-gray-700">
                         </div>
                         <div>
                             <label class="flex items-center gap-2 text-xs text-gray-500 mb-1">
                                 <img src="/images/cabinet/bank-account.svg" class="w-4 h-4"> Банковский счёт
                             </label>
-                            <input value="{{ $user_profile->bank_account }}" disabled
+                            <input value="{{ $partnerProfile->bank_account }}" disabled
                                    class="w-full bg-gray-100 border-none rounded-lg px-4 py-2 text-sm font-mono text-gray-700">
                         </div>
                     </div>
@@ -185,10 +185,10 @@
                 <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-50">
                     <h3 class="text-xl font-bold mb-4">Описание</h3>
                     <div class="prose prose-blue max-w-none text-gray-600 leading-relaxed">
-                        @if(empty($user_profile->description))
+                        @if(empty($partnerProfile->description))
                             <p class="italic text-gray-400">К сожалению, тут еще ничего не заполнено :(</p>
                         @else
-                            {{ $user_profile->description }}
+                            {{ $partnerProfile->description }}
                         @endif
                     </div>
                 </div>

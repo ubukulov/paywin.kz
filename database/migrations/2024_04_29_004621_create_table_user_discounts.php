@@ -15,12 +15,14 @@ class CreateTableUserDiscounts extends Migration
     {
         Schema::create('user_discounts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('partner_id');
-            $table->string('size');
-            $table->enum('status', [
-                'active', 'used', 'expired', 'waiting'
-            ]);
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('share_id')->nullable()->constrained();
+            $table->integer('percent')->nullable();
+            $table->decimal('amount', 15, 2)->nullable();
+            $table->string('status')->default('active')->index();
+            $table->timestamp('valid_until')->nullable();
+            $table->nullableMorphs('source');
+            $table->json('data')->nullable();
             $table->timestamps();
         });
     }

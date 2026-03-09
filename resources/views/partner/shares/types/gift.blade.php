@@ -2,7 +2,7 @@
       class="max-w-2xl mx-auto rounded-2xl space-y-6">
 
     @csrf
-    <input type="hidden" name="type" value="share">
+    <input type="hidden" name="type" value="gift">
 
     {{-- Название --}}
     <div class="flex flex-col gap-2">
@@ -23,7 +23,7 @@
         <input
             type="number"
             min="1"
-            name="cnt"
+            name="count"
             required
             class="w-full rounded-lg border border-gray-300 px-4 py-2
                        focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
@@ -52,7 +52,6 @@
                 type="number"
                 min="1"
                 name="to_order"
-                required
                 class="w-full rounded-lg border border-gray-300 px-4 py-2
                        focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
                        outline-none transition"

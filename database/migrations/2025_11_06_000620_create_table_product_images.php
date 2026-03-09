@@ -13,13 +13,18 @@ return new class extends Migration
     {
         Schema::create('product_images', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id');
-            $table->string('path');
-            $table->boolean('main')->default(false);
-            $table->integer('position')->default(0);
-            $table->timestamps();
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
 
-            $table->foreign('product_id')->references('id')->on('product')->onDelete('cascade');
+            $table->string('path'); // путь к файлу
+            $table->string('disk')->default('public'); // local, s3, etc.
+
+            $table->boolean('main')->default(false)->index(); // Быстрый поиск главной картинки
+            $table->integer('position')->default(0); // Для сортировки в галерее
+
+            $table->string('mime_type')->nullable(); // image/webp, image/jpeg
+            $table->unsignedBigInteger('size')->nullable(); // размер в байтах
+
+            $table->timestamps();
         });
     }
 

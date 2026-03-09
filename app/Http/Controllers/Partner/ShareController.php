@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Partner;
 
+use App\Enums\ShareType;
 use App\Http\Controllers\Controller;
 use App\Models\Share;
 use Carbon\Carbon;
@@ -17,11 +18,11 @@ class ShareController extends Controller
      */
     public function index()
     {
-        $shares = Share::where(['user_id' => Auth::id()])
+        $shares = Share::where(['partner_id' => Auth::id()])
             ->whereDate('to_date', '>=', date('Y-m-d'))
             ->get();
 
-        $shares_old = Share::where(['user_id' => Auth::id()])
+        $shares_old = Share::where(['partner_id' => Auth::id()])
             ->whereDate('to_date', '<', date('Y-m-d'))
             ->get();
 
@@ -47,39 +48,64 @@ class ShareController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        $data['user_id'] = Auth::user()->id;
-
+        $data['partner_id'] = Auth::user()->id;
         // Форматирование дат для БД
         $data['from_date'] = date('Y-m-d H:i:s', strtotime($data['from_date']));
         $data['to_date'] = date('Y-m-d H:i:s', strtotime($data['to_date']));
 
-        if ($data['type'] == 'promocode') {
-            // Устанавливаем тип промокода (discount, money, gift)
-            $data['promo'] = $data['bonus_type'];
-            $data['title'] = mb_strtoupper($data['title']);
-
-            // Лимит активаций (в колонку cnt)
-            $data['cnt'] = (int)$data['usage_limit'];
-
-            // Процент для агента
-            $data['agent_percent'] = (float)($data['agent_percent'] ?? 0);
-
-            // Распределение значений по колонкам таблицы shares
-            if ($data['bonus_type'] == 'gift') {
-                $data['gift_title'] = $data['gift_description']; // Новое поле
-                $data['size'] = 0;
-                $data['from_order'] = 0;
-            } elseif ($data['bonus_type'] == 'money') {
-                $data['size'] = (int)$data['size']; // Сумма в ₸
-                $data['from_order'] = 0;
-            } else {
-                // Тип: discount (скидка)
-                $data['size'] = (int)$data['size']; // % скидки
-                $data['from_order'] = (int)($data['min_sum'] ?? 0); // Порог активации
-            }
+        if ($data['type'] == ShareType::GIFT->value) {
+            $extraData = [
+                'count' => $request->count,
+                'from_order' => $request->from_order,
+                'to_order' => $request->to_order,
+                'c_winning' => $request->c_winning,
+            ];
+        } elseif ($data['type'] == ShareType::DISCOUNT->value) {
+            $extraData = [
+                'count' => $request->count,
+                'size' => $request->size,
+                'from_order' => $request->from_order,
+                'to_order' => $request->to_order,
+                'c_winning' => $request->c_winning,
+                'max_sum' => $request->max_sum,
+            ];
+        } elseif ($data['type'] == ShareType::CASHBACK->value) {
+            $extraData = [
+                'count' => $request->count,
+                'size' => $request->size,
+                'from_order' => $request->from_order,
+                'to_order' => $request->to_order,
+                'c_winning' => $request->c_winning,
+            ];
         } else {
-            $data['promo'] = 'none'; //
+            $request->validate([
+                'title' => [
+                    'required',
+                    'string',
+                    'max:20',
+                    'regex:/^[a-zA-Z0-9]+$/u', // Только латиница и цифры, без пробелов
+                ],
+            ], [
+                'title.regex' => 'Название должно содержать только латинские буквы и цифры без пробелов.'
+            ]);
+            $data['code'] = $request->title;
+            $extraData['agent_percent'] = $request->agent_percent;
+            $extraData['usage_limit'] = $request->usage_limit;
+
+            if ($request->bonus_type == ShareType::DISCOUNT->value) {
+                $extraData['bonus_type'] = ShareType::DISCOUNT->value;
+                $extraData['min_sum'] = $request->min_sum;
+                $extraData['size'] = $request->size;
+            } elseif ($request->bonus_type == 'money') {
+                $extraData['bonus_type'] = 'money';
+                $extraData['size'] = $request->size;
+            } else {
+                $extraData['bonus_type'] = 'gift';
+                $extraData['gift_name'] = $request->gift_name;
+            }
         }
+
+        $data['data'] = $extraData;
 
         // Сохранение записи
         Share::create($data);

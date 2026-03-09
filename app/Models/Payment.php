@@ -26,6 +26,6 @@ class Payment extends Model
 
     public function prize()
     {
-        return $this->hasOne(Prize::class);
+        return $this->hasOne(UserGift::class);
     }
 }

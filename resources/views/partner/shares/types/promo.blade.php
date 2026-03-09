@@ -7,8 +7,9 @@
     <input type="hidden" name="type" value="promocode">
 
     <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Название промокода</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Название промокода (английский)</label>
         <input name="title" required placeholder="ВВЕДИТЕ НАЗВАНИЕ" style="text-transform: uppercase"
+               oninput="this.value = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase()"
                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition" />
     </div>
 
@@ -42,7 +43,7 @@
 
             <div x-show="bonusType === 'gift'" class="col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Что получит пользователь?</label>
-                <input type="text" name="gift_description" :required="bonusType === 'gift'" placeholder="Напр: Бесплатный бургер"
+                <input type="text" name="gift_name" :required="bonusType === 'gift'" placeholder="Напр: Бесплатный бургер"
                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-indigo-200 outline-none">
             </div>
 

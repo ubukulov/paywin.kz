@@ -17,7 +17,7 @@
             <div class="space-y-4">
                 <div class="flex flex-col">
                     <span class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Кол-во</span>
-                    <span class="text-base font-bold text-gray-800 italic">{{ $share->cnt }}</span>
+                    <span class="text-base font-bold text-gray-800 italic">{{ $share->data['count'] }}</span>
                 </div>
                 <div class="flex flex-col">
                     <span class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Остаток</span>
@@ -32,12 +32,12 @@
             <div class="space-y-4 border-l border-gray-100 pl-5">
                 <div class="flex flex-col">
                     <span class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Мин. заказ</span>
-                    <span class="text-base font-bold text-gray-900 italic">{{ number_format($share->from_order, 0, '.', ' ') }} ₸</span>
+                    <span class="text-base font-bold text-gray-900 italic">{{ number_format($share->data['from_order'], 0, '.', ' ') }} ₸</span>
                 </div>
                 <div class="flex flex-col">
                     @if($share->type !== 'promocode')
                         <span class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Коэф выигр.</span>
-                        <span class="text-base font-bold text-orange-500 italic">{{ $share->c_winning }}%</span>
+                        <span class="text-base font-bold text-orange-500 italic">{{ $share->data['c_winning'] }}%</span>
                     @else
                         <span class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Тип</span>
                         <span class="text-base font-bold text-blue-500 italic">Промокод</span>
@@ -45,7 +45,7 @@
                 </div>
                 <div class="flex flex-col">
                     <span class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Доход</span>
-                    <span class="text-base font-bold text-green-600 italic">{{ number_format($share->getProfit(), 0, '.', ' ') }} ₸</span>
+                    <span class="text-base font-bold text-green-600 italic">0 ₸</span>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
                         @if($share->promo == 'discount') Скидка {{ $share->size }}% @elseif($share->promo == 'money') Бонус {{ $share->size }} ₸ @else Подарок: {{ $share->gift_title }} @endif
                     @elseif($share->type == 'discount') Скидка {{ $share->size }}%
                     @elseif($share->type == 'cashback') Кэшбек {{ $share->size }}%
-                    @else от {{ number_format($share->from_order, 0, '.', ' ') }} ₸ @endif
+                    @else от {{ number_format($share->data['from_order'], 0, '.', ' ') }} ₸ @endif
                 </div>
             </div>
         </div>

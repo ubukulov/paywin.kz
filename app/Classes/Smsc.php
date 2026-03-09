@@ -7,8 +7,8 @@ namespace App\Classes;
 class Smsc
 {
     // SMSC.KZ API (smsc.kz) версия 3.8 (03.07.2019)
-    protected $SMSC_LOGIN = "paywin";            // логин клиента
-    protected $SMSC_PASSWORD = '!Q2w3e$R6688';    // пароль
+    protected $SMSC_LOGIN = "Paywinkz";            // логин клиента
+    protected $SMSC_PASSWORD = '!Q2w3e$R';    // пароль
     protected $SMSC_POST = 0;                    // использовать метод POST
     protected $SMSC_HTTPS= 0;                // использовать HTTPS протокол
     protected $SMSC_CHARSET = "utf-8";    // кодировка сообщения: utf-8, koi8-r или windows-1251 (по умолчанию)
