@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TransactionEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\Partner;
 use App\Models\Category;
@@ -15,6 +16,7 @@ use App\Models\UserProfile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class IndexController extends BaseController
 {
@@ -54,134 +56,59 @@ class IndexController extends BaseController
         $user->givePrize($partner->shares, $payment);
 
         return redirect()->route('payment.success');
+    }
 
+    public function paymentWithBalance(Request $request)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:1',
+            'partner_id' => 'required|exists:users,id',
+            'transaction_id' => 'nullable|string'
+        ]);
 
-        /*$payment = Payment::where(['user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'waiting'])->first();
-        if(!$payment) {
+        $amount = (float) $request->input('amount');
+        $partnerId = $request->input('partner_id');
 
-            if($discount) {
-                $discount_amount = $user->getDiscountForUser();
-                $need_amount = (int) $amount - ($amount * (int) $discount_amount) / 100;
-            } else {
-                $need_amount = 0;
-            }
+        $user = Auth::user();
+        $partner = User::findOrFail($partnerId);
 
-            $new_amount = ($need_amount > 0) ? $need_amount : $amount;
+        try {
+            return DB::transaction(function () use ($user, $partner, $amount) {
 
-            if($balance) {
-                $balance_amount = $user->getBalanceForUser();
-
-                if($balance_amount >= $new_amount) {
-                    $payment = Payment::create([
-                        'user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'ok'
-                    ]);
-
-                    if($discount) {
-                        $discount_amount = $user->getDiscountForUser();
-                        $user_discount = UserDiscount::where(['size' => $discount_amount, 'status' => 'active', 'partner_id' => $partner_id])->first();
-                        if($user_discount) {
-                            $user_discount->status = 'used';
-                            $user_discount->payment_id = $payment->id;
-                            $user_discount->save();
-                        }
-                    }
-
-                    $user->payWithBalance($new_amount, $payment);
-
-                    $user->givePrize($partner->shares, $payment);
-
-                    return redirect()->route('payment.success');
+                // Проверка: хватает ли денег (на случай, если JS на фронте подменили)
+                if ($user->balance < $amount) {
+                    throw new \Exception('Недостаточно средств на балансе');
                 }
 
-                if($balance_amount < $new_amount) {
-                    $payment = Payment::create([
-                        'user_id' => $user->id, 'partner_id' => $partner_id, 'amount' => $amount, 'pg_status' => 'waiting'
-                    ]);
-                    $user->reservationBalance($balance_amount, $payment);
-                    $new_amount = $new_amount - $balance_amount;
-                }
-            } else {
-                $payment = new Payment();
-                $payment->user_id = $user->id;
-                $payment->partner_id = $partner_id;
-                $payment->amount = $amount;
-                $payment->pg_status = 'waiting';
-                $payment->save();
-            }
+                // 3. Списываем сумму с баланса пользователя
+                $user->changeBalance(
+                    -$amount,
+                    TransactionEnum::ADJUSTMENT, // Тип "Корректировка/Оплата"
+                    $partner,
+                    "Оплата услуг партнера {$partner->partnerProfile?->company}",
+                );
 
-            if($discount) {
-                $discount_amount = $user->getDiscountForUser();
-                $user_discount = UserDiscount::where(['size' => $discount_amount, 'status' => 'active', 'partner_id' => $partner_id])->first();
-                if($user_discount) {
-                    $user_discount->status = 'waiting';
-                    $user_discount->payment_id = $payment->id;
-                    $user_discount->save();
-                }
-            }
-        }*/
+                // 4. Начисляем сумму в баланс партнера
+                $partner->changeBalance(
+                    $amount,
+                    TransactionEnum::SALE_INCOME,
+                    $user,
+                    "Продажа услуг клиенту {$user->phone}",
+                );
+
+                return redirect()->route('payment.success');
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 
     public function paymentSuccess()
     {
         $user = Auth::user();
-        /*$payment = Payment::where(['user_id' => $user->id, 'pg_status' => 'waiting'])->orderBy('id', 'DESC')->first();
-        if($payment) {
-            $request = [
-                'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
-                'pg_order_id' => $payment->id,
-                'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
-            ];
-
-            //generate a signature and add it to the array
-            ksort($request); //sort alphabetically
-            array_unshift($request, 'get_status2.php');
-            array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
-
-            $request['pg_sig'] = md5(implode(';', $request)); // signature
-
-            unset($request[0], $request[1]);
-
-            $apiUrl = env('PAYBOX_URL') . "get_status2.php";
-            $client = new \GuzzleHttp\Client();
-            $response = $client->request('POST', $apiUrl, [
-                'headers' => [
-                    'Content-type' => 'application/x-www-form-urlencoded'
-                ],
-                'form_params' => $request
-            ]);
-            $response = $response->getBody()->getContents();
-            $responseXml = simplexml_load_string($response);
-
-            $partner = $payment->partner;
-
-            if((string)$responseXml->pg_status == 'ok') {
-                $payment->pg_status = 'ok';
-                $payment->pg_payment_id = (int) $responseXml->pg_payment_id;
-                $payment->updated_at = Carbon::now();
-                $payment->save();
-
-                $user_balance = UserBalance::where(['user_id' => $user->id, 'status' => 'waiting', 'payment_id' => $payment->id])->get();
-                if($user_balance) {
-                    foreach($user_balance as $item) {
-                        $item->status = 'withdraw';
-                        $item->save();
-                    }
-                }
-
-                $user_discount = UserDiscount::where(['partner_id' => $partner->id, 'status' => 'waiting', 'payment_id' => $payment->id])->first();
-                if($user_discount) {
-                    $user_discount->status = 'used';
-                    $user_discount->save();
-                }
-            }
-
-
-            if (!User::isPrize($user->id, $payment->id)) {
-                $user->givePrize($partner->shares, $payment);
-            }
-        } else {
-            $payment = Payment::where(['user_id' => $user->id, 'pg_status' => 'ok'])->orderBy('id', 'DESC')->first();
-        }*/
 
         $payment = Payment::where(['user_id' => $user->id, 'pg_status' => 'ok'])->orderBy('id', 'DESC')->first();
 

@@ -7,7 +7,7 @@
         </span>
         <input type="text"
                name="vk"
-               value="{{ $user_profile->vk }}"
+               value="{{ $partnerProfile->vk }}"
                placeholder="Ссылка на VK"
                class="w-full rounded-lg border border-gray-300 px-4 py-2
                                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
@@ -21,7 +21,7 @@
         </span>
         <input type="text"
                name="telegram"
-               value="{{ $user_profile->telegram }}"
+               value="{{ $partnerProfile->telegram }}"
                placeholder="Ссылка на Telegram"
                class="w-full rounded-lg border border-gray-300 px-4 py-2
                                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
@@ -35,7 +35,7 @@
         </span>
         <input type="text"
                name="instagram"
-               value="{{ $user_profile->instagram }}"
+               value="{{ $partnerProfile->instagram }}"
                placeholder="Ссылка на Instagram"
                class="w-full rounded-lg border border-gray-300 px-4 py-2
                                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
@@ -49,7 +49,7 @@
         </span>
         <input type="text"
                name="facebook"
-               value="{{ $user_profile->facebook }}"
+               value="{{ $partnerProfile->facebook }}"
                placeholder="Ссылка на Facebook"
                class="w-full rounded-lg border border-gray-300 px-4 py-2
                                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200

@@ -5,17 +5,17 @@
         {{-- Заголовок --}}
         <h1 class="text-3xl font-extrabold text-gray-900 mb-6 animate__animated animate__fadeInLeft text-center sm:text-left">Оплата</h1>
 
-        @php $profile = $partner->profile; @endphp
+        @php $partnerProfile = $partner->partnerProfile; @endphp
 
         {{-- Профиль партнера --}}
         <div class="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8 animate__animated animate__fadeIn">
             <div class="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100">
-                <img src="{{ empty($profile->logo) ? '/images/partner-description/partner-logo.png' : $profile->logo }}"
+                <img src="{{ empty($partnerProfile->logo) ? '/images/partner-description/partner-logo.png' : $partnerProfile->logo }}"
                      alt="logo" class="w-full h-full object-contain">
             </div>
             <div>
-                <div class="text-lg font-bold text-gray-900 leading-tight">{{ $profile->company }}</div>
-                <div class="text-sm text-gray-500">{{ $profile->category->title }}</div>
+                <div class="text-lg font-bold text-gray-900 leading-tight">{{ $partnerProfile->company }}</div>
+                <div class="text-sm text-gray-500">{{ $partnerProfile->category->title }}</div>
             </div>
         </div>
 
@@ -39,15 +39,15 @@
             </div>
 
             {{-- Карты --}}
-            @if($cards = $user->getMyCards())
+            {{--@if($cards = $user->getMyCards())
                 <div class="action bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
                     <h3 class="text-xs font-bold text-gray-400 uppercase mb-3 text-nowrap">Метод оплаты</h3>
                     @include('_partials._payment_cards', $cards)
                 </div>
-            @endif
+            @endif--}}
 
             {{-- Баланс --}}
-            @if($user_balance = $user->getBalanceForUser())
+            @if($user_balance = $user->getBalanceAttribute())
                 <div class="action bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
                     <h3 class="text-xs font-bold text-gray-400 uppercase mb-3">Потратить баланс</h3>
                     <div class="flex items-center justify-between">
@@ -122,11 +122,13 @@
         <div class="mt-12 mb-8 animate__animated animate__fadeIn">
             <h2 class="text-lg font-bold text-gray-900 mb-4">Выиграйте один из призов</h2>
             <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-                @foreach($partner->shares as $share)
+                @foreach($partner->sharesWithoutPromocodes as $share)
                     <div class="flex-shrink-0 bg-white border border-gray-100 p-4 rounded-2xl shadow-sm min-w-[180px]">
                         <p class="text-sm font-bold text-gray-800 leading-snug">
-                            {{ \Illuminate\Support\Str::limit($share->title, 14) }}<br>
-                            <span class="text-xs font-medium text-[#18BE1E]">до {{ number_format($share->to_order, 0, '.', ' ') }}₸</span>
+                            {{ \Illuminate\Support\Str::limit($share->title) }}<br>
+                            @if($share->type != 'promocode')
+                            <span class="text-xs font-medium text-[#18BE1E]">от {{ number_format($share->data['from_order'], 0, '.', ' ') }} ₸</span>
+                            @endif
                         </p>
                     </div>
                 @endforeach
@@ -243,6 +245,9 @@
                 updateAll();
 
                 let amountSum = Number($finalHiddenInput.val());
+                let amountToPay = Number($finalHiddenInput.val());
+                let totalOrderSum = Number($input.val());
+                let balanceUsed = $('#balance_hidden').val() == 1 ? Math.min(totalOrderSum, userBalance) : 0;
 
                 // Если в итоговом поле 0, пробуем взять из основного ввода (на случай сбоя расчета)
                 if (!amountSum || amountSum <= 0) {
@@ -263,10 +268,44 @@
                     return;
                 }
 
-                const widget = new tiptop.Widget();
-
                 // Визуальная блокировка кнопки
                 $paymentBtn.prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+
+                // === ПУТЬ 1: Полная оплата с баланса (Банк не нужен) ===
+                if (amountToPay <= 0 && balanceUsed > 0) {
+                    $loader.css('display', 'flex').show();
+
+                    fetch('/payment-with-balance', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+                        body: JSON.stringify({
+                            transaction_id: 'INTERNAL_BALANCE', // Пометка для сервера
+                            amount: totalOrderSum,
+                            balance_used: balanceUsed,
+                            partner_id: partnerId
+                        })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if(data.status === 'success') {
+                                if (data.prize) sessionStorage.setItem('last_prize', JSON.stringify(data.prize));
+                                window.location.href = '/success/payment';
+                            } else {
+                                throw new Error("Ошибка при оплате. Попробуйте позже");
+                            }
+                        })
+                        .catch(() => {
+                            $loader.hide();
+                            alert('Ошибка при списании с баланса');
+                            $paymentBtn.prop('disabled', false).removeClass('opacity-50');
+                        });
+
+                    return; // Выходим, чтобы не запускать виджет
+                }
+
+                const widget = new tiptop.Widget();
+
+
 
                 const intentParams = {
                     publicTerminalId: "pk_ee882e56bdffee4bea6f8f97290c6",

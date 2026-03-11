@@ -15,6 +15,7 @@ use App\Http\Controllers\Partner\ProductController as PartnerProductController;
 use App\Http\Controllers\Partner\GiftController;
 use App\Http\Controllers\Partner\WarehouseController;
 use App\Http\Controllers\ReferralController;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,9 +39,10 @@ Route::get('about-us', [IndexController::class, 'aboutUs'])->name('aboutUs');
 Route::group(['middleware' => 'auth'], function(){
     Route::get('/', [IndexController::class, 'home'])->name('home');
 
-    Route::get('success/payment', [IndexController::class, 'paymentSuccess'])->name('payment.success');
+    Route::get('success/payment', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
     Route::get('error/payment', [IndexController::class, 'paymentError'])->name('payment.error');
     Route::post('/payment', [IndexController::class, 'payment'])->name('payment');
+    Route::post('/payment-with-balance', [PaymentController::class, 'paymentWithBalance'])->name('paymentWithBalance');
 
     Route::get('category/{slug}', [CategoryController::class, 'show'])->name('category.show');
     Route::get('category/{slug}/{id}', [CategoryController::class, 'showPartner'])->name('showPartner');

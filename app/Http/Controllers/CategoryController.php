@@ -39,7 +39,7 @@ class CategoryController extends Controller
     public function showPartner($slug, $id)
     {
         $partner = User::findOrFail($id);
-        $profile = $partner->profile;
+        $partnerProfile = $partner->partnerProfile;
         $addresses = $partner->address;
         $arr = [];
         foreach($addresses as $item){
@@ -49,15 +49,16 @@ class CategoryController extends Controller
 
         $addresses = $arr;
 
-        return view('category.partner', compact('partner', 'slug', 'id', 'profile', 'addresses'));
+        return view('category.partner', compact('partner', 'slug', 'id', 'partnerProfile', 'addresses'));
     }
 
     public function allPartners()
     {
         $partners = User::where(['user_type' => 'partner'])
             ->selectRaw('users.*')
-            ->join('user_profile', 'user_profile.user_id', 'users.id')
+            ->join('partner_profiles', 'partner_profiles.partner_id', 'users.id')
             ->get();
+
         return view('category.all-partners', compact('partners'));
     }
 }

@@ -8,7 +8,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
-            @each('user.partials._myprizes', $prizes, 'prize')
+            @each('user.partials._myprizes', $prizes, 'gift')
         </div>
     </div>
 @stop

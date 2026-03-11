@@ -8,6 +8,7 @@ use App\Models\PartnerProfile;
 use App\Models\Payment;
 use App\Models\PartnerAddress;
 use App\Models\PartnerImage;
+use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,24 +30,23 @@ class PartnerController extends Controller
 
     public function clients()
     {
-        $payments = Payment::where(['pg_status' => 'ok'])
-                    ->selectRaw('payments.*, user_profile.full_name')
-                    ->join('users', 'users.id', 'payments.user_id')
-                    ->join('user_profile', 'user_profile.user_id', 'users.id')
-                    ->get();
-        $users = [];
-        foreach($payments as $payment) {
-            if(array_key_exists($payment->user_id, $users)) {
-                $users[$payment->user_id]['cnt'] += 1;
-                $users[$payment->user_id]['sum'] += $payment->amount;
-            } else {
-                $users[$payment->user_id]['full_name'] = $payment->full_name;
-                $users[$payment->user_id]['cnt'] = 1;
-                $users[$payment->user_id]['sum'] = $payment->amount;
-            }
-        }
+        $partnerId = auth()->id();
 
-        return view('partner.clients', compact('users'));
+        // Получаем уникальных клиентов через таблицу транзакций
+        $clients = User::whereIn('id', function($query) use ($partnerId) {
+            $query->select('source_id')
+                ->from('transactions')
+                ->where('user_id', $partnerId)
+                ->where('source_type', User::class); // Важно: только транзакции, связанные с юзерами
+        })
+            ->withCount(['transactions as total_spent' => function($query) use ($partnerId) {
+                // Считаем общую сумму покупок этого клиента у этого партнера
+                $query->where('user_id', $partnerId)
+                    ->where('type', 'sale_income'); // Тип транзакции "Покупка"
+            }])
+            ->paginate(20);
+
+        return view('partner.clients', compact('clients'));
     }
 
     public function edit()
@@ -108,7 +108,7 @@ class PartnerController extends Controller
     public function addressStore(Request $request)
     {
         $data = $request->all();
-        $data['user_id'] = Auth::user()->id;
+        $data['partner_id'] = Auth::user()->id;
         PartnerAddress::create($data);
         return redirect()->route('partner.cabinet');
     }
@@ -128,7 +128,7 @@ class PartnerController extends Controller
             $path = '/upload/partners/images/';
             $dir = public_path() . $path;
             $img->move($dir, $name);
-            $data['user_id'] = $user->id;
+            $data['partner_id'] = $user->id;
             $data['image'] = $path.$name;
             PartnerImage::create($data);
         }

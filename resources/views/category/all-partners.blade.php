@@ -6,8 +6,8 @@
             @foreach($partners as $partner)
                 @php
                     $shares = $partner->shares;
-                    $profile = $partner->profile;
-                    $cashback = $partner->getCashbackSizeAndAmount();
+                    $partnerProfile = $partner->partnerProfile;
+                    $cashback = 0;
                 @endphp
 
                 @if($shares->isEmpty())
@@ -19,11 +19,11 @@
                     {{-- Секция компании --}}
                     <div class="company flex items-center gap-4 mb-5">
                         <img
-                            src="{{ empty($profile->logo) ? '/images/cabinet/papa-johns-pizza.svg' : $profile->logo }}"
-                            alt="{{ $profile->company }}"
+                            src="{{ empty($partnerProfile->logo) ? '/images/cabinet/papa-johns-pizza.svg' : $partnerProfile->logo }}"
+                            alt="{{ $partnerProfile->company }}"
                             class="w-12 h-12 object-contain rounded-md"
                         >
-                        <h2 class="text-xl font-bold text-gray-800">{{ $profile->company }}</h2>
+                        <h2 class="text-xl font-bold text-gray-800">{{ $partnerProfile->company }}</h2>
                     </div>
 
                     {{-- Инфо о призах --}}
@@ -44,7 +44,7 @@
                             @endif
 
                             <div class="flex justify-center mt-auto">
-                                <a href="{{ route('showPartner', ['slug' => $profile->category->slug, 'id' => $profile->user_id]) }}"
+                                <a href="{{ route('showPartner', ['slug' => $partnerProfile->category->slug, 'id' => $partnerProfile->partner_id]) }}"
                                    class="inline-flex items-center justify-center gap-[7.5px]
                                           bg-[#FD9B11] text-white font-bold text-base leading-5
                                           py-[8px] pl-[42px] pr-[55px] rounded-[28px]

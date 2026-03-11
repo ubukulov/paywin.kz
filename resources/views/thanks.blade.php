@@ -4,7 +4,7 @@
     <div class="w-full min-h-screen bg-white px-4 py-8 pb-32 flex flex-col items-center text-center">
 
         {{-- Заголовок --}}
-        <h1 class="text-3xl font-black text-gray-900 mb-6 animate__animated animate__fadeInLeft">Поздравляем!</h1>
+        <h1 class="text-3xl font-black text-gray-900 mb-6 animate__animated animate__fadeInLeft">🎉 Поздравляем!</h1>
 
         {{-- Анимированная зеленая галочка --}}
         <div class="mb-6 animate__animated animate__zoomIn">
@@ -49,7 +49,7 @@
                         class="flex-1 py-4 bg-[#18BE1E] text-white font-black rounded-3xl shadow-lg shadow-green-100 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-wider">
                     да
                 </button>
-                <a href="{{ route('notGivenPrize', ['id' => $payment->partner_id]) }}"
+                <a href="{{ route('notGivenPrize', ['id' => $payment->source_id]) }}"
                    class="flex-1 py-4 bg-gray-100 text-gray-500 font-bold rounded-3xl hover:bg-gray-200 active:scale-95 transition-all uppercase tracking-wider text-center">
                     нет
                 </a>

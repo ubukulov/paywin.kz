@@ -14,7 +14,7 @@
                             </div>
                         </div>
 
-                        <h2 class="mt-4 text-xl font-bold text-gray-800">{{ $user_profile->full_name }}</h2>
+                        <h2 class="mt-4 text-xl font-bold text-gray-800">{{ $userProfile->full_name }}</h2>
                         <p class="text-sm text-gray-500">ID: {{ $user->id }}</p>
 
                         <div class="w-full mt-8 relative overflow-hidden bg-gray-900 rounded-3xl p-6 text-white shadow-2xl">
@@ -68,11 +68,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
                         <div class="flex items-center gap-4 group">
                             <div class="w-10 h-10 flex items-center justify-center bg-orange-50 rounded-xl text-orange-500 group-hover:scale-110 transition-transform">
-                                <img src="/images/profile/{{ $user_profile->sex == 1 ? 'female.svg' : 'male-icon.svg' }}" class="w-5 h-5" alt="">
+                                <img src="/images/profile/{{ $userProfile->sex == 1 ? 'female.svg' : 'male-icon.svg' }}" class="w-5 h-5" alt="">
                             </div>
                             <div>
                                 <p class="text-[10px] uppercase text-gray-400 font-bold leading-none mb-1">Пол</p>
-                                <p class="text-gray-700 font-medium">{{ $user_profile->sex == 1 ? 'Мужской' : 'Женский' }}</p>
+                                <p class="text-gray-700 font-medium">{{ $userProfile->sex == 1 ? 'Мужской' : 'Женский' }}</p>
                             </div>
                         </div>
 
@@ -82,7 +82,7 @@
                             </div>
                             <div>
                                 <p class="text-[10px] uppercase text-gray-400 font-bold leading-none mb-1">Дата рождения</p>
-                                <p class="text-gray-700 font-medium">{{ $user_profile->birth_date }}</p>
+                                <p class="text-gray-700 font-medium">{{ $userProfile->birth_date }}</p>
                             </div>
                         </div>
 
@@ -92,7 +92,7 @@
                             </div>
                             <div>
                                 <p class="text-[10px] uppercase text-gray-400 font-bold leading-none mb-1">Телефон</p>
-                                <p class="text-gray-700 font-medium">{{ $user_profile->phone }}</p>
+                                <p class="text-gray-700 font-medium">{{ $userProfile->phone }}</p>
                             </div>
                         </div>
 
@@ -102,7 +102,7 @@
                             </div>
                             <div>
                                 <p class="text-[10px] uppercase text-gray-400 font-bold leading-none mb-1">Email</p>
-                                <p class="text-gray-700 font-medium truncate max-w-[150px]">{{ $user_profile->email }}</p>
+                                <p class="text-gray-700 font-medium truncate max-w-[150px]">{{ $userProfile->email }}</p>
                             </div>
                         </div>
                     </div>
@@ -155,7 +155,7 @@
                     @if($prize)
                         @php
                             $share = $prize->share;
-                            $partner_profile = $share->user->profile;
+                            $partnerProfile = $share->partner->partnerProfile;
                         @endphp
                         <div class="mt-12 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2rem] p-6 text-white shadow-xl shadow-indigo-200 relative overflow-hidden group">
                             <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -165,7 +165,7 @@
                                     </div>
                                     <div>
                                         <h4 class="font-bold text-lg leading-tight">Сюрприз для вас!</h4>
-                                        <p class="text-sm text-indigo-100 opacity-80">{{ $partner_profile->company }} • {{ $share->title }}</p>
+                                        <p class="text-sm text-indigo-100 opacity-80">{{ $partnerProfile->company }} • {{ $share->title }}</p>
                                     </div>
                                 </div>
                                 <a href="{{ route('user.getMyPrize', ['prize_id' => $prize->id]) }}"

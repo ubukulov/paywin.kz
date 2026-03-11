@@ -44,11 +44,6 @@ class User extends Authenticatable
         return ($user) ? true : false;
     }
 
-    public function profile()
-    {
-        return $this->hasOne(UserProfile::class)/*->whereNotNull('category_id')*/;
-    }
-
     public function address() : HasMany
     {
         return $this->hasMany(PartnerAddress::class, 'partner_id');
@@ -81,8 +76,15 @@ class User extends Authenticatable
 
     public function shares()
     {
-        return $this->hasMany(Share::class)
+        return $this->hasMany(Share::class, 'partner_id')
             ->whereDate('to_date', '>', Carbon::now());
+    }
+
+    public function sharesWithoutPromocodes(): HasMany
+    {
+        return $this->hasMany(Share::class, 'partner_id')
+            ->whereDate('to_date', '>', Carbon::now())
+            ->where('type', '<>', TransactionEnum::PROMOCODE->value);
     }
 
     public function userProfile(): HasOne
@@ -112,31 +114,7 @@ class User extends Authenticatable
     public function getDiscountForUser()
     {
         $user_discount = UserDiscount::where(['user_id' => $this->id, 'status' => 'active'])->first();
-        return ($user_discount) ? $user_discount : null;
-    }
-
-    public static function isPrize($user_id, $payment_id)
-    {
-        $prize = UserGift::where(['user_id' => $user_id, 'payment_id' => $payment_id])->first();
-        return ($prize) ? true : false;
-    }
-
-    public function getCashbackSizeAndAmount()
-    {
-        return Share::where(['user_id' => $this->id, 'type' => 'cashback'])
-            ->whereDate('to_date', '>=', Carbon::now())
-            ->where('cnt', '>', 0)
-            ->orderBy('size', 'DESC')
-            ->first();
-    }
-
-    public function getCountOfAwardedPrizes()
-    {
-        $prizes = UserGift::where(['prizes.status' => 'got', 'shares.user_id' => $this->id])
-            ->join('shares', 'shares.id', 'prizes.share_id')
-            ->whereRaw('DATE_FORMAT(prizes.created_at, "%m") = '.date('m'))
-            ->get();
-        return count($prizes);
+        return ($user_discount) ?: null;
     }
 
     public function givePrize($shares, $payment)
@@ -193,14 +171,15 @@ class User extends Authenticatable
      * @param TransactionEnum $type Тип операции (из Enums)
      * @param Model|null $source Объект-источник (Order, Share, Referral и т.д.)
      * @param string|null $description Комментарий для пользователя
+     * @param array|null $data Дополнительные метаданные (например, ['bank_transaction_id' => '...'])
      * @return float Новый баланс
      */
-    public function changeBalance(float $amount, TransactionEnum $type, ?Model $source = null, ?string $description = null): float
+    public function changeBalance(float $amount, TransactionEnum $type, ?Model $source = null, ?string $description = null, ?array $data = null): float
     {
         // Если сумма 0, ничего не делаем
         if ($amount == 0) return $this->balance;
 
-        return DB::transaction(function () use ($amount, $type, $source, $description) {
+        return DB::transaction(function () use ($amount, $type, $source, $description, $data) {
             // 1. Блокируем строку пользователя в БД для записи (защита от Race Condition)
             $user = DB::table('users')->where('id', $this->id)->lockForUpdate()->first();
 
@@ -222,6 +201,7 @@ class User extends Authenticatable
                 'source_id' => $source?->id,
                 'source_type' => $source ? get_class($source) : null,
                 'description' => $description,
+                'data' => $data
             ]);
 
             // 4. Обновляем баланс в текущем объекте модели (чтобы Auth::user()->balance сразу изменился)
@@ -229,5 +209,27 @@ class User extends Authenticatable
 
             return $balanceAfter;
         });
+    }
+
+    /**
+     * Считает баланс пользователя, доступный только у конкретного партнера
+     */
+    public function getBalanceForPartner(int $partnerId): float
+    {
+        return (float) $this->transactions()
+            ->where(function ($query) use ($partnerId) {
+                $query->where(function($q) use ($partnerId) {
+                    // Ищем доходы от этого партнера (source_id = partner_id)
+                    $q->where('source_id', $partnerId)
+                        ->where('source_type', User::class);
+                })
+                    ->orWhere(function($q) use ($partnerId) {
+                        // Ищем уже совершенные траты у ЭТОГО же партнера
+                        // (чтобы вычесть их из суммы доходов)
+                        $q->where('source_id', $partnerId)
+                            ->where('source_type', User::class);
+                    });
+            })
+            ->sum('amount');
     }
 }

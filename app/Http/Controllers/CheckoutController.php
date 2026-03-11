@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PartnerGiftAllocation;
+use App\Enums\TransactionEnum;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\Referral;
@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\PartnerGiftService;
 use App\Services\TipTopPayService;
-use App\Models\Payment;
 
 class CheckoutController extends Controller
 {
@@ -60,14 +59,12 @@ class CheckoutController extends Controller
         $finalTotal = $cart->total - $discount;
 
         // 5. Получаем доступные подарки
-        $gift = $this->partnerGiftService->getAvailableGiftsForUser($user->id, $finalTotal);
 
         $ttpPublicId = env('TIPTOPPAY_PUBLIC_ID');
 
         // ПЕРЕДАЕМ ВСЕ ПЕРЕМЕННЫЕ В VIEW
         return view('checkout.index', compact(
             'cart',
-            'gift',
             'ttpPublicId',
             'activePromo',
             'discount',
@@ -86,20 +83,6 @@ class CheckoutController extends Controller
 
             if (!$cart || $cart->items->isEmpty()) {
                 return redirect()->route('cart.index');
-            }
-
-            // 1. Проверяем наличие активного промокода
-            $promo = $this->getActivePromoEffect(Auth::id());
-
-            if ($promo) {
-                $share = $promo->share;
-                if ($share && $share->promo === 'discount') {
-                    // Рассчитываем скидку
-                    $discountValue = ($total * $share->size) / 100;
-                    $total = $total - $discountValue;
-                }
-
-                // Если это подарок, логика может быть в добавлении записи в OrderItem с ценой 0
             }
 
             // Создаём заказ
@@ -177,45 +160,28 @@ class CheckoutController extends Controller
                 throw new \Exception('Платеж не завершен.');
             }
 
-            // Сохраняем Payment
-            $payment = Payment::create([
-                'user_id' => auth()->id(),
-                'partner_id' => null,
-                'pg_payment_id' => $model['Token'] ?? $model['TransactionId'],
-                'amount' => $model['Amount'] ?? $order->total,
-                'pg_status' => 'ok',
-            ]);
-
             // Сохраняем весь ответ TipTopPay в meta
             $order->update([
                 'meta' => json_encode($model, JSON_UNESCAPED_UNICODE),
                 'status' => 'paid'
             ]);
 
-            if ($promo) {
-                $promo->update(['status' => 'ok']);
-            }
+            foreach ($order->items as $item) {
+                $product = $item->product;
+                $partner = $product->partner;
 
-
-            $this->handleReferralIncome($order, $payment);
-
-            // 🎁 обработка подарка
-            $winnerGift = $this->partnerGiftService->getAvailableGiftForUser(Auth::id(), $cart->total);
-
-            if ($winnerGift) {
-                PartnerGiftAllocation::create([
-                    'partner_gift_id' => $winnerGift->id,
-                    'order_id' => $order->id,
-                    'user_id' => Auth::id(),
-                    'status' => 'pending', // можно обновить на 'won'
-                ]);
-            } else {
-                PartnerGiftAllocation::create([
-                    'partner_gift_id' => null,
-                    'order_id' => $order->id,
-                    'user_id' => Auth::id(),
-                    'status' => 'lost',
-                ]);
+                if ($partner && $partner->user_type == 'partner') {
+                    // Начисляем доход партнеру
+                    $partner->changeBalance(
+                        $item->total,
+                        TransactionEnum::SALE_INCOME,
+                        $order->user,
+                        "Продажа: {$product->title} (Заказ #{$order->id})",
+                        [
+                            'bank_payment_id' => $model['TransactionId'] ?? null
+                        ]
+                    );
+                }
             }
 
             // Очистка корзины
@@ -242,16 +208,25 @@ class CheckoutController extends Controller
         if ($result['Success'] && $result['Model']['Status'] === 'Completed') {
             $order = Order::where(['transaction_id' => $transactionId])->first();
 
-            Payment::create([
-                'user_id' => $order->user_id,
-                'partner_id' => null,
-                'pg_payment_id' => $result['Model']['Token'] ?? $result['Model']['TransactionId'],
-                'amount' => $result['Model']['Amount'],
-                'pg_status' => 'ok',
-            ]);
-
             // обновляем заказ
             $order->update(['status' => 'paid']);
+
+            // зафиксируем в транзакции
+            $bankId = $result['Model']['Token'] ?? $result['Model']['TransactionId'];
+            foreach ($order->items as $item) {
+                $partner = $item->product->partner;
+                if ($partner && $partner->user_type == 'partner') {
+                    $partner->changeBalance(
+                        $item->total,
+                        TransactionEnum::SALE_INCOME,
+                        $order->user,
+                        "Продажа (3DS): {$item->product->title} (Заказ #{$order->id})",
+                        [
+                            'bank_payment_id' => $bankId
+                        ]
+                    );
+                }
+            }
 
             $cart = $order->user->cart;
             if ($cart) {
@@ -279,70 +254,5 @@ class CheckoutController extends Controller
     public function success()
     {
         return view('checkout.success');
-    }
-
-    protected function handleReferralIncome(Order $order, Payment $payment): void
-    {
-        // есть ли реферал
-        $referral = Referral::where('client_id', $order->user_id)->first();
-
-        if (!$referral) {
-            return;
-        }
-
-        // защита от повторного начисления
-        if (UserBalance::where([
-            'user_id'    => $referral->agent_id,
-            'payment_id' => $payment->id,
-            'type'       => 'payment',
-        ])->exists()) {
-            return;
-        }
-
-        // 3. Определяем процент вознаграждения
-        $agentPercent = 1.0; // Значение по умолчанию (1%)
-
-        // Если в реферальной записи есть share_id, берем процент напрямую (самый надежный путь)
-        if ($referral->share_id) {
-            $share = Share::find($referral->share_id);
-        } else {
-            // Запасной вариант: поиск по названию промокода
-            $baseCode = preg_replace('/[0-9]+/', '', $referral->promo_code);
-            $share = Share::where('title', $baseCode)->first();
-        }
-
-        if ($share && $share->agent_percent > 0) {
-            $agentPercent = (float) $share->agent_percent;
-        }
-
-        // 4. Считаем доход
-        // Делим на 100, так как в базе процент лежит как число (например, 5 или 10)
-        $income = round(($payment->amount * $agentPercent) / 100, 2);
-
-        if ($income <= 0) {
-            return;
-        }
-
-        // 5. Начисляем агенту
-        UserBalance::create([
-            'user_id'    => $referral->agent_id,
-            'payment_id' => $payment->id,
-            'order_id'   => $order->id, // полезно для истории
-            'type'       => 'referral',
-            'amount'     => $income,
-            'status'     => 'ok',
-        ]);
-    }
-
-    protected function getActivePromoEffect($userId)
-    {
-        // Ищем последнюю запись в балансе, которая является промокодом с суммой 0 и статусом active
-        return UserBalance::where('user_id', $userId)
-            ->where('type', 'promocode')
-            ->where('status', 'active')
-            ->where('amount', 0)
-            ->with('share') // Подгружаем саму акцию
-            ->latest()
-            ->first();
     }
 }

@@ -29,9 +29,9 @@ class UserController extends Controller
     public function cabinet()
     {
         $user = Auth::user();
-        $user_profile = Auth::user()->profile;
-        $prize = UserGift::where(['user_id' => $user->id, 'status' => 'waiting'])->first();
-        return view('user.home', compact('user_profile', 'user', 'prize'));
+        $userProfile = Auth::user()->userProfile;
+        $prize = UserGift::where(['user_id' => $user->id, 'status' => 'available'])->first();
+        return view('user.home', compact('userProfile', 'user', 'prize'));
     }
 
     public function addMyCard()

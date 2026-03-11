@@ -53,7 +53,7 @@
             </div>
 
             <div class="grid grid-cols-1 gap-6">
-                @foreach($users as $user)
+                @foreach($clients as $user)
                     <div class="bg-white rounded-[2.5rem] border border-gray-50 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden flex flex-col md:flex-row">
 
                         <div class="md:w-64 bg-gray-50/50 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-gray-100 space-y-4">

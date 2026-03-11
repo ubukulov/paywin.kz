@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum DiscountEnum:string
+enum UserDiscountEnum:string
 {
     case ACTIVE = 'active';
     case USED = 'used';
