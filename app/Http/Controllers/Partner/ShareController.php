@@ -55,14 +55,12 @@ class ShareController extends Controller
 
         if ($data['type'] == ShareType::GIFT->value) {
             $extraData = [
-                'count' => $request->count,
                 'from_order' => $request->from_order,
                 'to_order' => $request->to_order,
                 'c_winning' => $request->c_winning,
             ];
         } elseif ($data['type'] == ShareType::DISCOUNT->value) {
             $extraData = [
-                'count' => $request->count,
                 'size' => $request->size,
                 'from_order' => $request->from_order,
                 'to_order' => $request->to_order,
@@ -71,7 +69,6 @@ class ShareController extends Controller
             ];
         } elseif ($data['type'] == ShareType::CASHBACK->value) {
             $extraData = [
-                'count' => $request->count,
                 'size' => $request->size,
                 'from_order' => $request->from_order,
                 'to_order' => $request->to_order,
@@ -90,7 +87,6 @@ class ShareController extends Controller
             ]);
             $data['code'] = $request->title;
             $extraData['agent_percent'] = $request->agent_percent;
-            $extraData['usage_limit'] = $request->usage_limit;
 
             if ($request->bonus_type == ShareType::DISCOUNT->value) {
                 $extraData['bonus_type'] = ShareType::DISCOUNT->value;

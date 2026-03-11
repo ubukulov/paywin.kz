@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Partner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\PartnerProfile;
 use App\Models\Payment;
 use App\Models\PartnerAddress;
 use App\Models\PartnerImage;
@@ -22,8 +23,8 @@ class PartnerController extends Controller
 
     public function qr()
     {
-        $user_profile = Auth::user()->profile;
-        return view('partner.qr', compact('user_profile'));
+        $partnerProfile = Auth::user()->partnerProfile;
+        return view('partner.qr', compact('partnerProfile'));
     }
 
     public function clients()
@@ -50,20 +51,20 @@ class PartnerController extends Controller
 
     public function edit()
     {
-        $user_profile = Auth::user()->profile;
+        $partnerProfile = Auth::user()->partnerProfile;
         $categories = Category::all();
-        return view('partner.edit', compact('user_profile', 'categories'));
+        return view('partner.edit', compact('partnerProfile', 'categories'));
     }
 
     public function profileUpdate(Request $request)
     {
         $data = $request->all();
-        $user_profile = UserProfile::where(['user_id' => $data['user_id']])->first();
-        if ($user_profile) {
+        $partnerProfile = PartnerProfile::where(['partner_id' => $data['partner_id']])->first();
+        if ($partnerProfile) {
 
             if ($request->hasFile('logo')) {
-                if(!empty($user_profile->logo) && file_exists(public_path() . $user_profile->logo)) {
-                    unlink(public_path() . $user_profile->logo);
+                if(!empty($partnerProfile->logo) && file_exists(public_path() . $partnerProfile->logo)) {
+                    unlink(public_path() . $partnerProfile->logo);
                 }
 
                 $request->validate([
@@ -80,8 +81,8 @@ class PartnerController extends Controller
             }
 
             if ($request->hasFile('agreement')) {
-                if(!empty($user_profile->agreement) && file_exists(public_path() . $user_profile->agreement)) {
-                    unlink(public_path() . $user_profile->agreement);
+                if(!empty($partnerProfile->agreement) && file_exists(public_path() . $partnerProfile->agreement)) {
+                    unlink(public_path() . $partnerProfile->agreement);
                 }
 
                 $file = $request->file('agreement');
@@ -93,7 +94,7 @@ class PartnerController extends Controller
                 $data['agreement'] = $path.$name;
             }
 
-            $user_profile->update($data);
+            $partnerProfile->update($data);
 
             return redirect()->route('partner.cabinet');
         }

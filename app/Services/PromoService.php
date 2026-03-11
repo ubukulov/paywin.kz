@@ -2,10 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\Referral;
 use App\Models\Share;
 use App\Models\User;
-use App\Models\UserBalance;
+use App\Enums\TransactionEnum;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -14,85 +13,89 @@ class PromoService
     public function activate(User $user, string $rawCode)
     {
         $promoCode = strtoupper(trim($rawCode));
-        // 1. Поиск акции
 
+        // 1. Поиск акции (только по названию, без парсинга ID агента)
         $share = Share::where('title', $promoCode)
-            ->where('from_date', '<=', now())
-            ->where('to_date', '>=', now())
+            ->active() // Используем наш Scope из модели Share
             ->first();
-
-        if ($share) {
-            $agentId = 0;
-        } else {
-            $promoPartner = preg_replace('/[^A-Z]/', '', $promoCode);
-            $agentId = (int) filter_var($promoCode, FILTER_SANITIZE_NUMBER_INT);
-            $share = Share::where('title', $promoPartner)
-                ->where('from_date', '<=', now())
-                ->where('to_date', '>=', now())
-                ->first();
-        }
 
         if (!$share) {
             throw new Exception('Промокод неактуален или не существует');
         }
 
         // 2. Валидация
-        $this->validateActivation($user, $agentId, $share);
+        $this->validateActivation($user, $share);
 
-        // 3. Логика применения в зависимости от типа
-        return DB::transaction(function () use ($share, $agentId, $user, $promoCode) {
+        // 3. Применение в транзакции
+        return DB::transaction(function () use ($share, $user, $promoCode) {
 
-            // Атомарное уменьшение лимита
-            $affected = Share::where('id', $share->id)
-                ->where('cnt', '>', 0)
-                ->decrement('cnt');
+            // Блокируем строку акции для защиты от одновременных нажатий
+            $lockedShare = Share::where('id', $share->id)->lockForUpdate()->first();
+            $limit = (int)($lockedShare->count ?? 0);
 
-            if (!$affected) {
+            if ($limit > 0 && $lockedShare->used_count >= $limit) {
                 throw new Exception('Лимит активаций этого промокода исчерпан');
             }
 
-            // Создаем реферальную связь, если её еще нет (First Click)
-            if ($agentId !== 0 && !Referral::where('client_id', $user->id)->exists()) {
-                Referral::create([
-                    'agent_id'   => $agentId,
-                    'share_id'   => $share->id,
-                    'client_id'  => $user->id,
-                    'promo_code' => $promoCode,
-                    'source'     => 'promo',
-                ]);
+            // Начисление бонуса (если тип "Деньги")
+            $bonusAmount = (float)($lockedShare->data['size'] ?? 0);
+
+            if ($bonusAmount > 0) {
+                // Начисляем пользователю
+                $user->changeBalance(
+                    $bonusAmount,
+                    TransactionEnum::PROMOCODE, // Используем наш Enum
+                    $lockedShare,
+                    "Активация промокода {$promoCode}"
+                );
+
+                // Списываем у партнера
+                $partner = $lockedShare->partner;
+                if ($partner) {
+                    $partner->changeBalance(
+                        -$bonusAmount,
+                        TransactionEnum::PROMO_PAYOUT, // Добавь этот тип в Enum
+                        $user,
+                        "Списание за активацию кода клиентом"
+                    );
+                }
             }
 
-            // Начисление сущности (Деньги или метка активации для Скидок/Подарков)
-            UserBalance::create([
-                'user_id'      => $user->id,
-                'promocode_id' => $share->id,
-                'type'         => 'promocode',
-                'amount'       => ($share->promo == 'money') ? $share->size : 0,
-                'status'       => ($share->promo == 'money') ? 'ok' : 'active',
-            ]);
+            // Увеличиваем счетчик использований
+            $lockedShare->increment('used_count');
 
-            return match ($share->promo) {
-                'money'    => "Бонус {$share->size} начислен на ваш баланс",
-                'discount' => "Скидка {$share->size}% будет применена при оформлении заказа",
-                'gift'     => "Подарок будет добавлен к вашему следующему заказу",
-                default    => "Промокод успешно активирован"
-            };
+            return $this->getSuccessMessage($lockedShare);
         });
     }
 
-    protected function validateActivation(User $user, $agentId, $share)
+    protected function validateActivation(User $user, Share $share): void
     {
-        if ($agentId !== 0 && $agentId === $user->id) {
-            throw new Exception('Нельзя использовать собственный промокод');
+        // Нельзя активировать свой же код (если юзер - партнер этой акции)
+        if ($share->partner_id === $user->id) {
+            throw new Exception('Вы не можете активировать собственный промокод');
         }
 
-        // Проверка: использовал ли юзер этот промокод ранее
-        $alreadyUsed = UserBalance::where('user_id', $user->id)
-            ->where('promocode_id', $share->id)
+        // Проверка: использовал ли юзер этот промокод ранее через транзакции
+        $alreadyUsed = $user->transactions()
+            ->where('type', TransactionEnum::PROMOCODE->value)
+            ->where('source_id', $share->id)
+            ->where('source_type', Share::class)
             ->exists();
 
         if ($alreadyUsed) {
             throw new Exception('Вы уже активировали этот промокод');
         }
+    }
+
+    protected function getSuccessMessage(Share $share): string
+    {
+        // Логика сообщения на основе типа бонуса из UI
+        // В форме это кнопки: Скидка, Деньги, Подарок
+        return match ($share->type) {
+            'money'    => "Бонус успешно начислен на ваш баланс",
+            'discount' => "Скидка будет применена при вашей следующей покупке",
+            'gift'     => "Подарок добавлен в ваш профиль",
+            default    => "Промокод успешно активирован"
+        };
     }
 }

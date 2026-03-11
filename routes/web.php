@@ -13,7 +13,7 @@ use App\Http\Controllers\User\SettingController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Partner\ProductController as PartnerProductController;
 use App\Http\Controllers\Partner\GiftController;
-use App\Http\Controllers\Partner\StoreController;
+use App\Http\Controllers\Partner\WarehouseController;
 use App\Http\Controllers\ReferralController;
 
 /*
@@ -85,10 +85,10 @@ Route::group(['middleware' => 'auth'], function(){
         });
 
         # Магазины/склады
-        Route::group(['prefix' => 'stores'], function(){
-            Route::get('/', [StoreController::class, 'index'])->name('store.index');
-            Route::get('create', [StoreController::class, 'create'])->name('store.create');
-            Route::post('store', [StoreController::class, 'store'])->name('store.store');
+        Route::group(['prefix' => 'warehouses'], function(){
+            Route::get('/', [WarehouseController::class, 'index'])->name('warehouse.index');
+            Route::get('create', [WarehouseController::class, 'create'])->name('warehouse.create');
+            Route::post('store', [WarehouseController::class, 'store'])->name('warehouse.store');
         });
     });
 
@@ -136,6 +136,12 @@ Route::group(['middleware' => 'auth'], function(){
 
 });
 
-Route::get('/ref/{code}', [ReferralController::class, 'handle'])->name('referral.link');
+// Переход просто по ID агента
+Route::get('/ref/{agent_id}', [ReferralController::class, 'handleStep1'])
+    ->where('agent_id', '[0-9]+')->name('user.referral.link');
+
+// Переход по ID агента + Промокод
+Route::get('/ref/{agent_id}/{promo_code}', [ReferralController::class, 'handleStep2'])
+    ->where('agent_id', '[0-9]+')->name('user.referral.promocode');
 
 Route::post('/checkout/3ds-callback', [CheckoutController::class, 'handle3DS'])->name('checkout.3ds.callback');

@@ -19,8 +19,8 @@
                 <div class="bg-gray-50 p-6 rounded-2xl border-2 border-dashed border-gray-200 mb-10 transition-transform hover:scale-105 duration-300">
                     <div class="bg-white p-4 rounded-xl shadow-inner">
                         @php
-                            $imgUrl = "/qrcodes/" . $user_profile->company . "_qr_code.svg";
-                            $paymentUrl = route('paymentPage', ['slug' => $user_profile->category->slug, 'id' => $user_profile->user_id]);
+                            $imgUrl = "/qrcodes/" . $partnerProfile->company . "_qr_code.svg";
+                            $paymentUrl = route('paymentPage', ['slug' => $partnerProfile->category->slug, 'id' => $partnerProfile->partner_id]);
                         @endphp
 
                         {{-- Генерация для отображения --}}

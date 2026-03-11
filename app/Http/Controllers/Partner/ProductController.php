@@ -13,7 +13,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::where(['user_id' => Auth::id()])
+        $products = Product::where(['partner_id' => Auth::id()])
             ->selectRaw('products.*, product_stocks.price, product_stocks.quantity')
             ->join('product_stocks', 'products.id', '=', 'product_stocks.product_id')
             ->get();
@@ -22,8 +22,8 @@ class ProductController extends Controller
 
     public function create()
     {
-        $storePoints = Auth::user()->getStorePoints();
-        return view('partner.product.create', compact('storePoints'));
+        $warehouses = Auth::user()->getWarehouses();
+        return view('partner.product.create', compact('warehouses'));
     }
 
     public function store(Request $request)

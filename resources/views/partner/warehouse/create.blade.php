@@ -119,7 +119,7 @@
         <div id="createGood" class="kaspi-form">
             <h2>Создайте склад для продаж</h2>
             <p class="subtitle">Подробно заполните указанные ниже поля.</p>
-            <form action="{{ route('partner.store.store') }}" method="post">
+            <form action="{{ route('partner.warehouse.store') }}" method="post">
                 @csrf
 
                 <label>Укажите город</label>

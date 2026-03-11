@@ -17,7 +17,7 @@
                 </h1>
             </div>
 
-            <a href="{{ route('partner.store.create') }}"
+            <a href="{{ route('partner.warehouse.create') }}"
                class="relative z-10 inline-flex items-center justify-center px-8 py-4 bg-white text-cyan-700 font-bold rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all active:scale-95 whitespace-nowrap">
                 <span class="mr-2 text-2xl">+</span> новый склад
             </a>
@@ -34,23 +34,23 @@
                     </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
-                    @forelse($storePoints as $storePoint)
+                    @forelse($warehouses as $warehouse)
                         <tr class="hover:bg-cyan-50/30 transition-colors group">
                             <td class="px-6 py-5">
                                 <div class="flex items-center gap-2">
                                     <div class="w-2 h-2 rounded-full bg-cyan-400"></div>
-                                    <span class="text-sm font-semibold text-gray-600">{{ $storePoint->city->name }}</span>
+                                    <span class="text-sm font-semibold text-gray-600">{{ $warehouse->city->name }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-5">
                                     <span class="text-sm font-bold text-gray-900 group-hover:text-cyan-700 transition-colors">
-                                        {{ $storePoint->name }}
+                                        {{ $warehouse->name }}
                                     </span>
                             </td>
                             <td class="px-6 py-5">
                                 <div class="flex items-center gap-2 text-sm text-gray-500">
                                     <i class="fas fa-map-marker-alt text-gray-300 group-hover:text-cyan-400 transition-colors"></i>
-                                    {{ $storePoint->address }}
+                                    {{ $warehouse->address }}
                                 </div>
                             </td>
                         </tr>

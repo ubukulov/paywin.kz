@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TransactionEnum;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -89,60 +90,101 @@ class AuthController extends Controller
      */
     private function applyReferral($user)
     {
-        $code = session('ref_code') ?? Cookie::get('ref_code');
+        $agentId = Cookie::get('ref_agent_id');
+        $promoCode = Cookie::get('ref_promo_code') ?? request()->code;
 
-        if (!$code) return;
+        if (!$agentId && !$promoCode) return;
 
-        // Запрет самореферала и партнеров
-        if ($code == $user->id || $user->user_type == 'partner') return;
+        // 1. Ищем акцию (если есть промокод)
+        $share = null;
+        if ($promoCode) {
+            $share = Share::where('title', strtoupper($promoCode))
+                ->where('type', 'promocode')
+                ->active()
+                ->first();
 
-        // Если клиент уже привязан — выходим
-        if (Referral::where('client_id', $user->id)->exists()) return;
-
-        if (is_numeric($code)) {
-            // Логика для прямых реферальных ссылок (по ID агента)
-            $agent = User::find($code);
-            if ($agent && $agent->user_type !== 'partner') {
-                Referral::create([
-                    'agent_id'  => $agent->id,
-                    'client_id' => $user->id,
-                    'source'    => 'link',
-                ]);
-            }
-        } else {
-            // Логика для ПРОМОКОДОВ (например, SPRING34)
-
-            // 1. Парсим код: отделяем текст от ID агента
-            // ([A-ZА-Я0-9]+) — буквы и цифры промокода, (\d+) — ID агента в конце
-            if (preg_match('/^([A-ZА-Я0-9]+?)(\d+)$/u', strtoupper($code), $matches)) {
-                $baseTitle = $matches[1]; // SPRING
-                $agentId   = $matches[2]; // 34
-
-                // 2. Ищем агента, чтобы узнать, к какому партнеру он привязан
-                $agent = User::find($agentId);
-
-                if ($agent) {
-                    // 3. Ищем акцию именно этого партнера с таким названием
-                    // Это защитит, если два партнера создали одинаковый код "SPRING"
-                    $share = Share::where('title', $baseTitle)
-                        ->where('user_id', $agent->partner_id) // Связь агента с его партнером
-                        ->where('type', 'promocode')
-                        ->first();
-
-                    // 4. Создаем запись с привязкой к конкретной акции (share_id)
-                    Referral::create([
-                        'agent_id'   => $agent->id,
-                        'client_id'  => $user->id,
-                        'share_id'   => $share ? $share->id : null, // Сохраняем ID акции для расчета %
-                        'promo_code' => $code,
-                        'source'     => 'promo',
-                    ]);
-                }
+            // Если агент не указан в ссылке, но код верный —
+            // владельцем "трафика" считаем партнера (автора акции)
+            if ($share && !$agentId) {
+                $agentId = $share->partner_id;
             }
         }
 
-        // Очищаем данные
-        session()->forget('ref_code');
-        Cookie::queue(Cookie::forget('ref_code'));
+        if (!$agentId) return;
+
+        $agent = User::find($agentId);
+        if (!$agent) return;
+
+        // --- ЛОГИКА РАЗДЕЛЕНИЯ ---
+
+        // Если агент — ПАРТНЕР
+        if ($agent->user_type === 'partner') {
+            // Запись в referrals НЕ создаем (как ты и просил)
+            // Но проверяем, положен ли бонус пользователю
+            $this->processDirectPartnerBonus($user, $share, $promoCode);
+        }
+
+        // Если агент — ОБЫЧНЫЙ ПОЛЬЗОВАТЕЛЬ (Агент)
+        else {
+            // Создаем реферальную связь (агент будет получать % с покупок)
+            $referral = Referral::create([
+                'agent_id'           => $agent->id,
+                'user_id'            => $user->id,
+                'share_id'           => $share ? $share->id : null,
+                'commission_percent' => $share->agent_percent ?? 5,
+            ]);
+
+            // Начисляем бонус пользователю
+            $this->processDirectPartnerBonus($user, $share, $promoCode, $referral);
+        }
+
+        // Очистка кук
+        Cookie::queue(Cookie::forget('ref_agent_id'));
+        Cookie::queue(Cookie::forget('ref_promo_code'));
+    }
+
+    private function processDirectPartnerBonus($user, $share, $code, $referral = null): void
+    {
+        if (!$share || !isset($share->data['size'])) return;
+
+        $bonusAmount = (float) $share->data['size'];
+        $limit = (int) ($share->count ?? 0);
+
+        // 1. Быстрая проверка вне транзакции (чтобы не грузить БД зря)
+        if ($limit > 0 && $share->used_count >= $limit) return;
+
+        $partner = $share->partner;
+        if (!$partner) return;
+
+        // 2. Основная логика в транзакции
+        DB::transaction(function () use ($user, &$share, $partner, $bonusAmount, $code, $referral, $limit) {
+
+            // Блокируем строку акции для обновления (SELECT ... FOR UPDATE)
+            // Это гарантирует, что мы не превысим лимит при 100 одновременных запросах
+            $lockedShare = Share::where('id', $share->id)->lockForUpdate()->first();
+
+            if ($limit > 0 && $lockedShare->used_count >= $limit) {
+                throw new \Exception("Лимит промокодов исчерпан в момент обработки");
+            }
+
+            // Начисляем пользователю
+            $user->changeBalance(
+                $bonusAmount,
+                TransactionEnum::PROMOCODE,
+                $referral ?? $lockedShare,
+                "Бонус по промокоду " . ($code ?? 'акции')
+            );
+
+            // Списываем у партнера
+            $partner->changeBalance(
+                -$bonusAmount,
+                TransactionEnum::PROMO_PAYOUT,
+                $user,
+                "Выплата бонуса новому клиенту ({$user->phone})"
+            );
+
+            // Увеличиваем счетчик
+            $lockedShare->increment('used_count');
+        });
     }
 }

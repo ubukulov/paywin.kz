@@ -23,10 +23,11 @@ class CreateTableShares extends Migration
 
             $table->timestamp('from_date')->nullable();
             $table->timestamp('to_date')->nullable();
-
+            $table->integer('count')->default(0);
+            $table->integer('used_count')->default(0);
             $table->json('data')->nullable();
 
-            /*$table->integer('count')->nullable();
+            /*
             $table->enum('promo', [
                 'none', 'discount', 'money', 'gift'
             ]);

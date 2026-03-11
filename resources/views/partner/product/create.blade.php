@@ -125,7 +125,7 @@
 
         <div id="createGood" class="kaspi-form">
 
-            @if(count($storePoints))
+            @if(count($warehouses))
             <h2>Создание товара</h2>
             <p class="subtitle">Подробно заполните указанные ниже поля.</p>
 
@@ -159,7 +159,7 @@
 
             <h3 style="text-align: center;">Цена и остатки</h3>
 
-            <div v-for="point in storePoints" :key="point.id" style="margin-bottom: 10px; margin-top: 10px;">
+            <div v-for="point in warehouses" :key="point.id" style="margin-bottom: 10px; margin-top: 10px;">
                 <div>
                     <strong>@{{ point.city.name }}</strong>
                     <label>Цена</label>
@@ -201,11 +201,11 @@
                 const stocks = ref({});
                 const files = ref([]);
 
-                const storePoints = JSON.parse(`{!! json_encode($storePoints) !!}`);
+                const warehouses = JSON.parse(`{!! json_encode($warehouses) !!}`);
 
                 const points = ref({});
 
-                storePoints.forEach(p => {
+                warehouses.forEach(p => {
                     points.value[p.id] = {
                         price: null,
                         count: null
@@ -261,7 +261,7 @@
                     formData.append('article', article.value);
                     formData.append('name', name.value)
                     formData.append('description', description.value)
-                    formData.append('store_points', JSON.stringify(points.value))
+                    formData.append('warehouses', JSON.stringify(points.value))
 
                     files.value.forEach((file, index) => {
                         formData.append('photos[]', file);
@@ -286,7 +286,7 @@
 
                 return {
                     photos, article, name, description, price, stocks,
-                    triggerUpload, handleUpload, createProduct, storePoints, points
+                    triggerUpload, handleUpload, createProduct, warehouses, points
                 };
             }
         }).mount('#createGood')

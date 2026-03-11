@@ -46,15 +46,8 @@ class UserController extends Controller
 
     public function earn()
     {
-        $promos = Share::actualPromocodes()->get();
-
-        // Получаем список рефералов агента и оставляем по одной записи на каждую уникальную акцию
-        $myPromos = Referral::where('agent_id', auth()->id())
-            ->with('share')
-            ->get()
-            ->unique('share_id');
-
-        return view('user.earn', compact('promos', 'myPromos'));
+        $shares = Share::actualPromocodes()->get();
+        return view('user.earn', compact('shares'));
     }
 
     public function history(Request $request)

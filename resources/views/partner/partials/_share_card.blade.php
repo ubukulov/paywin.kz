@@ -17,7 +17,7 @@
             <div class="space-y-4">
                 <div class="flex flex-col">
                     <span class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Кол-во</span>
-                    <span class="text-base font-bold text-gray-800 italic">{{ $share->data['count'] }}</span>
+                    <span class="text-base font-bold text-gray-800 italic">{{ $share->count }}</span>
                 </div>
                 <div class="flex flex-col">
                     <span class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Остаток</span>
@@ -30,10 +30,12 @@
             </div>
 
             <div class="space-y-4 border-l border-gray-100 pl-5">
+                @if($share->type != 'promocode')
                 <div class="flex flex-col">
                     <span class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Мин. заказ</span>
                     <span class="text-base font-bold text-gray-900 italic">{{ number_format($share->data['from_order'], 0, '.', ' ') }} ₸</span>
                 </div>
+                @endif
                 <div class="flex flex-col">
                     @if($share->type !== 'promocode')
                         <span class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Коэф выигр.</span>

@@ -39,11 +39,7 @@
                     Товары
                 </a>
 
-                {{--<a href="{{ route('partner.gift.index') }}" class="nav-link {{ request()->is('partner/gifts') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
-                    Подарки
-                </a>--}}
-
-                <a href="{{ route('partner.store.index') }}" class="nav-link {{ request()->is('partner/stores') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
+                <a href="{{ route('partner.warehouse.index') }}" class="nav-link {{ request()->is('partner/warehouses') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
                     Склады
                 </a>
 
@@ -71,10 +67,7 @@
         <a href="{{ route('partner.product.index') }}" class="block {{ request()->is('partner/products') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
             Товары
         </a>
-        {{--<a href="{{ route('partner.gift.index') }}" class="block {{ request()->is('partner/gifts') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
-            Подарки
-        </a>--}}
-        <a href="{{ route('partner.store.index') }}" class="block {{ request()->is('partner/stores') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
+        <a href="{{ route('partner.warehouse.index') }}" class="block {{ request()->is('partner/warehouses') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
             Склады
         </a>
         <a href="{{ route('logout') }}" class="block px-3 py-2 rounded-md text-base font-medium">

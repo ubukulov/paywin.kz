@@ -40,7 +40,7 @@
                             <a href="#" class="text-xs text-blue-600 font-semibold hover:underline">+ добавить</a>
                         </div>
 
-                        @if(count($user->getMyCards()) > 0)
+                        @if(0)
                             <div class="bg-white border border-gray-200 rounded-2xl p-3 shadow-sm">
                                 <select name="card_id" class="w-full bg-transparent text-sm font-medium text-gray-700 focus:outline-none cursor-pointer">
                                     @foreach($user->getMyCards() as $card)
@@ -110,10 +110,10 @@
                     <div class="mt-10 p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
                         <div class="flex items-center gap-3 truncate">
                             <i class="fa fa-link text-slate-400"></i>
-                            <span class="text-xs font-mono text-slate-500 truncate">{{ route('referral.link', ['code' => $user->id]) }}</span>
+                            <span class="text-xs font-mono text-slate-500 truncate">{{ route('user.referral.link', ['agent_id' => $user->id]) }}</span>
                         </div>
                         <button
-                            onclick="copyText(this, '{{ route('referral.link', ['code' => $user->id]) }}')"
+                            onclick="copyText(this, '{{ route('user.referral.link', ['agent_id' => $user->id]) }}')"
                             class="text-[10px] font-bold text-blue-600 uppercase hover:text-blue-800 transition-all duration-300">
                             Копировать
                         </button>

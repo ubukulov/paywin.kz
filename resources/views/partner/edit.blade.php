@@ -12,7 +12,7 @@
             </div>
             <div class="hidden md:block">
                 <span class="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">
-                    ID: {{ $user_profile->user_id }}
+                    ID: {{ $partnerProfile->partner_id }}
                 </span>
             </div>
         </div>
@@ -21,7 +21,7 @@
               method="POST"
               enctype="multipart/form-data">
             @csrf
-            <input type="hidden" name="user_id" value="{{ $user_profile->user_id }}">
+            <input type="hidden" name="partner_id" value="{{ $partnerProfile->partner_id }}">
 
             <div class="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden mb-8">
                 <div class="p-8 md:p-12">
@@ -33,7 +33,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="space-y-2 group">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Название компании</label>
-                            <input type="text" name="company" value="{{ $user_profile->company }}" required
+                            <input type="text" name="company" value="{{ $partnerProfile->company }}" required
                                    class="w-full bg-gray-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-0 rounded-2xl py-4 px-6 text-sm font-bold text-gray-700 transition-all">
                         </div>
 
@@ -42,7 +42,7 @@
                             <select name="category_id"
                                     class="w-full bg-gray-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-0 rounded-2xl py-4 px-6 text-sm font-bold text-gray-700 transition-all appearance-none cursor-pointer">
                                 @foreach($categories as $cat)
-                                    <option @if($cat->id == $user_profile->category_id) selected @endif value="{{ $cat->id }}">
+                                    <option @if($cat->id == $partnerProfile->category_id) selected @endif value="{{ $cat->id }}">
                                         {{ $cat->title }}
                                     </option>
                                 @endforeach
@@ -51,25 +51,25 @@
 
                         <div class="space-y-2 group">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Контактный телефон</label>
-                            <input type="text" name="phone" value="{{ $user_profile->phone }}" required
+                            <input type="text" name="phone" value="{{ $partnerProfile->phone }}" required
                                    class="w-full bg-gray-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-0 rounded-2xl py-4 px-6 text-sm font-bold text-gray-700 transition-all">
                         </div>
 
                         <div class="space-y-2 group">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Рабочий Email</label>
-                            <input type="email" name="email" value="{{ $user_profile->email }}" required
+                            <input type="email" name="email" value="{{ $partnerProfile->email }}" required
                                    class="w-full bg-gray-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-0 rounded-2xl py-4 px-6 text-sm font-bold text-gray-700 transition-all">
                         </div>
 
                         <div class="space-y-2 group">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Веб-сайт</label>
-                            <input type="text" name="site" value="{{ $user_profile->site }}"
+                            <input type="text" name="site" value="{{ $partnerProfile->site }}"
                                    class="w-full bg-gray-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-0 rounded-2xl py-4 px-6 text-sm font-bold text-gray-700 transition-all">
                         </div>
 
                         <div class="space-y-2 group">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Юридический адрес</label>
-                            <input type="text" name="address" value="{{ $user_profile->address }}" required
+                            <input type="text" name="address" value="{{ $partnerProfile->address }}" required
                                    class="w-full bg-gray-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-0 rounded-2xl py-4 px-6 text-sm font-bold text-gray-700 transition-all">
                         </div>
                     </div>
@@ -78,13 +78,13 @@
                         <div class="space-y-2 group">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">График работы</label>
                             <textarea rows="3" name="work_time"
-                                      class="w-full bg-gray-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-0 rounded-2xl py-4 px-6 text-sm font-bold text-gray-700 transition-all resize-none">{{ $user_profile->work_time }}</textarea>
+                                      class="w-full bg-gray-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-0 rounded-2xl py-4 px-6 text-sm font-bold text-gray-700 transition-all resize-none">{{ $partnerProfile->work_time }}</textarea>
                         </div>
 
                         <div class="space-y-2 group">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">О компании</label>
                             <textarea rows="3" name="description"
-                                      class="w-full bg-gray-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-0 rounded-2xl py-4 px-6 text-sm font-bold text-gray-700 transition-all resize-none">{{ $user_profile->description }}</textarea>
+                                      class="w-full bg-gray-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-0 rounded-2xl py-4 px-6 text-sm font-bold text-gray-700 transition-all resize-none">{{ $partnerProfile->description }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -100,12 +100,12 @@
                     <div class="space-y-6">
                         <div class="group">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">Логотип компании</label>
-                            <input type="file" name="logo" accept="image/*" @if(empty($user_profile->logo)) required @endif
+                            <input type="file" name="logo" accept="image/*" @if(empty($partnerProfile->logo)) required @endif
                             class="w-full text-xs text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-600 hover:file:text-white file:transition-all cursor-pointer">
                         </div>
                         <div class="group">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">Договор (PDF)</label>
-                            <input type="file" name="agreement" accept="application/pdf" @if(empty($user_profile->agreement)) required @endif
+                            <input type="file" name="agreement" accept="application/pdf" @if(empty($partnerProfile->agreement)) required @endif
                             class="w-full text-xs text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-600 hover:file:text-white file:transition-all cursor-pointer">
                         </div>
                     </div>
@@ -117,13 +117,13 @@
                         Финансы
                     </h3>
                     <div class="space-y-4">
-                        <input type="text" name="bank_name" placeholder="Название банка" value="{{ $user_profile->bank_name }}"
+                        <input type="text" name="bank_name" placeholder="Название банка" value="{{ $partnerProfile->bank_name }}"
                                class="w-full bg-gray-50 border-2 border-transparent focus:border-emerald-500 focus:bg-white focus:ring-0 rounded-2xl py-3 px-6 text-sm font-bold text-gray-700 transition-all">
 
-                        <input type="text" name="bank_account" placeholder="Номер IBAN счета" value="{{ $user_profile->bank_account }}"
+                        <input type="text" name="bank_account" placeholder="Номер IBAN счета" value="{{ $partnerProfile->bank_account }}"
                                class="w-full bg-gray-50 border-2 border-transparent focus:border-emerald-500 focus:bg-white focus:ring-0 rounded-2xl py-3 px-6 text-sm font-bold text-gray-700 font-mono transition-all">
 
-                        <input type="text" name="card_number" placeholder="Номер банковской карты" value="{{ $user_profile->card_number }}"
+                        <input type="text" name="card_number" placeholder="Номер банковской карты" value="{{ $partnerProfile->card_number }}"
                                class="w-full bg-gray-50 border-2 border-transparent focus:border-emerald-500 focus:bg-white focus:ring-0 rounded-2xl py-3 px-6 text-sm font-bold text-gray-700 transition-all">
                     </div>
                 </div>

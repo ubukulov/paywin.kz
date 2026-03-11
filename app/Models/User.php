@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\TransactionEnum;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
@@ -107,80 +109,16 @@ class User extends Authenticatable
         ]));
     }
 
-    public function getBalance()
-    {
-        return Payment::where(['partner_id' => $this->id, 'pg_status' => 'ok'])->sum('amount');
-    }
-
-    public function getBalanceForUser()
-    {
-        return UserBalance::where(['user_id' => $this->id, 'status' => 'ok'])->sum('amount');
-    }
-
     public function getDiscountForUser()
     {
         $user_discount = UserDiscount::where(['user_id' => $this->id, 'status' => 'active'])->first();
         return ($user_discount) ? $user_discount : null;
     }
 
-    public function getUserBalances()
-    {
-        return $this->hasMany(UserBalance::class)
-            ->where(['user_id' => $this->id])
-            ->orderBy('id', 'DESC');
-        //return UserBalance::where(['user_id' => $this->id, 'status' => 'ok'])->orderBy('id', 'DESC');
-    }
-
     public static function isPrize($user_id, $payment_id)
     {
         $prize = UserGift::where(['user_id' => $user_id, 'payment_id' => $payment_id])->first();
         return ($prize) ? true : false;
-    }
-
-    public function getMyCards()
-    {
-        $cards = [];
-
-        try {
-            $pg_user_id = (string) Auth::user()->id;
-            $pg_api_url = env('PAYBOX_URL') . "v1/merchant/". env('PAYBOX_MERCHANT_ID') ."/cardstorage/list";
-
-            $request = [
-                'pg_merchant_id'=> env('PAYBOX_MERCHANT_ID'),
-                'pg_user_id' => $pg_user_id,
-                'pg_salt' => env('PAYBOX_MERCHANT_SECRET'),
-            ];
-
-            //generate a signature and add it to the array
-            ksort($request); //sort alphabetically
-            array_unshift($request, 'list');
-            array_push($request, env('PAYBOX_MERCHANT_SECRET')); //add your secret key (you can take it in your personal cabinet on paybox system)
-
-            $request['pg_sig'] = md5(implode(';', $request)); // signature
-
-            unset($request[0], $request[1]);
-
-            $client = new \GuzzleHttp\Client();
-            $response = $client->request('POST', $pg_api_url, [
-                'headers' => [
-                    'Content-type' => 'application/x-www-form-urlencoded'
-                ],
-                'form_params' => $request
-            ]);
-            $response = $response->getBody()->getContents();
-            $responseXml = simplexml_load_string($response);
-
-            foreach($responseXml->card as $card) {
-                $cards[] = [
-                    'id' => (int) $card->pg_card_id,
-                    'number' => (string) $card->pg_card_hash
-                ];
-            }
-        } catch (\Exception $exception) {
-
-        }
-
-        return $cards;
     }
 
     public function getCashbackSizeAndAmount()
@@ -199,66 +137,6 @@ class User extends Authenticatable
             ->whereRaw('DATE_FORMAT(prizes.created_at, "%m") = '.date('m'))
             ->get();
         return count($prizes);
-    }
-
-    public function payWithBalance($amount, $payment)
-    {
-        $this->sum = $amount;
-        $user_balances = UserBalance::where(['user_id' => $this->id, 'status' => 'ok'])->get();
-        foreach($user_balances as $user_balance) {
-            if($this->sum == 0) break;
-            if($user_balance->amount < $this->sum) {
-                $user_balance->status = 'withdraw';
-                $user_balance->payment_id = $payment->id;
-                $user_balance->save();
-                $this->sum = $this->sum - $user_balance->amount;
-            } elseif($user_balance->amount == $this->sum) {
-                $user_balance->status = 'withdraw';
-                $user_balance->payment_id = $payment->id;
-                $user_balance->save();
-                $this->sum = $this->sum - $user_balance->amount;
-            } elseif($user_balance->amount > $this->sum) {
-                $user_balance->amount = $user_balance->amount - $this->sum;
-                $user_balance->status = 'ok';
-                $user_balance->save();
-
-                UserBalance::create([
-                    'user_id' => $this->id, 'type' => 'payment', 'amount' => $this->sum, 'status' => 'withdraw', 'payment_id' => $payment->id
-                ]);
-
-                break;
-            }
-        }
-    }
-
-    public function reservationBalance($amount, $payment)
-    {
-        $this->sum = $amount;
-        $user_balances = UserBalance::where(['user_id' => $this->id, 'status' => 'ok'])->get();
-        foreach($user_balances as $user_balance) {
-            if($this->sum == 0) break;
-            if($user_balance->amount < $this->sum) {
-                $user_balance->status = 'waiting';
-                $user_balance->payment_id = $payment->id;
-                $user_balance->save();
-                $this->sum = $this->sum - $user_balance->amount;
-            } elseif($user_balance->amount == $this->sum) {
-                $user_balance->status = 'waiting';
-                $user_balance->payment_id = $payment->id;
-                $user_balance->save();
-                break;
-            } elseif($user_balance->amount > $this->sum) {
-                $user_balance->amount = $user_balance->amount - $this->sum;
-                $user_balance->status = 'ok';
-                $user_balance->save();
-
-                UserBalance::create([
-                    'user_id' => $this->id, 'type' => 'payment', 'amount' => $this->sum, 'status' => 'waiting', 'payment_id' => $payment->id
-                ]);
-
-                break;
-            }
-        }
     }
 
     public function givePrize($shares, $payment)
@@ -282,9 +160,9 @@ class User extends Authenticatable
         }
     }
 
-    public function getStorePoints()
+    public function getWarehouses()
     {
-        return PartnerWarehouse::where(['user_id' => $this->id])
+        return PartnerWarehouse::where(['partner_id' => $this->id])
             ->with('city')
             ->get();
     }
@@ -307,5 +185,49 @@ class User extends Authenticatable
         $this->update(['balance' => $actualBalance]);
 
         return $actualBalance;
+    }
+
+    /**
+     * Универсальный метод изменения баланса с записью в историю
+     * * @param float $amount Сумма (положительная для прихода, отрицательная для расхода)
+     * @param TransactionEnum $type Тип операции (из Enums)
+     * @param Model|null $source Объект-источник (Order, Share, Referral и т.д.)
+     * @param string|null $description Комментарий для пользователя
+     * @return float Новый баланс
+     */
+    public function changeBalance(float $amount, TransactionEnum $type, ?Model $source = null, ?string $description = null): float
+    {
+        // Если сумма 0, ничего не делаем
+        if ($amount == 0) return $this->balance;
+
+        return DB::transaction(function () use ($amount, $type, $source, $description) {
+            // 1. Блокируем строку пользователя в БД для записи (защита от Race Condition)
+            $user = DB::table('users')->where('id', $this->id)->lockForUpdate()->first();
+
+            $balanceBefore = $user->balance;
+            $balanceAfter = $balanceBefore + $amount;
+
+            // 2. Обновляем баланс в таблице users
+            DB::table('users')->where('id', $this->id)->update([
+                'balance' => $balanceAfter,
+                'updated_at' => now(),
+            ]);
+
+            // 3. Создаем запись в таблице транзакций (Аудит)
+            $this->transactions()->create([
+                'amount' => $amount,
+                'type' => $type->value,
+                'balance_before' => $balanceBefore,
+                'balance_after' => $balanceAfter,
+                'source_id' => $source?->id,
+                'source_type' => $source ? get_class($source) : null,
+                'description' => $description,
+            ]);
+
+            // 4. Обновляем баланс в текущем объекте модели (чтобы Auth::user()->balance сразу изменился)
+            $this->balance = $balanceAfter;
+
+            return $balanceAfter;
+        });
     }
 }

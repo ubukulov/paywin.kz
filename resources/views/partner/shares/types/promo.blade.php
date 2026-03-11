@@ -55,7 +55,7 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Лимит активаций (всего)</label>
-                <input type="number" min="1" name="usage_limit" required placeholder="Напр: 100"
+                <input type="number" min="1" name="count" required placeholder="Напр: 100"
                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-indigo-200 outline-none">
             </div>
 

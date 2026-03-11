@@ -10,4 +10,6 @@ enum TransactionEnum:string
     case WITHDRAWAL = 'withdrawal';
     case REFUND = 'refund';
     case ADJUSTMENT = 'adjustment';
+    case PROMOCODE = 'promocode';
+    case PROMO_PAYOUT = 'promo_payout';
 }

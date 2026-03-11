@@ -9,19 +9,21 @@ use Illuminate\Support\Facades\Cookie;
 
 class ReferralController extends Controller
 {
-    public function handle(string $code): RedirectResponse
+    public function handleStep1($agent_id)
     {
-        $code = strtoupper(trim($code));
+        // Сохраняем только ID агента на 30 дней
+        Cookie::queue('ref_agent_id', $agent_id, 60 * 24 * 30);
+        Cookie::queue(Cookie::forget('ref_promo_code')); // Очищаем старый промокод, если был
 
-        session([
-            'ref_code' => $code,
-            'ref_set_at' => now(),
-        ]);
+        return redirect()->route('register');
+    }
 
-        Cookie::queue(
-            Cookie::make('ref_code', $code, 60 * 24 * 30) // 30 дней
-        );
+    public function handleStep2($agent_id, $promo_code)
+    {
+        // Сохраняем и ID агента, и промокод
+        Cookie::queue('ref_agent_id', $agent_id, 60 * 24 * 30);
+        Cookie::queue('ref_promo_code', strtoupper($promo_code), 60 * 24 * 30);
 
-        return redirect('/');
+        return redirect()->route('register');
     }
 }

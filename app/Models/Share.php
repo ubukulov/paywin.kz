@@ -14,6 +14,8 @@ class Share extends Model
         'code',
         'from_date',
         'to_date',
+        'count',
+        'used_count',
         'data'
     ];
 
@@ -67,6 +69,17 @@ class Share extends Model
                 $q->whereNull('to_date')
                     ->orWhere('to_date', '>=', now());
             });
+    }
+
+    /**
+     * Заготовка запроса для выбора только активных акций по датам
+     */
+    public function scopeActive($query)
+    {
+        $now = now();
+
+        return $query->where('from_date', '<=', $now)
+            ->where('to_date', '>=', $now);
     }
 
     public function getMyPromoLink(): string
