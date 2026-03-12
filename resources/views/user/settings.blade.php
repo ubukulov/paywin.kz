@@ -14,13 +14,13 @@
                     </div>
 
                     <div class="text-center md:text-left flex-grow">
-                        <h2 class="text-2xl font-black text-gray-800 tracking-tight">{{ $user_profile->full_name }}</h2>
+                        <h2 class="text-2xl font-black text-gray-800 tracking-tight">{{ $userProfile->full_name }}</h2>
                         <div class="flex items-center justify-center md:justify-start gap-4 mt-2">
                             <div class="flex items-center gap-1.5 text-sm font-medium text-gray-500">
-                                @if($user_profile->sex == 1)
+                                @if($userProfile->sex == 1)
                                     <img src="/images/profile/male-icon.svg" class="w-4 h-4" alt="">
                                     <span>Мужской</span>
-                                @elseif($user_profile->sex == 2)
+                                @elseif($userProfile->sex == 2)
                                     <img src="/images/profile/female.svg" class="w-4 h-4" alt="">
                                     <span>Женский</span>
                                 @endif

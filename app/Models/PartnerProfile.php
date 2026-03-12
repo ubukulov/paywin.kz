@@ -31,6 +31,10 @@ class PartnerProfile extends Model
         'created_at', 'updated_at'
     ];
 
+    protected $casts = [
+        'work_time' => 'array',
+    ];
+
     public function partner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'partner_id');

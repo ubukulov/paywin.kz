@@ -69,8 +69,8 @@ class UserController extends Controller
     public function settings()
     {
         $user = Auth::user();
-        $user_profile = $user->profile;
-        return view('user.settings', compact('user_profile'));
+        $userProfile = $user->userProfile;
+        return view('user.settings', compact('userProfile'));
     }
 
     public function balanceReplenishment(Request $request)

@@ -18,8 +18,8 @@ class SettingController extends Controller
 
     public function profile()
     {
-        $user_profile = Auth::user()->profile;
-        return view('user.profile', compact('user_profile'));
+        $userProfile = Auth::user()->userProfile;
+        return view('user.profile', compact('userProfile'));
     }
 
     public function profileUpdate(Request $request)

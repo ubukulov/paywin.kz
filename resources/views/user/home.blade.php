@@ -92,7 +92,7 @@
                             </div>
                             <div>
                                 <p class="text-[10px] uppercase text-gray-400 font-bold leading-none mb-1">Телефон</p>
-                                <p class="text-gray-700 font-medium">{{ $userProfile->phone }}</p>
+                                <p class="text-gray-700 font-medium">{{ $userProfile->user->phone }}</p>
                             </div>
                         </div>
 
@@ -102,7 +102,7 @@
                             </div>
                             <div>
                                 <p class="text-[10px] uppercase text-gray-400 font-bold leading-none mb-1">Email</p>
-                                <p class="text-gray-700 font-medium truncate max-w-[150px]">{{ $userProfile->email }}</p>
+                                <p class="text-gray-700 font-medium truncate">{{ $userProfile->user->email }}</p>
                             </div>
                         </div>
                     </div>

@@ -12,7 +12,8 @@ class UserService
      */
     public function updateProfile(User $user, array $data): bool
     {
-        return $user->profile->update($data);
+        $user->update(['email' => $data['email']]);
+        return $user->userProfile->update($data);
     }
 
     /**

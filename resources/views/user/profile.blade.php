@@ -22,7 +22,7 @@
 
                 <div class="space-y-2">
                     <label class="block px-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">ФИО</label>
-                    <input type="text" value="{{ $user_profile->full_name }}" name="full_name" required
+                    <input type="text" value="{{ $userProfile->full_name }}" name="full_name" required
                            class="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none font-medium text-gray-700 shadow-inner">
                 </div>
 
@@ -31,8 +31,8 @@
                         <label class="block px-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Пол</label>
                         <div class="relative">
                             <select name="sex" class="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none font-medium text-gray-700 shadow-inner appearance-none cursor-pointer">
-                                <option @if($user_profile->sex == 1) selected @endif value="1">Мужской</option>
-                                <option @if($user_profile->sex == 2) selected @endif value="2">Женский</option>
+                                <option @if($userProfile->sex == 1) selected @endif value="1">Мужской</option>
+                                <option @if($userProfile->sex == 2) selected @endif value="2">Женский</option>
                             </select>
                             <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-30">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -42,20 +42,14 @@
 
                     <div class="space-y-2">
                         <label class="block px-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Дата рождения</label>
-                        <input type="date" value="{{ $user_profile->birth_date }}" name="birth_date" required
+                        <input type="date" value="{{ $userProfile->birth_date }}" name="birth_date" required
                                class="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none font-medium text-gray-700 shadow-inner">
                     </div>
                 </div>
 
                 <div class="space-y-2">
-                    <label class="block px-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Телефон</label>
-                    <input type="text" value="{{ $user_profile->phone }}" name="phone" required
-                           class="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none font-medium text-gray-700 shadow-inner">
-                </div>
-
-                <div class="space-y-2">
                     <label class="block px-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Email</label>
-                    <input type="email" value="{{ $user_profile->email }}" name="email" required
+                    <input type="email" value="{{ $userProfile->user->email }}" name="email" required
                            class="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none font-medium text-gray-700 shadow-inner">
                 </div>
 

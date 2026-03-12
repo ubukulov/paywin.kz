@@ -22,7 +22,13 @@ class CartController extends Controller
     public function getCart()
     {
         $cart = $this->getOrCreateCart();
-        $gifts = $this->partnerGiftService->getAvailableGiftsForUser($cart->total);
+        $gifts = collect();
+        /*$wonPrize = $this->partnerGiftService->checkAndAssignPrize(
+            Auth::user(),
+            $partner,
+            $amount,
+            $transaction
+        );*/
         return view('cart.index', compact('cart', 'gifts'));
     }
 

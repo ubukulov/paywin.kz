@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Partner;
 
 use App\Http\Controllers\Controller;
+use App\Models\PartnerWarehouse;
 use App\Models\Product;
 use App\Models\ProductStock;
 use Illuminate\Http\Request;
@@ -33,18 +34,19 @@ class ProductController extends Controller
         try {
             $product = Product::create([
                 'name' => $data['name'], 'description' => $data['description'], 'sku' => $data['article'],
-                'category_id' => 4, 'user_id' => Auth::id()
+                'category_id' => 4, 'partner_id' => Auth::id()
             ]);
 
-            $points = json_decode($request->store_points, true);
+            $warehouses = json_decode($request->warehouses, true);
 
-            foreach ($points as $pointId => $data) {
+            foreach ($warehouses as $warehouseId => $data) {
+                $partnerWarehouse = PartnerWarehouse::findOrFail($warehouseId);
                 ProductStock::create([
                     'product_id'     => $product->id,
-                    'city_id'        => 1,
-                    'store_point_id' => $pointId,
+                    'city_id'        => $partnerWarehouse->city_id,
+                    'warehouse_id'   => $warehouseId,
                     'price'          => $data['price'],
-                    'quantity'          => $data['count'],
+                    'quantity'       => $data['count'],
                 ]);
             }
 

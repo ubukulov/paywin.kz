@@ -142,22 +142,6 @@
                 <div
                     class="bg-white p-6 rounded-2xl shadow-sm border border-gray-50 bg-gradient-to-br from-white to-gray-50">
                     <h3 class="text-lg font-bold mb-4">Реквизиты</h3>
-
-                    <p class="text-xs font-semibold text-gray-400 uppercase mb-3">Банковская карта</p>
-                    <div
-                        class="relative h-44 bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-6 text-white shadow-lg mb-6 overflow-hidden">
-                        <div class="relative z-10 flex flex-col justify-between h-full">
-                            <div class="flex justify-end">
-                                <img src="/images/cabinet/card-logo.svg" alt="card-logo" class="h-8">
-                            </div>
-                            <div class="flex gap-4 text-xl tracking-widest font-mono">
-                                <span>****</span><span>****</span><span>****</span>
-                                <span class="text-blue-400"></span>
-                            </div>
-                        </div>
-                        <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white opacity-5 rounded-full"></div>
-                    </div>
-
                     <div class="space-y-4">
                         <div>
                             <label class="flex items-center gap-2 text-xs text-gray-500 mb-1">
@@ -174,10 +158,6 @@
                                    class="w-full bg-gray-100 border-none rounded-lg px-4 py-2 text-sm font-mono text-gray-700">
                         </div>
                     </div>
-
-                    <p class="mt-4 text-xs text-gray-400 italic text-center">
-                        Карта используется для быстрой и удобной оплаты.
-                    </p>
                 </div>
             </div>
 

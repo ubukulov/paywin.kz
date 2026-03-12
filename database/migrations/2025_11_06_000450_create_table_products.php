@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('sku')->nullable();
             $table->unique(['partner_id', 'sku']);
             $table->string('name');
+            $table->string('slug');
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->json('data')->nullable();

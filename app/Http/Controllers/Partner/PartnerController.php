@@ -118,13 +118,12 @@ class PartnerController extends Controller
         return view('partner.image');
     }
 
-    public function imageStore(Request $request)
+    public function imageStore(Request $request): \Illuminate\Http\RedirectResponse
     {
         $user = Auth::user();
         $data = $request->all();
         foreach($data['images'] as $img) {
-            $ext = $img->getClientOriginalExtension();
-            $name = md5(time()) . '.' . $ext;
+            $name = $img->hashName();
             $path = '/upload/partners/images/';
             $dir = public_path() . $path;
             $img->move($dir, $name);

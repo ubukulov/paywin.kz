@@ -19,8 +19,8 @@ class CategoryController extends Controller
             ->whereNotNull('user_profile.category_id')
             ->get();*/
         $partners = User::where(['user_type' => 'partner'])
-            ->join('user_profile', 'user_profile.user_id', 'users.id')
-            ->where('user_profile.category_id', $category->id)
+            ->join('partner_profiles', 'partner_profiles.partner_id', 'users.id')
+            ->where('partner_profiles.category_id', $category->id)
             ->get();
 
         if ($slug == 'tovary') {
