@@ -148,6 +148,11 @@
                 <span style="font-size:20px; margin-top:5px;">+</span>
             </div>
 
+            <label>Укажите Категорию</label>
+            <select v-model="product_category_id">
+                <option v-for="(category, index) in categories" :value="category.id">@{{ category.name }}</option>
+            </select>
+
             <label>Артикул</label>
             <input type="text" v-model="article" placeholder="694173838">
 
@@ -195,6 +200,7 @@
             setup() {
                 const photos = ref([]);
                 const article = ref("");
+                const product_category_id = ref(0);
                 const name = ref("");
                 const description = ref("");
                 const price = ref("");
@@ -202,6 +208,7 @@
                 const files = ref([]);
 
                 const warehouses = JSON.parse(`{!! json_encode($warehouses) !!}`);
+                const categories = JSON.parse(`{!! json_encode($productCategories) !!}`);
 
                 const points = ref({});
 

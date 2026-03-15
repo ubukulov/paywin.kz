@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Partner;
 use App\Http\Controllers\Controller;
 use App\Models\PartnerWarehouse;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\ProductStock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,8 @@ class ProductController extends Controller
     public function create()
     {
         $warehouses = Auth::user()->getWarehouses();
-        return view('partner.product.create', compact('warehouses'));
+        $productCategories = ProductCategory::all();
+        return view('partner.product.create', compact('warehouses', 'productCategories'));
     }
 
     public function store(Request $request)
@@ -34,7 +36,7 @@ class ProductController extends Controller
         try {
             $product = Product::create([
                 'name' => $data['name'], 'description' => $data['description'], 'sku' => $data['article'],
-                'category_id' => 4, 'partner_id' => Auth::id()
+                'product_category_id' => $data['product_category_id'], 'partner_id' => Auth::id()
             ]);
 
             $warehouses = json_decode($request->warehouses, true);
