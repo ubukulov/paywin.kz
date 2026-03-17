@@ -105,7 +105,7 @@
                         </div>
                         <div class="group">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">Договор (PDF)</label>
-                            <input type="file" name="agreement" accept="application/pdf" @if(empty($partnerProfile->agreement)) required @endif
+                            <input type="file" name="agreement" accept="application/pdf" @if(empty($partnerProfile->agreement)) @endif
                             class="w-full text-xs text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-600 hover:file:text-white file:transition-all cursor-pointer">
                         </div>
                     </div>
