@@ -42,7 +42,7 @@
 
                             </div>
 
-                            @if(auth()->user()->getBalanceAttribute() > 300)
+                            @if(auth()->user()->getBalanceAttribute() >= 1000)
                             <button  type="submit"
                                     class="w-full py-4 bg-[#5d5fef] hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 transition-all transform hover:-translate-y-1">
                                 Подтвердить вывод

@@ -35,7 +35,7 @@ class PayoutController extends Controller
         }
 
         $request->validate([
-            'amount' => "required|numeric|min:300|max:{$user->balance}",
+            'amount' => "required|numeric|min:1000|max:{$user->balance}",
         ], [
             'amount.required' => 'Введите сумму.',
             'amount.numeric'  => 'Сумма должна быть числом.',
