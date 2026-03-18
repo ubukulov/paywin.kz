@@ -16,6 +16,7 @@ use App\Http\Controllers\Partner\GiftController;
 use App\Http\Controllers\Partner\WarehouseController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PayoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -92,6 +93,10 @@ Route::group(['middleware' => 'auth'], function(){
             Route::get('create', [WarehouseController::class, 'create'])->name('warehouse.create');
             Route::post('store', [WarehouseController::class, 'store'])->name('warehouse.store');
         });
+
+        # Вывод средств
+        Route::get('payouts', [PayoutController::class, 'index'])->name('payouts.index');
+        Route::post('payouts', [PayoutController::class, 'store'])->name('payouts.store');
     });
 
     # Users route
@@ -118,6 +123,10 @@ Route::group(['middleware' => 'auth'], function(){
 
             Route::get('/{prize_id}/get-my-prize', [UserController::class, 'getMyPrize'])->name('getMyPrize');
         });
+
+        # Вывод средств
+        Route::get('payouts', [PayoutController::class, 'index'])->name('payouts.index');
+        Route::post('payouts', [PayoutController::class, 'store'])->name('payouts.store');
     });
 
     # Cart

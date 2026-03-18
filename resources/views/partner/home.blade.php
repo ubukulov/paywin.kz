@@ -29,9 +29,10 @@
                         <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <p class="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mb-1">Ваш баланс</p>
                         <div class="text-2xl font-black mb-4">{{ number_format($partner->getBalanceAttribute(), 0, '.', ' ') }} ₸</div>
-                        <button class="w-full bg-white text-indigo-600 text-[11px] font-black uppercase py-3 rounded-xl hover:bg-indigo-50 transition-colors shadow-sm active:scale-95">
+                        <a href="{{ route('partner.payouts.index') }}"
+                           class="relative z-10 flex items-center justify-center w-full bg-white text-indigo-600 text-[11px] font-black uppercase py-3 rounded-xl hover:bg-indigo-50 transition-all shadow-sm active:scale-95">
                             Вывести
-                        </button>
+                        </a>
                     </div>
 
                     <div class="bg-orange-50 rounded-[2rem] p-6 border border-orange-100 flex flex-col items-center justify-center group">

@@ -74,6 +74,11 @@ class User extends Authenticatable
         return $this->hasMany(UserGift::class);
     }
 
+    public function payoutRequests() : HasMany
+    {
+        return $this->hasMany(PayoutRequest::class);
+    }
+
     public function shares()
     {
         return $this->hasMany(Share::class, 'partner_id')

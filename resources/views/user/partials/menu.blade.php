@@ -41,6 +41,13 @@
                     Заработать
                 </a>
 
+                <a href="{{ route('user.payouts.index') }}"
+                   class="{{ request()->is('user/payouts')
+                        ? 'text-blue-600 border-b-2 border-blue-600 pb-1'
+                        : 'text-gray-600 hover:text-blue-600' }}">
+                    Финансы
+                </a>
+
                 <a href="{{ route('logout') }}"
                    class="text-gray-600 hover:text-blue-600">
                     Выйти
@@ -69,6 +76,7 @@
         <a href="{{ route('user.history') }}" class="block {{ request()->is('user/history') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">История</a>
         <a href="{{ route('user.prizes') }}" class="block {{ request()->is('user/prizes') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">Мои призы</a>
         <a href="{{ route('user.earn') }}" class="block {{ request()->is('user/earn') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">Заработать</a>
+        <a href="{{ route('user.payouts.index') }}" class="block {{ request()->is('user/payouts') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">Финансы</a>
         <a href="{{ route('logout') }}" class="block text-gray-700 hover:bg-orange-500 hover:text-white px-3 py-2 rounded-md text-base font-medium">Выйти из кабинета</a>
     </nav>
 </header>

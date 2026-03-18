@@ -43,6 +43,10 @@
                     Склады
                 </a>
 
+                <a href="{{ route('partner.payouts.index') }}" class="nav-link {{ request()->is('partner/payouts') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
+                    Финансы
+                </a>
+
                 <a href="{{ route('logout') }}" class="nav-link text-gray-700 hover:bg-orange-500 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                     Выйти
                 </a>
@@ -69,6 +73,9 @@
         </a>
         <a href="{{ route('partner.warehouse.index') }}" class="block {{ request()->is('partner/warehouses') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
             Склады
+        </a>
+        <a href="{{ route('partner.payouts.index') }}" class="block {{ request()->is('partner/payouts') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
+            Финансы
         </a>
         <a href="{{ route('logout') }}" class="block px-3 py-2 rounded-md text-base font-medium">
             Выйти из кабинета
