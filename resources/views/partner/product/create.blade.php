@@ -181,7 +181,7 @@
             @else
                 <h4>У вас нет магазины/склады</h4>
                 <p>В первую очеред создайте магазин/склад перед добавлением товара</p>
-                <a class="btn btn-success" href="{{ route('partner.store.create') }}">Создать</a>
+                <a class="btn btn-success" href="{{ route('partner.warehouse.create') }}">Создать</a>
             @endif
         </div>
 
