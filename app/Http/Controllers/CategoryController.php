@@ -24,8 +24,7 @@ class CategoryController extends Controller
             ->get();
 
         if ($slug == 'tovary') {
-            $products = Product::whereCategoryId($category->id)
-                    ->with('images')
+            $products = Product::with('images')
                     ->join('product_stocks', 'product_stocks.product_id', 'products.id')
                     ->select('products.*', 'product_stocks.price', 'product_stocks.quantity')
                     ->get();

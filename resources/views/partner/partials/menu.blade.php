@@ -35,11 +35,11 @@
                     Клиенты
                 </a>
 
-                <a href="{{ route('partner.product.index') }}" class="nav-link {{ request()->is('partner/products') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
+                <a href="{{ route('partner.product.index') }}" class="nav-link {{ request()->is('partner/products*') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
                     Товары
                 </a>
 
-                <a href="{{ route('partner.warehouse.index') }}" class="nav-link {{ request()->is('partner/warehouses') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
+                <a href="{{ route('partner.warehouse.index') }}" class="nav-link {{ request()->is('partner/warehouses*') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
                     Склады
                 </a>
 
@@ -68,10 +68,10 @@
         <a href="{{ route('partner.clients') }}" class="block {{ request()->is('partner/clients') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
             Клиенты
         </a>
-        <a href="{{ route('partner.product.index') }}" class="block {{ request()->is('partner/products') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
+        <a href="{{ route('partner.product.index') }}" class="block {{ request()->is('partner/products*') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
             Товары
         </a>
-        <a href="{{ route('partner.warehouse.index') }}" class="block {{ request()->is('partner/warehouses') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
+        <a href="{{ route('partner.warehouse.index') }}" class="block {{ request()->is('partner/warehouses*') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
             Склады
         </a>
         <a href="{{ route('partner.payouts.index') }}" class="block {{ request()->is('partner/payouts') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">

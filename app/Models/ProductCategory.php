@@ -23,11 +23,11 @@ class ProductCategory extends Model
 
     public function parent() : BelongsTo
     {
-        return $this->belongsTo(Category::class, 'parent_id');
+        return $this->belongsTo(ProductCategory::class, 'parent_id');
     }
 
     public function children() : HasMany
     {
-        return $this->hasMany(Category::class, 'parent_id')->orderBy('sort_order');
+        return $this->hasMany(ProductCategory::class, 'parent_id')->orderBy('sort_order');
     }
 }

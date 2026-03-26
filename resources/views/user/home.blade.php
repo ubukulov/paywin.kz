@@ -156,22 +156,35 @@
                         @php
                             $share = $prize->share;
                             $partnerProfile = $share->partner->partnerProfile;
+
+                            $isJustActivated = session('activated_prize_id') == $prize->id;
                         @endphp
                         <div class="mt-12 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2rem] p-6 text-white shadow-xl shadow-indigo-200 relative overflow-hidden group">
                             <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-                                <div class="flex items-center gap-4 text-center sm:text-left">
-                                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2 shadow-inner">
-                                        <img src="/images/profile/logo.png" alt="logo" class="max-w-full">
+                                @if($isJustActivated)
+                                    {{-- СОСТОЯНИЕ УСПЕХА: Показываем код из сессии --}}
+                                    <div class="w-full text-center animate__animated animate__flipInX">
+                                        <p class="text-[10px] uppercase font-black text-white/70 tracking-widest mb-2">Ваш секретный код получен!</p>
+                                        <div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl px-8 py-2 inline-block">
+                                            <span class="text-4xl font-black tracking-[0.3em] text-white">{{ session('prize_code') }}</span>
+                                        </div>
+                                        <p class="mt-4 text-xs font-bold">Покажите этот экран сотруднику {{ $partnerProfile->company }}</p>
                                     </div>
-                                    <div>
-                                        <h4 class="font-bold text-lg leading-tight">Сюрприз для вас!</h4>
-                                        <p class="text-sm text-indigo-100 opacity-80">{{ $partnerProfile->company }} • {{ $share->title }}</p>
+                                @else
+                                    <div class="flex items-center gap-4 text-center sm:text-left">
+                                        <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2 shadow-inner">
+                                            <img src="/images/profile/logo.png" alt="logo" class="max-w-full">
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-lg leading-tight">Сюрприз для вас!</h4>
+                                            <p class="text-sm text-indigo-100 opacity-80">{{ $partnerProfile->company }} • {{ $share->title }}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <a href="{{ route('user.getMyPrize', ['prize_id' => $prize->id]) }}"
-                                   class="bg-white text-indigo-600 px-8 py-3 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-indigo-50 transition-all shadow-xl active:translate-y-1">
-                                    Получить
-                                </a>
+                                    <a href="{{ route('user.getMyPrize', ['prize_id' => $prize->id]) }}"
+                                       class="bg-white text-indigo-600 px-8 py-3 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-indigo-50 transition-all shadow-xl active:translate-y-1">
+                                        Получить
+                                    </a>
+                                @endif
                             </div>
                             <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
                         </div>

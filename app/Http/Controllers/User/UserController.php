@@ -132,4 +132,21 @@ class UserController extends Controller
             'prizes' => $this->userPrizeService->getMyPrizes()
         ]);
     }
+
+    public function getMyPrize($prizeId)
+    {
+        try {
+            $result = $this->userPrizeService->activate($prizeId);
+
+            // Передаем в сессию сообщение, ID активированного приза и сам код
+            return redirect()->back()->with([
+                'success' => $result['message'],
+                'activated_prize_id' => $prizeId,
+                'prize_code' => $result['code'] ?? null
+            ]);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
 }
