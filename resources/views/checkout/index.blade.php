@@ -7,7 +7,8 @@
         <h1 class="text-3xl font-bold mb-8 text-gray-800">Оформление заказа</h1>
 
         {{-- Секция Розыгрыша Подарков --}}
-        @if($gift && $gift->count() > 0)
+        @if($gifts && $gifts->count() > 0)
+            @foreach($gifts as $gift)
             <div class="mb-8 p-5 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-indigo-200 shadow-sm">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-2xl">🎁</div>
@@ -25,6 +26,7 @@
                 </div>
                 <p class="mt-4 text-sm text-gray-500">Подарок будет разыгран автоматически сразу после оплаты заказа.</p>
             </div>
+            @endforeach
         @endif
 
         {{-- Секция Гарантированного Подарка по Промокоду --}}

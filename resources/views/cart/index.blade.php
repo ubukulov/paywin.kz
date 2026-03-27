@@ -127,7 +127,7 @@
                                     @foreach($gifts as $gift)
 
                                         {{-- ВСЕГДА 100% ширины --}}
-                                        <div class="w-full flex-shrink-0 px-1">
+                                        <div class="w-[85%] mx-auto flex-shrink-0 px-1">
 
                                             <div class="p-4 bg-white border rounded-xl shadow-sm">
 

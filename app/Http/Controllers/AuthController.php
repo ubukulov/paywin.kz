@@ -131,7 +131,7 @@ class AuthController extends Controller
                 'agent_id'           => $agent->id,
                 'user_id'            => $user->id,
                 'share_id'           => $share ? $share->id : null,
-                'commission_percent' => $share->agent_percent ?? 5,
+                'percent' => $share->data['agent_percent'] ?? 5,
             ]);
 
             // Начисляем бонус пользователю

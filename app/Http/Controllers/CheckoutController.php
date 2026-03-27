@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TransactionEnum;
+use App\Enums\UserDiscountEnum;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\Referral;
 use App\Models\Share;
 use App\Models\UserBalance;
+use App\Models\UserDiscount;
 use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\CartItem;
@@ -35,40 +37,44 @@ class CheckoutController extends Controller
 
         // 1. Получаем корзину
         $cart = Cart::where('user_id', $user->id)->first();
+        $gifts = $this->partnerGiftService->getEligiblePrizes($cart->total);
 
         if (!$cart || $cart->items()->count() === 0) {
             return redirect()->route('cart.index')->with('error', 'Корзина пуста');
         }
 
-        // 2. Ищем активный промокод на скидку или подарок
-        $activePromo = UserBalance::where('user_id', $user->id)
-            ->where('status', 'active')
-            ->where('type', 'promocode')
-            ->with('share')
+        // 2. Ищем активную скидку (промокод), которую юзер еще не использовал
+        // Используем модель UserDiscount, так как в ней хранятся проценты
+        $activePromo = UserDiscount::where('user_id', $user->id)
+            ->where('status', UserDiscountEnum::ACTIVE->value)
+            ->where('valid_until', '>=', now())
+            ->latest()
             ->first();
 
-        // 3. Инициализируем переменные (важно, чтобы они были даже если промокода нет)
+        // 3. Рассчитываем скидку
         $discount = 0;
+        if ($activePromo) {
+            // Считаем % от суммы
+            $discount = ($cart->total * $activePromo->percent) / 100;
 
-        if ($activePromo && $activePromo->share && $activePromo->share->promo === 'discount') {
-            // Рассчитываем сумму скидки
-            $discount = ($cart->total * $activePromo->share->size) / 100;
+            // Если есть ограничение по максимальной сумме скидки (поле amount)
+            if ($activePromo->amount > 0 && $discount > $activePromo->amount) {
+                $discount = $activePromo->amount;
+            }
         }
 
-        // 4. Итоговая сумма для оплаты
+        // 4. Итоговая сумма
         $finalTotal = $cart->total - $discount;
-
-        // 5. Получаем доступные подарки
 
         $ttpPublicId = env('TIPTOPPAY_PUBLIC_ID');
 
-        // ПЕРЕДАЕМ ВСЕ ПЕРЕМЕННЫЕ В VIEW
         return view('checkout.index', compact(
             'cart',
             'ttpPublicId',
             'activePromo',
             'discount',
-            'finalTotal'
+            'finalTotal',
+            'gifts'
         ));
     }
 

@@ -18,17 +18,11 @@ class CartController extends Controller
         $this->partnerGiftService = $partnerGiftService;
     }
 
-    // Получить корзину
     public function getCart()
     {
         $cart = $this->getOrCreateCart();
-        $gifts = collect();
-        /*$wonPrize = $this->partnerGiftService->checkAndAssignPrize(
-            Auth::user(),
-            $partner,
-            $amount,
-            $transaction
-        );*/
+        $gifts = $this->partnerGiftService->getEligiblePrizes($cart->total);
+
         return view('cart.index', compact('cart', 'gifts'));
     }
 
