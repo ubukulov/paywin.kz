@@ -6,6 +6,7 @@ use App\Enums\TransactionEnum;
 use App\Models\Transaction;
 use App\Models\UserDiscount;
 use App\Models\UserGift;
+use App\Services\TipTopPayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -15,11 +16,13 @@ use Illuminate\Support\Facades\DB;
 class PaymentController extends Controller
 {
     protected PartnerGiftService $partnerGiftService;
+    protected TipTopPayService  $tipTopPayService;
 
     // Внедряем сервис через конструктор
-    public function __construct(PartnerGiftService $partnerGiftService)
+    public function __construct(PartnerGiftService $partnerGiftService, TipTopPayService $tipTopPayService)
     {
         $this->partnerGiftService = $partnerGiftService;
+        $this->tipTopPayService = $tipTopPayService;
     }
 
     public function paymentWithBalance(Request $request): \Illuminate\Http\JsonResponse
@@ -148,5 +151,46 @@ class PaymentController extends Controller
         $payment->amount = abs($transaction->amount);
 
         return view('thanks', compact('payment', 'prize', 'share'));
+    }
+
+    public function confirmBalance(Request $request)
+    {
+        $invoiceId = $request->input('invoiceId');
+        $user = auth()->user();
+
+        // 1. Проверка на дубликаты (чтобы не зачислить дважды)
+        $alreadyProcessed = \App\Models\Transaction::where('data->invoice_id', $invoiceId)->exists();
+
+        if ($alreadyProcessed) {
+            return response()->json(['message' => 'Платеж уже зачислен ранее'], 200);
+        }
+
+        // 2. Используем сервис для проверки реальности платежа
+        $verification = $this->tipTopPayService->verifyByInvoice($invoiceId);
+
+        if (!$verification['success']) {
+            return response()->json(['message' => $verification['message']], 422);
+        }
+
+        // 3. Если всё ок — зачисляем деньги
+        DB::transaction(function () use ($user, $verification, $invoiceId) {
+            $user->changeBalance(
+                $verification['amount'],
+                \App\Enums\TransactionEnum::ADJUSTMENT,
+                null,
+                "Пополнение баланса через TipTopPay (Заказ: {$invoiceId})",
+                [
+                    'invoice_id'          => $invoiceId,
+                    'bank_transaction_id' => $verification['transaction_id'],
+                    'type'                => 'topup'
+                ]
+            );
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Баланс пополнен',
+            'new_balance' => $user->balance
+        ]);
     }
 }

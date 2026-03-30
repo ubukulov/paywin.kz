@@ -22,7 +22,7 @@
                                 <div class="flex justify-between items-start">
                                     <img src="/images/profile/wallet.svg" alt="" class="w-8 h-8 brightness-0 invert opacity-80">
                                     <button type="button"
-                                            data-toggle="modal" data-target="#exampleModal"
+                                            onclick="toggleRechargeModal()"
                                             class="bg-white/20 hover:bg-white/30 backdrop-blur-md h-8 w-8 rounded-full flex items-center justify-center transition-all">
                                         <span class="text-xl leading-none">+</span>
                                     </button>
@@ -202,6 +202,9 @@
                 Ваши данные защищены банковским уровнем шифрования (SSL). Мы не передаем информацию третьим лицам.
             </p>
         </div>
+
+        <!-- Balance windows -->
+        @include('user.modals.balance-replenishment-window')
     </div>
 
     <style>
@@ -210,7 +213,8 @@
         .animate-fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
-
+    <script src="https://widget.tiptoppay.kz/bundles/widget.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         function copyText(btn, text) {
             // Копирование в буфер обмена
@@ -230,6 +234,77 @@
             }).catch(err => {
                 console.error('Ошибка при копировании: ', err);
             });
+        }
+    </script>
+
+    <script>
+        function toggleRechargeModal() {
+            const modal = document.getElementById('rechargeModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function setAmount(val) {
+            document.getElementById('customAmount').value = val;
+        }
+
+        function startPayment() {
+            const amount = document.getElementById('customAmount').value;
+            const btn = document.getElementById('payButton');
+
+            if (!amount || amount < 50) {
+                alert('Минимальная сумма пополнения 50 ₸');
+                return;
+            }
+
+            // Эффект загрузки на кнопке
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> ЗАПУСК...';
+
+            const widget = new tiptop.Widget();
+
+            const params = {
+                publicId: '{{ env('TIPTOPPAY_PUBLIC_ID') }}',
+                description: 'Пополнение баланса Paywin.kz',
+                amount: parseFloat(amount),
+                currency: 'KZT',
+                accountId: '{{ auth()->id() }}',
+                invoiceId: 'TOPUP_' + Date.now(),
+                email: '{{ auth()->user()->email }}',
+                data: { userId: '{{ auth()->id() }}' }
+            };
+
+            /*widget.oncomplete = (result) => {
+                console.log(result);
+            }
+
+            widget.start(params).then(function(widgetResult) {
+                console.log('result', widgetResult);
+            }).catch(function(error) {
+                console.log('error', error);
+            });*/
+
+            widget.pay('charge', params,
+                {
+                    onSuccess: function (options) {
+                        // Прячем модалку и показываем успех через Axios
+                        axios.post('/user/payment/balance/confirm', {
+                            invoiceId: options.invoiceId,
+                            amount: options.amount
+                        }).then(() => {
+                            toggleRechargeModal();
+                            // Можно заменить на красивый Swal.fire если есть
+                            //alert('Баланс успешно пополнен!');
+                            location.reload();
+                        });
+                    },
+                    onFail: function (reason) {
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                        alert('Ошибка: ' + reason);
+                    }
+                }
+            );
         }
     </script>
 @stop

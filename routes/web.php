@@ -127,6 +127,9 @@ Route::group(['middleware' => 'auth'], function(){
         # Вывод средств
         Route::get('payouts', [PayoutController::class, 'index'])->name('payouts.index');
         Route::post('payouts', [PayoutController::class, 'store'])->name('payouts.store');
+
+        # Пополнение баланса
+        Route::post('payment/balance/confirm', [PaymentController::class, 'confirmBalance']);
     });
 
     # Cart
