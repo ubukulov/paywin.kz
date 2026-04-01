@@ -153,13 +153,13 @@ class PaymentController extends Controller
         return view('thanks', compact('payment', 'prize', 'share'));
     }
 
-    public function confirmBalance(Request $request)
+    public function confirmBalance(Request $request): \Illuminate\Http\JsonResponse
     {
         $invoiceId = $request->input('invoiceId');
         $user = auth()->user();
 
         // 1. Проверка на дубликаты (чтобы не зачислить дважды)
-        $alreadyProcessed = \App\Models\Transaction::where('data->invoice_id', $invoiceId)->exists();
+        $alreadyProcessed = Transaction::where('data->invoice_id', $invoiceId)->exists();
 
         if ($alreadyProcessed) {
             return response()->json(['message' => 'Платеж уже зачислен ранее'], 200);
@@ -176,9 +176,9 @@ class PaymentController extends Controller
         DB::transaction(function () use ($user, $verification, $invoiceId) {
             $user->changeBalance(
                 $verification['amount'],
-                \App\Enums\TransactionEnum::ADJUSTMENT,
+                TransactionEnum::ADJUSTMENT,
                 null,
-                "Пополнение баланса через TipTopPay (Заказ: {$invoiceId})",
+                "Пополнение баланса через TipTopPay (Invoice: {$invoiceId})",
                 [
                     'invoice_id'          => $invoiceId,
                     'bank_transaction_id' => $verification['transaction_id'],
