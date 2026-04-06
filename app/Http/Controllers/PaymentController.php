@@ -33,7 +33,7 @@ class PaymentController extends Controller
         $partner = User::findOrFail($partnerId);
 
         // ВАЖНО: Считаем баланс именно для этого партнера
-        $availableBalance = $user->getBalanceForPartner($partnerId);
+        $availableBalance = $user->getBalanceFgiorPartner($partnerId);
 
         DB::beginTransaction();
         try {
