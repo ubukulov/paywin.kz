@@ -2,22 +2,44 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\SendPulse;
 use App\Enums\TransactionEnum;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Sendpulse\RestApi\ApiClient;
+use Sendpulse\RestApi\ApiClientException;
 use Smsc;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use App\Models\Referral;
 use App\Models\Share;
+use Sendpulse\RestApi\Storage\FileStorage;
 
 class AuthController extends Controller
 {
     public function welcome()
     {
+        try {;
+            $sendPulse = new SendPulse();
+            $data = [
+                'password' => 123456
+            ];
+            $user = User::find(13);
+            $sendPulse->sendEmail("TEST", 1962207, $user, $data);
+        } catch (ApiClientException $e) {
+            var_dump([
+                'message' => $e->getMessage(),
+                'http_code' => $e->getCode(),
+                'response' => $e->getResponse(),
+                'curl_errors' => $e->getCurlErrors(),
+                'headers' => $e->getHeaders(),
+                'line' => $e->getLine(),
+            ]);
+        }
+
         return view('welcome');
     }
 

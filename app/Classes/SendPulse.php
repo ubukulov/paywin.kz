@@ -4,51 +4,57 @@ namespace App\Classes;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
-use Sendpulse\RestApi\ApiClient;
-use Sendpulse\RestApi\Storage\FileStorage;
-use Sendpulse\RestApi\ApiClientException;
+use GuzzleHttp\Client;
 
 class SendPulse
 {
-    private ApiClient $apiClient;
+    private Client $client;
+    private string $base;
 
-    public function __construct(ApiClient $apiClient)
+    public function __construct()
     {
-        $this->apiClient = $apiClient;
+        $this->base = rtrim(env('SENDPULSE_API'), '/').'/';
+
+        $this->client = new Client([
+            'base_uri' => $this->base,
+            'verify' => false,
+            'timeout' => 10,
+            'headers'  => [
+                'Authorization' => 'Bearer ' . env('SENDPULSE_SECRET'),
+                'Accept'        => 'application/json',
+                'Content-Type'  => 'application/json',
+            ],
+        ]);
     }
 
-    public function sendEmail($mailSubject, $htmlMessage, User $user)
+    public function sendEmail($mailSubject, $templateId, User $user, $data)
     {
         try {
-            $smtpSendMailResult = $this->apiClient->post('smtp/emails', [
-                'email' => [
-                    'html' => base64_encode($htmlMessage),
-                    'text' => 'text',
-                    'subject' => $mailSubject,
-                    'from' => [
-                        'name' => 'no-reply',
-                        'email' => 'no-reply@paywin.kz',
-                    ],
-                    'to' => [
-                        [
-                            'name' => $user->name ?? 'no name',
-                            'email' => $user->email,
-                        ]
-                    ],
-                    /*'bcc' => [
-                        [
-                            'name' => 'bcc',
-                            'email' => 'bcc@test.com',
-                        ]
-                    ],
-                    'attachments_binary' => [
-                        'attach_image.jpg' => base64_encode(file_get_contents('../storage/attach_image.jpg'))
-                    ],*/
+            $response = $this->client->post('smtp/emails', [
+                'json' => [
+                    'email' => [
+                        'template' => [
+                            'id' => $templateId,
+                            'variables' => $data
+                        ],
+                        'subject' => $mailSubject,
+                        'from' => [
+                            'name' => 'Paywin',
+                            'email' => 'no-reply@paywin.kz',
+                        ],
+                        'to' => [
+                            [
+                                'name' => $user->name ?? 'Клиент',
+                                'email' => $user->email,
+                            ]
+                        ],
+                    ]
                 ]
             ]);
 
-            var_dump($smtpSendMailResult);
-        } catch (ApiClientException $e) {
+            $result = json_decode($response->getBody()->getContents(), true);
+            Log::info("SendPulse Success", $result);
+        } catch (\Exception $e) {
             Log::error("SendPulse Send Email Error: " . $e->getMessage());
         }
     }
