@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cc9798735fab48667083c737fa047261",
+    "content-hash": "612a2440a3813b5b633c9f2caf5d295f",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -5685,6 +5685,61 @@
             "time": "2022-12-17T21:53:22+00:00"
         },
         {
+            "name": "sendpulse/rest-api",
+            "version": "2.0.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sendpulse/sendpulse-rest-api-php.git",
+                "reference": "457ca31c0ff3a3f849182d053d50928085d432ae"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sendpulse/sendpulse-rest-api-php/zipball/457ca31c0ff3a3f849182d053d50928085d432ae",
+                "reference": "457ca31c0ff3a3f849182d053d50928085d432ae",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": ">=7.1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Sendpulse\\RestApi\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maksym Ustymenko",
+                    "email": "m.ustymenko@sendpulse.com"
+                },
+                {
+                    "name": "Alexey Moroz",
+                    "email": "a.moroz@sendpulse.com"
+                },
+                {
+                    "name": "Evgeniy Bilovol",
+                    "email": "e.bilovol@sendpulse.com"
+                }
+            ],
+            "description": "Sendpulse REST API client library",
+            "keywords": [
+                "api",
+                "rest",
+                "sendpulse"
+            ],
+            "support": {
+                "issues": "https://github.com/sendpulse/sendpulse-rest-api-php/issues",
+                "source": "https://github.com/sendpulse/sendpulse-rest-api-php/tree/2.0.1.2"
+            },
+            "time": "2024-06-03T10:49:25+00:00"
+        },
+        {
             "name": "simplesoftwareio/simple-qrcode",
             "version": "4.2.0",
             "source": {
@@ -10971,7 +11026,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
@@ -10981,6 +11036,6 @@
         "ext-json": "*",
         "ext-sockets": "*"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }

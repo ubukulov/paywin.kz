@@ -17,6 +17,7 @@
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.7",
+        "sendpulse/rest-api": "^2.0",
         "simplesoftwareio/simple-qrcode": "~4"
     },
     "require-dev": {
