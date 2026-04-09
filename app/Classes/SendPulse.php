@@ -21,7 +21,7 @@ class SendPulse
             self::$client = new Client([
                 'base_uri' => $baseUri,
                 'verify'   => false,
-                'timeout'  => 60,
+                'timeout'  => 10,
                 'headers'  => [
                     'Authorization' => 'Bearer ' . env('SENDPULSE_SECRET'),
                     'Accept'        => 'application/json',

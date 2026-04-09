@@ -16,7 +16,7 @@ class Trendo
         $this->client = new Client([
             'base_uri' => $this->base,
             'verify' => false,
-            'timeout' => 10,
+            'timeout' => 60,
             'headers'  => [
                 'auth' => env('TRENDO_TOKEN'),
                 'Accept'        => 'application/json',
