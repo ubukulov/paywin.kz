@@ -19,6 +19,16 @@
                 Зарегистрируйтесь, используя номер телефона
             </p>
 
+            @if ($errors->any())
+                <div class="mb-4 p-4 rounded-xl bg-red-50 border border-red-200">
+                    <ul class="list-disc list-inside text-sm text-red-600">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <form action="{{ route('registration') }}" method="post" class="space-y-5">
                 @csrf
 
@@ -73,20 +83,20 @@
                                class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         <span class="text-sm text-gray-700">
                         Стать партнером
-                    </span>
+                        </span>
                     </label>
 
-                    <label class="flex items-center gap-3">
-                        <input type="checkbox" checked disabled
-                               class="w-5 h-5 rounded border-gray-300 text-blue-600">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" checked
+                               class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         <span class="text-sm text-gray-700">
                         Подтверждаю ознакомление и согласие с условиями
-                        <a href="{{ asset('files/публичная_оферта.pdf') }}"
-                           target="_blank"
-                           class="text-blue-600 hover:underline">
-                            Публичной оферты
-                        </a>
-                    </span>
+                            <a href="{{ asset('files/публичная_оферта.pdf') }}"
+                               target="_blank"
+                               class="text-blue-600 hover:underline">
+                                Публичной оферты
+                            </a>
+                        </span>
                     </label>
 
                 </div>
