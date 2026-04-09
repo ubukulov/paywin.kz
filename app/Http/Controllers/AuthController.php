@@ -22,24 +22,6 @@ class AuthController extends Controller
 {
     public function welcome()
     {
-        try {;
-            $sendPulse = new SendPulse();
-            $data = [
-                'password' => 123456
-            ];
-            $user = User::find(13);
-            $sendPulse->sendEmail("TEST", 1962207, $user, $data);
-        } catch (ApiClientException $e) {
-            var_dump([
-                'message' => $e->getMessage(),
-                'http_code' => $e->getCode(),
-                'response' => $e->getResponse(),
-                'curl_errors' => $e->getCurlErrors(),
-                'headers' => $e->getHeaders(),
-                'line' => $e->getLine(),
-            ]);
-        }
-
         return view('welcome');
     }
 
@@ -56,18 +38,20 @@ class AuthController extends Controller
     public function registration(Request $request)
     {
         $data = $request->all();
+        $email = $data['email'];
         $phone = $this->phoneConvert($data['phone']);
 
-        if ((int) Smsc::get_balance() <= 50) {
+        /*if ((int) Smsc::get_balance() <= 50) {
             return redirect()->back()->withErrors(['sms' => 'Технические работы на сервере SMS. Попробуйте позже.']);
-        }
+        }*/
 
         $password = rand(1000, 9999);
 
-        return DB::transaction(function () use ($phone, $password, $request) {
+        return DB::transaction(function () use ($email, $phone, $password, $request) {
             $user_type = ($request->partner == 'yes') ? 'partner' : 'user';
 
             $user = User::create([
+                'email' => $email,
                 'phone' => $phone,
                 'password' => Hash::make($password),
                 'user_type' => $user_type
@@ -76,7 +60,8 @@ class AuthController extends Controller
             $user->createProfile();
 
             // Отправка SMS
-            Smsc::send_sms($phone, "Регистрация прошло успешно. Ваш SMS-пароль: $password");
+            //Smsc::send_sms($phone, "Регистрация прошло успешно. Ваш SMS-пароль: $password");
+            SendPulse::sendEmail("Регистрация прошло успешно", 1962207, $user, ['password' => $password]);
 
             Auth::login($user);
             $this->applyReferral($user);
@@ -93,7 +78,7 @@ class AuthController extends Controller
 
     public function authenticate(Request $request)
     {
-        if(Auth::attempt(['phone' => $this->phoneConvert($request->input('phone')), 'password' => $request->input('password')])) {
+        if(Auth::attempt(['email' => $request->input('email'), 'password' => $request->input('password')])) {
             $this->applyReferral(Auth::user());
             return redirect()->route('home');
         }

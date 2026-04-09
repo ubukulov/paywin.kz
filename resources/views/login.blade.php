@@ -36,7 +36,7 @@
                 @csrf
 
                 {{-- Телефон --}}
-                <div>
+                {{--<div>
                     <label class="block text-sm font-medium text-gray-600 mb-2">
                         Номер телефона
                     </label>
@@ -47,6 +47,21 @@
                         name="phone"
                         required
                         placeholder="+7 ___ ___ __ __"
+                        class="w-full rounded-xl border border-gray-300 px-4 py-3
+                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           outline-none transition"
+                    >
+                </div>--}}
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        required
                         class="w-full rounded-xl border border-gray-300 px-4 py-3
                            focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                            outline-none transition"

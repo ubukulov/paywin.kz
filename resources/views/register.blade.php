@@ -5,9 +5,9 @@
 @section('content')
     <div class="flex items-center justify-center px-4">
 
-        <div class="">
+        <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
 
-            <div>
+            <div class="flex items-center justify-center">
                 <img class="logo" src="{{ asset('images/logo_bg_white.jpg') }}" alt="">
             </div>
 
@@ -22,10 +22,19 @@
             <form action="{{ route('registration') }}" method="post" class="space-y-5">
                 @csrf
 
-                {{-- Телефон --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-600 mb-2">
-                        Номер телефона
+                        Email
+                    </label>
+
+                    <input type="email" name="email" required class="w-full rounded-xl border border-gray-300 px-4 py-3
+                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           outline-none transition">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">
+                        Телефон
                     </label>
 
                     <input

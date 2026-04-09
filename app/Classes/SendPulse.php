@@ -8,29 +8,40 @@ use GuzzleHttp\Client;
 
 class SendPulse
 {
-    private Client $client;
-    private string $base;
+    private static ?Client $client = null;
 
-    public function __construct()
+    /**
+     * Инициализация или получение экземпляра Guzzle клиента
+     */
+    private static function getClient(): Client
     {
-        $this->base = rtrim(env('SENDPULSE_API'), '/').'/';
+        if (self::$client === null) {
+            $baseUri = rtrim(env('SENDPULSE_API'), '/') . '/';
 
-        $this->client = new Client([
-            'base_uri' => $this->base,
-            'verify' => false,
-            'timeout' => 10,
-            'headers'  => [
-                'Authorization' => 'Bearer ' . env('SENDPULSE_SECRET'),
-                'Accept'        => 'application/json',
-                'Content-Type'  => 'application/json',
-            ],
-        ]);
+            self::$client = new Client([
+                'base_uri' => $baseUri,
+                'verify'   => false,
+                'timeout'  => 10,
+                'headers'  => [
+                    'Authorization' => 'Bearer ' . env('SENDPULSE_SECRET'),
+                    'Accept'        => 'application/json',
+                    'Content-Type'  => 'application/json',
+                ],
+            ]);
+        }
+
+        return self::$client;
     }
 
-    public function sendEmail($mailSubject, $templateId, User $user, $data)
+    /**
+     * Статический метод для отправки Email
+     */
+    public static function sendEmail(string $mailSubject, $templateId, User $user, array $data): bool
     {
         try {
-            $response = $this->client->post('smtp/emails', [
+            $client = self::getClient();
+
+            $response = $client->post('smtp/emails', [
                 'json' => [
                     'email' => [
                         'template' => [
@@ -52,10 +63,13 @@ class SendPulse
                 ]
             ]);
 
-            $result = json_decode($response->getBody()->getContents(), true);
-            Log::info("SendPulse Success", $result);
+            $responseBody = json_decode($response->getBody()->getContents(), true);
+
+            return isset($responseBody['result']) && $responseBody['result'] === true;
+
         } catch (\Exception $e) {
-            Log::error("SendPulse Send Email Error: " . $e->getMessage());
+            Log::error("SendPulse Static Send Email Error: " . $e->getMessage());
+            return false;
         }
     }
 }

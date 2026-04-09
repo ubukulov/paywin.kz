@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Cviebrock\EloquentSluggable\Sluggable;
 
 class ProductCategory extends Model
 {
+    use Sluggable;
+
     protected $table = 'product_categories';
     protected $fillable = [
         'name',
@@ -29,5 +32,19 @@ class ProductCategory extends Model
     public function children() : HasMany
     {
         return $this->hasMany(ProductCategory::class, 'parent_id')->orderBy('sort_order');
+    }
+
+    /**
+     * Return the sluggable configuration array for this model.
+     *
+     * @return array
+     */
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'name'
+            ]
+        ];
     }
 }
