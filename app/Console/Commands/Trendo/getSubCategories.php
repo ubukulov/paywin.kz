@@ -58,6 +58,7 @@ class getSubCategories extends Command
                         ]);
                     }
                 }
+                sleep(2000);
             }
 
             DB::commit();
