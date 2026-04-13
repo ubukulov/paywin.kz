@@ -36,34 +36,27 @@ class getSubCategories extends Command
             $productCategory = ProductCategory::findOrFail($id);
 
             $subCategories = $trendo->getSubCategories($productCategory->name);
-            foreach ($subCategories as $subCategory) {
-                if (count($subCategory) == 1) {
-                    if (!ProductCategory::whereName($subCategory[0])->exists()) {
-                        ProductCategory::create([
-                            'name' => $subCategory[0],
-                            'parent_id' => $productCategory->id
-                        ]);
-                    }
-                } elseif (count($subCategory) == 0) {
+
+            if (empty($subCategories)) {
+                $this->warn("Подкатегории для '{$productCategory->name}' не найдены.");
+                return;
+            }
+
+            for ($i = 0; $i < count($subCategories); $i++) {
+                if ($i == 0 && !ProductCategory::whereName($subCategories[0])->exists()) {
+                    ProductCategory::create([
+                        'name' => $subCategories[0],
+                        'parent_id' => $productCategory->id
+                    ]);
                     continue;
-                }else {
-
-                    for ($i = 0; $i < count($subCategory); $i++) {
-                        if ($i == 0) {
-                            ProductCategory::create([
-                                'name' => $subCategory[$i],
-                                'parent_id' => $productCategory->id
-                            ]);
-                        } else {
-                            $subSubCategory = ProductCategory::whereName($subCategory[$i-1])->first();
-
-                            ProductCategory::create([
-                                'name' => $subCategory[$i],
-                                'parent_id' => $subSubCategory->id
-                            ]);
-                        }
-                    }
                 }
+
+                $subSubCategory = ProductCategory::whereName($subCategories[$i-1])->first();
+
+                ProductCategory::create([
+                    'name' => $subCategories[$i],
+                    'parent_id' => $subSubCategory->id
+                ]);
             }
 
             DB::commit();
