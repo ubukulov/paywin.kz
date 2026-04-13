@@ -15,7 +15,7 @@ class getSubCategories extends Command
      *
      * @var string
      */
-    protected $signature = 'trendo:get-sub-categories';
+    protected $signature = 'trendo:get-sub-categories {id}';
 
     /**
      * The console command description.
@@ -30,35 +30,33 @@ class getSubCategories extends Command
     public function handle()
     {
         $trendo = new Trendo();
+        $id = $this->argument('id');
         DB::beginTransaction();
         try {
-            $productCategories = ProductCategory::where(['parent_id' => 0])->get();
-            foreach ($productCategories as $productCategory) {
+            $productCategory = ProductCategory::findOrFail($id);
 
-                $subCategories = $trendo->getSubCategories($productCategory->name);
-                foreach ($subCategories as $subCategory) {
-                    if (count($subCategory) == 1) {
-                        if (!ProductCategory::whereName($subCategory[0])->exists()) {
-                            ProductCategory::create([
-                                'name' => $subCategory[0],
-                                'parent_id' => $productCategory->id
-                            ]);
-                        }
-                    } elseif (count($subCategory) == 0) {
-                        continue;
-                    }else {
-                        $subSubCategory = ProductCategory::create([
+            $subCategories = $trendo->getSubCategories($productCategory->name);
+            foreach ($subCategories as $subCategory) {
+                if (count($subCategory) == 1) {
+                    if (!ProductCategory::whereName($subCategory[0])->exists()) {
+                        ProductCategory::create([
                             'name' => $subCategory[0],
                             'parent_id' => $productCategory->id
                         ]);
-
-                        ProductCategory::create([
-                            'name' => $subCategory[1],
-                            'parent_id' => $subSubCategory->id
-                        ]);
                     }
+                } elseif (count($subCategory) == 0) {
+                    continue;
+                }else {
+                    $subSubCategory = ProductCategory::create([
+                        'name' => $subCategory[0],
+                        'parent_id' => $productCategory->id
+                    ]);
+
+                    ProductCategory::create([
+                        'name' => $subCategory[1],
+                        'parent_id' => $subSubCategory->id
+                    ]);
                 }
-                sleep(2000);
             }
 
             DB::commit();
