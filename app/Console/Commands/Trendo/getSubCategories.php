@@ -47,10 +47,14 @@ class getSubCategories extends Command
                 } elseif (count($subCategory) == 0) {
                     continue;
                 }else {
-                    $subSubCategory = ProductCategory::create([
-                        'name' => $subCategory[0],
-                        'parent_id' => $productCategory->id
-                    ]);
+                    $subSubCategory = ProductCategory::whereName($subCategory[0])->first();
+
+                    if (!$subSubCategory && $subSubCategory->parent->parent_id == 0) {
+                        $subSubCategory = ProductCategory::create([
+                            'name' => $subCategory[0],
+                            'parent_id' => $productCategory->id
+                        ]);
+                    }
 
                     ProductCategory::create([
                         'name' => $subCategory[1],
