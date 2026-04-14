@@ -48,8 +48,16 @@
                 </div>
 
                 <div class="space-y-2">
+                    <label class="block px-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Телефон</label>
+                    <input type="tel" value="{{ $userProfile->user->phone }}" name="phone" required
+                           placeholder="+7 ___ ___ __ __"
+                           id="reg-1-phone-input"
+                           class="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none font-medium text-gray-700 shadow-inner">
+                </div>
+
+                <div class="space-y-2">
                     <label class="block px-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Email</label>
-                    <input type="email" value="{{ $userProfile->user->email }}" name="email" required
+                    <input type="email" value="{{ $userProfile->user->email }}" name="email" required disabled
                            class="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none font-medium text-gray-700 shadow-inner">
                 </div>
 
@@ -64,6 +72,13 @@
     </div>
 
     <script src="/js/profile.js"></script>
+    <script src="{{ asset('js/jquery-3.6.0.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('js/jquery.maskedinput.min.js') }}" type="text/javascript"></script>
+    <script>
+        $(function(){
+            $('#reg-1-phone-input').mask('+7 999-999-99-99');
+        });
+    </script>
 
     <style>
         body { background-color: #f8fafc; }
