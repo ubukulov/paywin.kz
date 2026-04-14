@@ -26,4 +26,18 @@ class ReferralController extends Controller
 
         return redirect()->route('register');
     }
+
+    /**
+     * НОВОЕ: Переход по ID агента сразу на страницу товара
+     */
+    public function handleProductLink($agent_id, $slug): RedirectResponse
+    {
+        // Запоминаем агента
+        Cookie::queue('ref_agent_id', $agent_id, 60 * 24 * 30);
+        // Очищаем промокод, так как это простой переход без кода
+        Cookie::queue(Cookie::forget('ref_promo_code'));
+
+        // Редирект на роут показа товара (убедись, что имя роута верное)
+        return redirect()->route('product.show', $slug);
+    }
 }

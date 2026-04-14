@@ -158,4 +158,8 @@ Route::get('/ref/{agent_id}', [ReferralController::class, 'handleStep1'])
 Route::get('/ref/{agent_id}/{promo_code}', [ReferralController::class, 'handleStep2'])
     ->where('agent_id', '[0-9]+')->name('user.referral.promocode');
 
+// Переход: Агент -> Товар
+Route::get('/ref/{agent_id}/p/{slug}', [ReferralController::class, 'handleProductLink'])
+    ->where('agent_id', '[0-9]+')->name('user.referral.product');
+
 Route::post('/checkout/3ds-callback', [CheckoutController::class, 'handle3DS'])->name('checkout.3ds.callback');

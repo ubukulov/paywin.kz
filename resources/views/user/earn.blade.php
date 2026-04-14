@@ -27,7 +27,7 @@
                                 <div class="flex justify-between items-start">
                                     <div>
                                         <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1">Промокод партнера</p>
-                                        <h3 class="text-3xl font-black text-gray-900 tracking-tight">{{ $share->title ?? 'Без названия' }}</h3>
+                                        <h3 class="text-3xl font-black text-gray-900 tracking-tight">{{ $share->title ?? 'Без названия' }}-{{ \Illuminate\Support\Facades\Auth::id() }}</h3>
                                     </div>
                                     <div class="flex flex-col items-end">
                                         <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-black shadow-sm">
@@ -43,7 +43,7 @@
                                     <div class="relative flex items-center bg-gray-50 rounded-2xl border border-gray-100 p-1 group/link">
                                         <input type="text" readonly
                                                id="link-{{ $share->id }}"
-                                               value="{{ route('user.referral.promocode', ['agent_id' => auth()->id(), 'promo_code' => $share->title]) }}"
+                                               value="{{ route('user.referral.promocode', ['agent_id' => auth()->id(), 'promo_code' => $share->title]) }}-{{ \Illuminate\Support\Facades\Auth::id() }}"
                                                class="bg-transparent text-sm text-blue-500 font-mono px-3 py-2 w-full outline-none">
 
                                         <button onclick="copyLink('link-{{ $share->id }}', this)"
