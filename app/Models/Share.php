@@ -86,4 +86,17 @@ class Share extends Model
     {
         return route('referral.link', ['code' => $this->title . Auth::id()]);
     }
+
+    public function getRealAgentPercentAttribute()
+    {
+        $partnerPercent = $this->data['agent_percent']; // Например, 10
+        $bankFee = 3; // Комиссия TipTopPay
+        $agentShareOfNet = 0.7; // Доля агента (70%)
+
+        // Формула: (10 - 3) * 0.7 = 4.9
+        $result = ($partnerPercent - $bankFee) * $agentShareOfNet;
+
+        // Возвращаем 0, если партнер дает меньше 3%, чтобы не было минуса
+        return max(0, $result);
+    }
 }

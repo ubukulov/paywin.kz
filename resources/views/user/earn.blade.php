@@ -31,7 +31,7 @@
                                     </div>
                                     <div class="flex flex-col items-end">
                                         <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-black shadow-sm">
-                                            +{{ $share->data['agent_percent'] ?? 0 }}%
+                                            +{{ $share->real_agent_percent ?? 0 }}%
                                         </span>
                                         <span class="text-[9px] text-gray-400 uppercase mt-1 font-bold">твой доход</span>
                                     </div>
