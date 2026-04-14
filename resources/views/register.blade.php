@@ -42,7 +42,7 @@
                            outline-none transition">
                 </div>
 
-                <div>
+                {{--<div>
                     <label class="block text-sm font-medium text-gray-600 mb-2">
                         Телефон
                     </label>
@@ -57,7 +57,7 @@
                            focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                            outline-none transition"
                     >
-                </div>
+                </div>--}}
 
                 {{-- Промокод --}}
                 <div>

@@ -39,18 +39,18 @@ class AuthController extends Controller
     {
         $data = $request->all();
         $email = $data['email'];
-        $phone = $this->phoneConvert($data['phone']);
+        //$phone = $this->phoneConvert($data['phone']);
 
         $request->validate([
             'email' => 'required|string|email|max:255|unique:users',
-            'phone' => 'required|string|unique:users',
+            //'phone' => 'required|string|unique:users',
         ],
             [
             // Кастомные сообщения специально для этого метода
             'email.unique' => 'Этот адрес электронной почты уже зарегистрирован.',
             'email.required' => 'Пожалуйста, введите ваш email.',
-            'phone.unique' => 'Этот номер телефона уже используется.',
-            'phone.required' => 'Номер телефона обязателен.',
+            //'phone.unique' => 'Этот номер телефона уже используется.',
+            //'phone.required' => 'Номер телефона обязателен.',
             ]
         );
 
@@ -60,12 +60,12 @@ class AuthController extends Controller
 
         $password = rand(1000, 9999);
 
-        return DB::transaction(function () use ($email, $phone, $password, $request) {
+        return DB::transaction(function () use ($email, $password, $request) {
             $user_type = ($request->partner == 'yes') ? 'partner' : 'user';
 
             $user = User::create([
                 'email' => $email,
-                'phone' => $phone,
+                //'phone' => $phone,
                 'password' => Hash::make($password),
                 'user_type' => $user_type
             ]);
