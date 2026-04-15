@@ -82,6 +82,28 @@ class Share extends Model
             ->where('to_date', '>=', $now);
     }
 
+    /**
+     * Проверка: активна ли акция прямо сейчас (по датам и лимитам)
+     */
+    public function isActive(): bool
+    {
+        $now = now();
+
+        // 1. Проверка дат
+        $dateValid = (is_null($this->from_date) || $this->from_date <= $now) &&
+            (is_null($this->to_date) || $this->to_date >= $now);
+
+        if (!$dateValid) return false;
+
+        // 2. Проверка лимитов (если count = 0, считаем безлимитным)
+        if ($this->count > 0 && $this->used_count >= $this->count) {
+            return false;
+        }
+
+        return true;
+    }
+
+
     public function getMyPromoLink(): string
     {
         return route('referral.link', ['code' => $this->title . Auth::id()]);
