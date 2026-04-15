@@ -6,29 +6,6 @@
 
         <h1 class="text-3xl font-bold mb-8 text-gray-800">Оформление заказа</h1>
 
-        {{-- Секция Розыгрыша Подарков --}}
-        @if($gifts && $gifts->count() > 0)
-            @foreach($gifts as $gift)
-            <div class="mb-8 p-5 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-indigo-200 shadow-sm">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-2xl">🎁</div>
-                    <h2 class="text-xl font-semibold text-indigo-700">У вас есть шанс выиграть подарок!</h2>
-                </div>
-                <p class="text-gray-700 mb-4">После успешной оплаты будет проведён розыгрыш среди доступных подарков:</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="p-4 bg-white border rounded-xl shadow-sm hover:shadow-md transition">
-                        <div class="text-lg font-medium text-gray-900">{{ $gift['title'] }}</div>
-                        <div class="text-gray-600 mt-1 text-sm">{{ $gift['description'] }}</div>
-                        <div class="mt-3 flex items-center justify-between">
-                            <div class="text-indigo-500 text-lg">⭐</div>
-                        </div>
-                    </div>
-                </div>
-                <p class="mt-4 text-sm text-gray-500">Подарок будет разыгран автоматически сразу после оплаты заказа.</p>
-            </div>
-            @endforeach
-        @endif
-
         {{-- Секция Гарантированного Подарка по Промокоду --}}
         @if($activePromo && $activePromo->share && $activePromo->share->promo === 'gift')
             <div class="mb-8 p-5 rounded-xl bg-blue-50 border border-blue-200 shadow-sm flex items-center gap-4">

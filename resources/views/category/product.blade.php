@@ -107,7 +107,7 @@
                         </div>--}}
                         <div class="mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-bold text-gray-700">Твоя реферальная ссылка</span>
+                                <span class="text-sm font-bold text-gray-700">Поделись друзьями и заработай</span>
                                 <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">
                 +{{ number_format(auth()->user()->real_agent_percent ?? 4.9, 1) }}% доход
             </span>
