@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Promocode;
+use App\Models\Referral;
 use App\Models\Share;
 use App\Models\User;
 use App\Enums\TransactionEnum;
@@ -13,55 +15,73 @@ class PromoService
     public function activate(User $user, string $rawCode)
     {
         $promoCode = strtoupper(trim($rawCode));
+        $agentId = null;
 
-        // 1. Поиск акции (только по названию, без парсинга ID агента)
-        $share = Share::where('title', $promoCode)
-            ->active() // Используем наш Scope из модели Share
-            ->first();
+        // 1. Сначала ищем в таблице персональных промокодов агентов
+        $agentPromo = Promocode::where('code', $promoCode)->first();
+
+        if ($agentPromo) {
+            $share = $agentPromo->share;
+            $agentId = $agentPromo->agent_id;
+        } else {
+            // 2. Если не нашли у агентов, ищем в базовых акциях партнеров
+            // Используем поле 'code' (или 'title', как у тебя в базе)
+            $share = Share::where('code', $promoCode)
+                ->orWhere('title', $promoCode)
+                ->active()
+                ->first();
+        }
 
         if (!$share) {
             throw new Exception('Промокод неактуален или не существует');
         }
 
-        // 2. Валидация
+        // 3. Валидация (нельзя свой, нельзя дважды)
         $this->validateActivation($user, $share);
 
-        // 3. Применение в транзакции
-        return DB::transaction(function () use ($share, $user, $promoCode) {
-
-            // Блокируем строку акции для защиты от одновременных нажатий
+        return DB::transaction(function () use ($share, $user, $promoCode, $agentId) {
             $lockedShare = Share::where('id', $share->id)->lockForUpdate()->first();
-            $limit = (int)($lockedShare->count ?? 0);
 
-            if ($limit > 0 && $lockedShare->used_count >= $limit) {
+            // Проверка лимита (isActive уже проверяет это, но lock надежнее)
+            if ($lockedShare->count > 0 && $lockedShare->used_count >= $lockedShare->count) {
                 throw new Exception('Лимит активаций этого промокода исчерпан');
             }
 
-            // Начисление бонуса (если тип "Деньги")
+            // --- НОВОЕ: Привязка реферала ---
+            // Если код был агентским, и у юзера еще нет реферера — привязываем
+            if ($agentId && !Referral::where(['user_id' => $user->id])->exists()) {
+                Referral::create([
+                    'agent_id' => $agentId,
+                    'share_id' => $share->id,
+                    'user_id'  => $user->id,
+                    'percent'  => $share->data['agent_percent'] ?? 10
+                ]);
+            }
+
+            // Начисление бонуса
             $bonusAmount = (float)($lockedShare->data['size'] ?? 0);
 
             if ($bonusAmount > 0) {
-                // Начисляем пользователю
+                // Начисляем клиенту
                 $user->changeBalance(
                     $bonusAmount,
-                    TransactionEnum::PROMOCODE, // Используем наш Enum
+                    TransactionEnum::PROMOCODE,
                     $lockedShare,
                     "Активация промокода {$promoCode}"
                 );
 
-                // Списываем у партнера
+                // Списываем у партнера (владельца акции)
                 $partner = $lockedShare->partner;
                 if ($partner) {
                     $partner->changeBalance(
                         -$bonusAmount,
-                        TransactionEnum::PROMO_PAYOUT, // Добавь этот тип в Enum
+                        TransactionEnum::PROMO_PAYOUT,
                         $user,
                         "Списание за активацию кода клиентом"
                     );
                 }
             }
 
-            // Увеличиваем счетчик использований
             $lockedShare->increment('used_count');
 
             return $this->getSuccessMessage($lockedShare);

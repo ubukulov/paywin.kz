@@ -17,6 +17,7 @@ use App\Http\Controllers\Partner\WarehouseController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PayoutController;
+use App\Http\Controllers\User\PromoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -130,6 +131,8 @@ Route::group(['middleware' => 'auth'], function(){
 
         # Пополнение баланса
         Route::post('payment/balance/confirm', [PaymentController::class, 'confirmBalance']);
+
+        Route::post('promocodes/store', [PromoController::class, 'store'])->name('promocode.store');
     });
 
     # Cart
