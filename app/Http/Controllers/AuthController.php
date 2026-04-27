@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Sendpulse\RestApi\ApiClient;
 use Sendpulse\RestApi\ApiClientException;
 use Smsc;
@@ -206,5 +207,34 @@ class AuthController extends Controller
             // Увеличиваем счетчик
             $lockedShare->increment('used_count');
         });
+    }
+
+    public function forgetPassword()
+    {
+        return view('forgetPassword');
+    }
+
+    public function quickReset(Request $request)
+    {
+        $request->validate(['email' => 'required|email|exists:users,email'], [
+            'email.exists' => 'Пользователь с таким Email не найден.'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        // 1. Генерируем новый случайный пароль (10 символов)
+        $newPassword = rand(1000, 9999);
+
+        // 2. Обновляем пароль в базе (хешируем!)
+        $user->password = Hash::make($newPassword);
+        $user->save();
+
+        // 3. Отправляем письмо
+        try {
+            SendPulse::sendEmail("Ваш новый пароль в Paywin.kz", 1963933, $user, ['password' => $newPassword]);
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => 'Ошибка при отправке письма. Проверьте настройки почты.']);
+        }
+        return back()->withErrors(['status' => 'Новый пароль отправлен на вашу почту!']);
     }
 }

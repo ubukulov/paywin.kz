@@ -37,6 +37,8 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/authentication', [AuthController::class, 'authenticate'])->name('authenticate');
 Route::get('/how-it-works', [IndexController::class, 'howItWorks'])->name('howItWorks');
 Route::get('about-us', [IndexController::class, 'aboutUs'])->name('aboutUs');
+Route::get('forget-password', [AuthController::class, 'forgetPassword'])->name('forgetPassword');
+Route::post('forget-password', [AuthController::class, 'quickReset'])->name('password.quick_reset');
 
 Route::group(['middleware' => 'auth'], function(){
     Route::get('/', [IndexController::class, 'home'])->name('home');
