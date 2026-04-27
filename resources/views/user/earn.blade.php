@@ -60,8 +60,14 @@
 
                                 @if($myPromo)
                                     {{-- СОСТОЯНИЕ: КОД СОЗДАН --}}
-                                    <div class="space-y-2">
-                                        <label class="text-xs font-bold text-gray-400 uppercase ml-1">Твоя персональная ссылка</label>
+                                    <div class="space-y-2" id="view-mode-{{ $share->id }}">
+                                        <div class="flex justify-between">
+                                            <label class="text-xs font-bold text-gray-400 uppercase ml-1">Твоя персональная ссылка</label>
+                                            {{-- Кнопка переключения в режим редактирования --}}
+                                            <button onclick="toggleEdit('{{ $share->id }}')" class="text-[10px] font-bold text-blue-500 hover:text-blue-700 uppercase">
+                                                Изменить код
+                                            </button>
+                                        </div>
                                         <div class="relative flex items-center bg-gray-50 rounded-2xl border border-gray-100 p-1 group/link">
                                             <input type="text" readonly
                                                    id="link-{{ $myPromo->id }}"
@@ -73,6 +79,27 @@
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                                             </button>
                                         </div>
+                                    </div>
+
+                                    {{-- ФОРМА РЕДАКТИРОВАНИЯ (по умолчанию скрыта) --}}
+                                    <div class="hidden bg-blue-50 rounded-2xl p-4 border border-blue-100" id="edit-mode-{{ $share->id }}">
+                                        <form action="{{ route('user.promocode.update', $myPromo->id) }}" method="POST" class="space-y-3">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="flex justify-between items-center">
+                                                <p class="text-[10px] font-bold text-blue-600 uppercase">Новый промокод:</p>
+                                                <button type="button" onclick="toggleEdit('{{ $share->id }}')" class="text-[10px] text-gray-400 font-bold uppercase">Отмена</button>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <input type="text" name="code" value="{{ $myPromo->code }}"
+                                                       required
+                                                       class="flex-1 bg-white border border-blue-200 rounded-xl px-3 py-2 text-sm font-bold uppercase focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-600 transition-colors">
+                                                    Сохранить
+                                                </button>
+                                            </div>
+                                            <p class="text-[9px] text-blue-400 leading-tight">Внимание: старая ссылка перестанет работать сразу после смены кода.</p>
+                                        </form>
                                     </div>
                                 @else
                                     {{-- СОСТОЯНИЕ: НУЖНО СОЗДАТЬ КОД --}}
@@ -132,5 +159,14 @@
                 btn.classList.replace('text-white', 'text-gray-700');
             }, 2000);
         }
+
+        function toggleEdit(shareId) {
+            const viewDiv = document.getElementById(`view-mode-${shareId}`);
+            const editDiv = document.getElementById(`edit-mode-${shareId}`);
+
+            viewDiv.classList.toggle('hidden');
+            editDiv.classList.toggle('hidden');
+        }
+
     </script>
 @stop

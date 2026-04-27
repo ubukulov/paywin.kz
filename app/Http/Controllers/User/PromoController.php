@@ -44,4 +44,34 @@ class PromoController extends Controller
 
         return back()->with('success', 'Персональный промокод успешно создан!');
     }
+
+    public function update(Request $request, $id)
+    {
+        $promo = Promocode::findOrFail($id);
+
+        // Проверка прав (только владелец может менять)
+        if ($promo->agent_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'code' => [
+                'required',
+                'string',
+                'min:3',
+                'max:25',
+                'unique:promocodes,code,' . $id, // Уникальность, кроме текущего ID
+                'regex:/^[A-Z0-9_-]+$/u',
+            ],
+        ], [
+            'code.unique' => 'Этот промокод уже занят другим агентом.',
+            'code.regex' => 'Используйте только латинские буквы и цифры.'
+        ]);
+
+        $promo->update([
+            'code' => strtoupper($request->code)
+        ]);
+
+        return back()->with('success', 'Промокод успешно обновлен!');
+    }
 }

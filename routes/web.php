@@ -133,6 +133,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('payment/balance/confirm', [PaymentController::class, 'confirmBalance']);
 
         Route::post('promocodes/store', [PromoController::class, 'store'])->name('promocode.store');
+        Route::put('/promocodes/{id}', [PromoController::class, 'update'])->name('promocode.update');
     });
 
     # Cart
