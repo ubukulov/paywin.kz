@@ -79,6 +79,11 @@ class User extends Authenticatable
         return $this->hasMany(PayoutRequest::class);
     }
 
+    public function warehouses() : HasMany
+    {
+        return $this->hasMany(PartnerWarehouse::class);
+    }
+
     public function shares()
     {
         return $this->hasMany(Share::class, 'partner_id')

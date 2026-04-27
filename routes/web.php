@@ -79,6 +79,8 @@ Route::group(['middleware' => 'auth'], function(){
             Route::get('/', [PartnerProductController::class, 'index'])->name('product.index');
             Route::get('create', [PartnerProductController::class, 'create'])->name('product.create');
             Route::post('store', [PartnerProductController::class, 'store'])->name('product.store');
+            Route::get('{id}/edit', [PartnerProductController::class, 'edit'])->name('product.edit');
+            Route::post('{id}/update', [PartnerProductController::class, 'update'])->name('product.update');
         });
 
         # Подарки и правилы

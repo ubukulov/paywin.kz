@@ -40,17 +40,6 @@
                                              alt="{{ $product->name }}"
                                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                              loading="lazy" />
-
-                                        <span class="absolute top-3 left-3 bg-indigo-600 text-white text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-lg shadow-sm">
-                                            Новинка
-                                        </span>
-
-                                        <button aria-label="Добавить в избранное"
-                                                class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-sm hover:bg-red-50 hover:text-red-500 text-gray-400 transition-colors">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 18.343 3.172 10.83a4 4 0 010-5.657z" />
-                                            </svg>
-                                        </button>
                                     </div>
 
                                     <div class="p-5 flex flex-col flex-1">
@@ -68,9 +57,10 @@
                                                     </div>
                                                 </div>
 
-                                                <button class="flex items-center justify-center w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
-                                                    <i class="fas fa-shopping-cart text-sm"></i>
-                                                </button>
+                                                <a href="{{ route('partner.product.edit', $product->id) }}"
+                                                   class="flex items-center justify-center w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </a>
                                             </div>
 
                                             <div class="flex items-center justify-between pt-3 border-t border-gray-50 text-[11px]">

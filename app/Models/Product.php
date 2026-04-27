@@ -43,6 +43,18 @@ class Product extends Model
         return $this->hasMany(ProductImage::class)->orderBy('position');
     }
 
+    public function warehouses()
+    {
+        return $this->belongsToMany(PartnerWarehouse::class, 'product_stocks', 'product_id', 'warehouse_id')
+            ->withPivot('price', 'old_price', 'quantity') // указываем все поля из таблицы product_stocks
+            ->withTimestamps();
+    }
+
+    public function stocks(): HasMany
+    {
+        return $this->hasMany(ProductStock::class);
+    }
+
     public function mainImage(): HasOne
     {
         return $this->hasOne(ProductImage::class)->where('main', true)->withDefault([
