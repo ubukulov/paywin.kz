@@ -103,13 +103,23 @@
                                     </div>
                                 @else
                                     {{-- СОСТОЯНИЕ: НУЖНО СОЗДАТЬ КОД --}}
+                                    @if(session('error') || $errors->any())
+                                        <div class="mx-4 mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl font-bold animate__animated animate__fadeIn">
+                                            {{ session('error') ?? 'Ошибка при заполнении. Проверьте код.' }}
+                                            <ul class="text-xs mt-1 font-medium">
+                                                @foreach($errors->all() as $error)
+                                                    <li>• {{ $error }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
                                     <div class="bg-orange-50 rounded-2xl p-4 border border-orange-100">
                                         <form action="{{ route('user.promocode.store') }}" method="POST" class="space-y-3">
                                             @csrf
                                             <input type="hidden" name="share_id" value="{{ $share->id }}">
                                             <p class="text-[10px] font-bold text-orange-600 uppercase">Придумай свой уникальный код:</p>
                                             <div class="flex gap-2">
-                                                <input type="text" name="code" placeholder="Напр: SUPER{{ auth()->id() }}"
+                                                <input type="text" name="code" autocorrect="off" autocapitalize="characters" placeholder="Напр: SUPER{{ auth()->id() }}"
                                                        required
                                                        class="flex-1 bg-white border border-orange-200 rounded-xl px-3 py-2 text-sm font-bold uppercase focus:outline-none focus:ring-2 focus:ring-orange-500">
                                                 <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-orange-600 transition-colors">
