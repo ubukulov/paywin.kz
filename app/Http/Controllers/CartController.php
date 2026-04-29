@@ -9,7 +9,7 @@ use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use App\Services\PartnerGiftService;
 
-class CartController extends Controller
+class CartController extends BaseController
 {
     protected PartnerGiftService $partnerGiftService;
 

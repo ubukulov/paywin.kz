@@ -6,6 +6,12 @@ body {
     justify-content: center;
     height: 100px;
 }
+.home-page {
+    max-width: 1090px;
+    margin: 0 auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background-color: #f8fafc;
+}
 .cabinet-logo {
     display: flex;
     justify-content: center;
@@ -31,10 +37,6 @@ body {
     display: block !important;
 }
 
-#content {
-    background-color: #f8fafc;
-    padding: 0 20px;
-}
 .profile {
     max-width: 1090px;
     margin: 0 auto;
@@ -101,8 +103,8 @@ body {
     .partner-logo-a {
         width: 160px;
     }
-    #content {
-        padding: 20px 10px;
+    .home-page {
+        max-width: 100%;
     }
     .settings {
         height: auto !important;

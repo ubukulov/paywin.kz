@@ -6,7 +6,9 @@ use App\Enums\TransactionEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\Partner;
 use App\Models\Category;
+use App\Models\City;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\UserGift;
 use App\Models\Share;
 use App\Models\User;
@@ -17,13 +19,22 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cookie;
 
 class IndexController extends BaseController
 {
     public function home()
     {
-        $categories = Category::all();
-        return view('home',  compact('categories'));
+//        $categories = Category::all();
+//        return view('home',  compact('categories'));
+        $cityId = Cookie::get('selected_city_id') ?? City::first()->id;
+        $products = Product::with('images')
+            ->join('product_stocks', 'product_stocks.product_id', 'products.id')
+            ->join('partner_warehouses', 'partner_warehouses.id', '=', 'product_stocks.warehouse_id')
+            ->where('partner_warehouses.city_id', $cityId)
+            ->select('products.*', 'product_stocks.price', 'product_stocks.quantity')
+            ->get();
+        return view('home-products',  compact('products'));
     }
 
     public function paymentPage($slug, $id)
@@ -147,5 +158,17 @@ class IndexController extends BaseController
     public function howItWorks()
     {
         return view('how_it_works');
+    }
+
+    public function setCity(Request $request)
+    {
+        $request->validate([
+            'city_id' => 'required|exists:cities,id'
+        ]);
+
+        // Сохраняем ID города в куки на 30 дней (43200 минут)
+        Cookie::queue('selected_city_id', $request->city_id, 43200);
+
+        return response()->json(['success' => true]);
     }
 }

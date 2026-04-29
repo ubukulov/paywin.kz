@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 use App\Services\PartnerGiftService;
 use App\Services\TipTopPayService;
 
-class CheckoutController extends Controller
+class CheckoutController extends BaseController
 {
     protected PartnerGiftService $partnerGiftService;
     protected TipTopPayService $tipTopPayService;

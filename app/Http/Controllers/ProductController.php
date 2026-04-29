@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 
-class ProductController extends Controller
+class ProductController extends BaseController
 {
     public function show($slug)
     {

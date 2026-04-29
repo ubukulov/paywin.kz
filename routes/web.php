@@ -58,6 +58,8 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('review', [IndexController::class, 'review'])->name('review');
     Route::get('partner/{id}/not-given-prize', [IndexController::class, 'notGivenPrize'])->name('notGivenPrize');
 
+    Route::post('/set-city', [IndexController::class, 'setCity'])->name('city.set');
+
     # Partner's route
     Route::group(['prefix' => 'partner', 'middleware' => ['partner'], 'as' => 'partner.'], function(){
         Route::get('/', [PartnerController::class, 'cabinet'])->name('cabinet');
