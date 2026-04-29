@@ -42,26 +42,32 @@ class getSubCategories extends Command
                 return;
             }
 
-            $currentParentId = $productCategory->id;
+            foreach ($subCategories as $subCategoryArr) {
+                if (empty($subCategoryArr) || !is_array($subCategoryArr)) {
+                    continue;
+                }
 
-            foreach ($subCategories as $categoryName) {
-                // Ищем категорию или создаем её, если её нет
-                // Это избавит от ошибок дублирования и проблем с индексами
-                $category = ProductCategory::firstOrCreate(
-                    ['name' => $categoryName],
-                    ['parent_id' => $currentParentId]
-                );
-
-                // Для следующей итерации текущая категория становится родительской
-                $currentParentId = $category->id;
+                foreach ($subCategoryArr as $index=>$categoryName) {
+                    if ($index == 0) {
+                        $category = ProductCategory::firstOrCreate([
+                            'name' => (string)$categoryName,
+                            'parent_id' => $productCategory->id
+                        ]);
+                    } else {
+                        $subSubCategory = ProductCategory::whereName($subCategories[$index-1])->first();
+                        $category = ProductCategory::firstOrCreate([
+                            'name' => (string)$categoryName,
+                            'parent_id' => $subSubCategory->id
+                        ]);
+                    }
+                }
             }
-
             DB::commit();
-            $this->info("Цепочка категорий успешно обработана.");
+            $this->info("Все категории и подкатегории успешно импортированы.");
         } catch (\Exception $exception) {
             DB::rollBack();
             Log::error("Error: " . $exception->getMessage(). "Line: " . $exception->getLine());
-            $this->error("Ошибка при выполнении команды. Проверьте логи.");
+            $this->error("Ошибка: " . $exception->getMessage());
         }
     }
 }
