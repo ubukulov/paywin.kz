@@ -71,7 +71,7 @@
 
                         {{-- рейтинг или метки --}}
                         <div class="flex items-center gap-3 mt-2">
-                            <div class="text-sm text-gray-500">Категория: <span class="font-medium">{{ $product->category->title ?? '—' }}</span></div>
+                            <div class="text-sm text-gray-500">Категория: <span class="font-medium">{{ $product->category->name ?? '—' }}</span></div>
                             {{-- пример метки --}}
                         </div>
 

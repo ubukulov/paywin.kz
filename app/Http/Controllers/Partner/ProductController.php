@@ -94,11 +94,13 @@ class ProductController extends Controller
         return view('partner.product.edit', compact('product', 'warehouses', 'productCategories'));
     }
 
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
         $product = Product::findOrFail($id);
+
         DB::beginTransaction();
         try {
-            // Обновляем основные поля
+            // 1. Обновляем основные поля
             $product->update([
                 'sku' => $request->article,
                 'name' => $request->name,
@@ -106,48 +108,76 @@ class ProductController extends Controller
                 'product_category_id' => $request->product_category_id,
             ]);
 
-            // Удаляем фото, которые пользователь нажал "удалить"
-            $removedIds = json_decode($request->removed_photos);
+            // 2. Удаляем фото, которые пользователь пометил на удаление
+            $removedIds = json_decode($request->removed_photos, true);
             if(!empty($removedIds)) {
-                $images = ProductImage::whereIn('id', $removedIds)->get();
-                foreach($images as $img) {
-                    Storage::delete($img->path); // или как у тебя хранится путь
+                $imagesToDelete = ProductImage::whereIn('id', $removedIds)->get();
+                foreach($imagesToDelete as $img) {
+                    if (Storage::disk('public')->exists($img->path)) {
+                        Storage::disk('public')->delete($img->path);
+                    }
                     $img->delete();
                 }
             }
 
-            // Сохраняем новые фото
+            // 3. Обрабатываем НОВЫЕ файлы
+            // Создадим массив путей для новых фото, чтобы потом сопоставить их с порядком
+            $newUploadedPaths = [];
             if ($request->hasFile('new_photos')) {
-                foreach ($request->file('new_photos') as $index => $file) {
-                    // Формируем путь с годом и месяцем
-                    $folder = 'products/' . date('Y-m');
+                $folder = 'products/' . date('Y-m');
+                foreach ($request->file('new_photos') as $file) {
+                    $newUploadedPaths[] = $file->store($folder, 'public');
+                }
+            }
 
-                    // Сохраняем файл в storage/app/public/products/YYYY-MM
-                    $path = $file->store($folder, 'public');
+            // 4. ГЛАВНОЕ: Сохраняем порядок (сортировку)
+            // images_order прилетает как: [{"id":1,"isNew":false}, {"id":null,"isNew":true}, ...]
+            $imagesOrder = json_decode($request->images_order, true);
 
-                    // Создаём запись в таблице product_images
-                    $product->images()->create([
-                        'product_id' => $product->id,
-                        'path'     => $path,
-                        'main'     => $index === 0, // первое фото — главное
-                        'position' => $index,
+            if (!empty($imagesOrder)) {
+                $newPhotoIndex = 0;
+
+                foreach ($imagesOrder as $index => $item) {
+                    $isMain = ($index === 0); // Самое первое фото в массиве — всегда главное (обложка)
+
+                    if ($item['isNew'] === true) {
+                        // Если это новое фото, создаем запись, берем путь из только что загруженных
+                        if (isset($newUploadedPaths[$newPhotoIndex])) {
+                            $product->images()->create([
+                                'path'     => $newUploadedPaths[$newPhotoIndex],
+                                'main'     => $isMain,
+                                'position' => $index,
+                            ]);
+                            $newPhotoIndex++;
+                        }
+                    } else {
+                        // Если это старое фото, просто обновляем его позицию и статус "главного"
+                        ProductImage::where('id', $item['id'])->update([
+                            'position' => $index,
+                            'main'     => $isMain
+                        ]);
+                    }
+                }
+            }
+
+            // 5. Обновляем склады
+            $warehousesData = json_decode($request->warehouses, true);
+            if (!empty($warehousesData)) {
+                foreach($warehousesData as $wId => $data) {
+                    $product->warehouses()->updateExistingPivot($wId, [
+                        'price'    => $data['price'],
+                        'quantity' => $data['count'],
                     ]);
                 }
             }
 
-            // Обновляем склады
-            $warehousesData = json_decode($request->warehouses, true);
-            foreach($warehousesData as $wId => $data) {
-                $product->warehouses()->updateExistingPivot($wId, [
-                    'price'    => $data['price'],
-                    'quantity' => $data['count'], // У тебя в БД поле quantity, а из Vue летит count
-                ]);
-            }
-
             DB::commit();
-        } catch (Exception $exception) {
+            return response()->json(['success' => true]);
+
+        } catch (\Exception $exception) {
             DB::rollback();
-            throw $exception;
+            // В продакшене лучше логировать $exception->getMessage()
+            return response()->json(['error' => 'Ошибка при сохранении'], 500);
         }
     }
 }
