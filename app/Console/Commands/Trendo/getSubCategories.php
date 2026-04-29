@@ -43,7 +43,7 @@ class getSubCategories extends Command
             }
 
             for ($i = 0; $i < count($subCategories); $i++) {
-                if ($i == 0 && !ProductCategory::whereName($subCategories[0])->exists()) {
+                if (!ProductCategory::whereName($subCategories[0])->exists()) {
                     ProductCategory::create([
                         'name' => $subCategories[0],
                         'parent_id' => $productCategory->id
@@ -51,12 +51,14 @@ class getSubCategories extends Command
                     continue;
                 }
 
-                $subSubCategory = ProductCategory::whereName($subCategories[$i-1])->first();
+                if ($i != 0) {
+                    $subSubCategory = ProductCategory::whereName($subCategories[$i-1])->first();
 
-                ProductCategory::create([
-                    'name' => $subCategories[$i],
-                    'parent_id' => $subSubCategory->id
-                ]);
+                    ProductCategory::create([
+                        'name' => $subCategories[$i],
+                        'parent_id' => $subSubCategory->id
+                    ]);
+                }
             }
 
             DB::commit();
