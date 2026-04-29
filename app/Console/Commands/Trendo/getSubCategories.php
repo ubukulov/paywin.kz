@@ -49,13 +49,13 @@ class getSubCategories extends Command
 
                 foreach ($subCategoryArr as $index=>$categoryName) {
                     if ($index == 0) {
-                        $category = ProductCategory::firstOrCreate([
+                        ProductCategory::firstOrCreate([
                             'name' => (string)$categoryName,
                             'parent_id' => $productCategory->id
                         ]);
                     } else {
-                        $subSubCategory = ProductCategory::whereName($subCategories[$index-1])->first();
-                        $category = ProductCategory::firstOrCreate([
+                        $subSubCategory = ProductCategory::whereName($subCategoryArr[0])->first();
+                        ProductCategory::firstOrCreate([
                             'name' => (string)$categoryName,
                             'parent_id' => $subSubCategory->id
                         ]);
