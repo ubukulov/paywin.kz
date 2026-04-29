@@ -42,29 +42,26 @@ class getSubCategories extends Command
                 return;
             }
 
-            for ($i = 0; $i < count($subCategories); $i++) {
-                if (!ProductCategory::whereName($subCategories[0])->exists()) {
-                    ProductCategory::create([
-                        'name' => $subCategories[0],
-                        'parent_id' => $productCategory->id
-                    ]);
-                    continue;
-                }
+            $currentParentId = $productCategory->id;
 
-                if ($i != 0) {
-                    $subSubCategory = ProductCategory::whereName($subCategories[$i-1])->first();
+            foreach ($subCategories as $categoryName) {
+                // Ищем категорию или создаем её, если её нет
+                // Это избавит от ошибок дублирования и проблем с индексами
+                $category = ProductCategory::firstOrCreate(
+                    ['name' => $categoryName],
+                    ['parent_id' => $currentParentId]
+                );
 
-                    ProductCategory::create([
-                        'name' => $subCategories[$i],
-                        'parent_id' => $subSubCategory->id
-                    ]);
-                }
+                // Для следующей итерации текущая категория становится родительской
+                $currentParentId = $category->id;
             }
 
             DB::commit();
+            $this->info("Цепочка категорий успешно обработана.");
         } catch (\Exception $exception) {
             DB::rollBack();
             Log::error("Error: " . $exception->getMessage(). "Line: " . $exception->getLine());
+            $this->error("Ошибка при выполнении команды. Проверьте логи.");
         }
     }
 }
