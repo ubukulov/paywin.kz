@@ -49,38 +49,6 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- Описание --}}
-                    <div class="bg-white p-6 rounded-2xl shadow-sm">
-                        <h2 class="text-lg font-semibold mb-2">Описание</h2>
-                        <div class="prose max-w-none text-sm text-gray-700">
-                            {!! $product->description !!}
-                        </div>
-                    </div>
-
-                    {{-- Характеристики / meta --}}
-                    @if($product->meta)
-                        <div class="bg-white p-6 rounded-2xl shadow-sm">
-                            <h3 class="text-sm font-semibold mb-2">Характеристики</h3>
-                            <pre class="text-xs text-gray-600 whitespace-pre-wrap">{{ is_array($product->meta) ? json_encode($product->meta, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : $product->meta }}</pre>
-                        </div>
-                    @endif
-
-                    {{-- Опционально: похожие товары --}}
-                    @if(isset($related) && $related->isNotEmpty())
-                        <div>
-                            <h3 class="text-lg font-semibold mb-3">Похожие товары</h3>
-                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                @foreach($related as $r)
-                                    <a href="{{ route('product.show', $r) }}" class="block bg-white rounded-xl p-3 shadow-sm hover:shadow-md">
-                                        <img src="{{ $r->mainImage->url ?? asset('images/no-image.png') }}" alt="{{ $r->name }}" class="w-full h-28 object-cover rounded" />
-                                        <div class="mt-2 text-sm font-medium">{{ $r->name }}</div>
-                                        <div class="text-sm text-gray-600">{{ number_format($r->price,0,'.',' ') }} ₸</div>
-                                    </a>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
                 </div>
 
                 {{-- ПРАВАЯ КОЛОНКА: Информация и действие --}}
@@ -151,7 +119,7 @@
                     </div>
 
                     {{-- Короткие карточки доп.информации (опционально) --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm">
                         {{--<div class="bg-white p-4 rounded-xl shadow-sm">
                             <h4 class="text-xs text-gray-500">Быстрая информация</h4>
                             <div class="mt-2 text-sm text-gray-700">
@@ -176,6 +144,40 @@
 
 
                 </div>
+            </div>
+
+            <div class="mt-4">
+                {{-- Описание --}}
+                <div class="bg-white p-6 rounded-2xl shadow-sm">
+                    <h2 class="text-lg font-semibold mb-2">Описание</h2>
+                    <div class="prose max-w-none text-sm text-gray-700">
+                        {!! $product->description !!}
+                    </div>
+                </div>
+
+                {{-- Характеристики / meta --}}
+                @if($product->meta)
+                    <div class="bg-white p-6 rounded-2xl shadow-sm">
+                        <h3 class="text-sm font-semibold mb-2">Характеристики</h3>
+                        <pre class="text-xs text-gray-600 whitespace-pre-wrap">{{ is_array($product->meta) ? json_encode($product->meta, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : $product->meta }}</pre>
+                    </div>
+                @endif
+
+                {{-- Опционально: похожие товары --}}
+                @if(isset($related) && $related->isNotEmpty())
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">Похожие товары</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            @foreach($related as $r)
+                                <a href="{{ route('product.show', $r) }}" class="block bg-white rounded-xl p-3 shadow-sm hover:shadow-md">
+                                    <img src="{{ $r->mainImage->url ?? asset('images/no-image.png') }}" alt="{{ $r->name }}" class="w-full h-28 object-cover rounded" />
+                                    <div class="mt-2 text-sm font-medium">{{ $r->name }}</div>
+                                    <div class="text-sm text-gray-600">{{ number_format($r->price,0,'.',' ') }} ₸</div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
 
