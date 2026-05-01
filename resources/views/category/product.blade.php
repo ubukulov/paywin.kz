@@ -6,7 +6,7 @@
 
 @section('content')
     <div class="container product-page">
-        <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="max-w-7xl mx-auto px-4">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {{-- ЛЕВАЯ КОЛОНКА: Галерея --}}
                 <div class="space-y-4">
@@ -50,23 +50,37 @@
                         </div>
                     </div>
 
-                    {{-- Короткие карточки доп.информации (опционально) --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div class="bg-white p-4 rounded-xl shadow-sm">
-                            <h4 class="text-xs text-gray-500">Быстрая информация</h4>
-                            <div class="mt-2 text-sm text-gray-700">
-                                <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>
-                                <div>В наличии: <span class="font-medium">{{ $product->quantity }}</span></div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-4 rounded-xl shadow-sm">
-                            <h4 class="text-xs text-gray-500">Доставка</h4>
-                            <div class="mt-2 text-sm text-gray-700">
-                                Доставка по Казахстану 1–3 дня. Бесплатная доставка от 50 000 ₸.
-                            </div>
+                    {{-- Описание --}}
+                    <div class="bg-white p-6 rounded-2xl shadow-sm">
+                        <h2 class="text-lg font-semibold mb-2">Описание</h2>
+                        <div class="prose max-w-none text-sm text-gray-700">
+                            {!! $product->description !!}
                         </div>
                     </div>
+
+                    {{-- Характеристики / meta --}}
+                    @if($product->meta)
+                        <div class="bg-white p-6 rounded-2xl shadow-sm">
+                            <h3 class="text-sm font-semibold mb-2">Характеристики</h3>
+                            <pre class="text-xs text-gray-600 whitespace-pre-wrap">{{ is_array($product->meta) ? json_encode($product->meta, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : $product->meta }}</pre>
+                        </div>
+                    @endif
+
+                    {{-- Опционально: похожие товары --}}
+                    @if(isset($related) && $related->isNotEmpty())
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3">Похожие товары</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                @foreach($related as $r)
+                                    <a href="{{ route('product.show', $r) }}" class="block bg-white rounded-xl p-3 shadow-sm hover:shadow-md">
+                                        <img src="{{ $r->mainImage->url ?? asset('images/no-image.png') }}" alt="{{ $r->name }}" class="w-full h-28 object-cover rounded" />
+                                        <div class="mt-2 text-sm font-medium">{{ $r->name }}</div>
+                                        <div class="text-sm text-gray-600">{{ number_format($r->price,0,'.',' ') }} ₸</div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- ПРАВАЯ КОЛОНКА: Информация и действие --}}
@@ -112,9 +126,9 @@
                         </div>--}}
                         <div class="mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-bold text-gray-700">Поделись друзьями и заработай</span>
+                                <span class="text-sm font-bold text-gray-700">Поделись с друзьями и <br>заработай от покупки</span>
                                 <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">
-                +{{ number_format(auth()->user()->real_agent_percent ?? 4.9, 1) }}% доход
+                +{{ number_format(auth()->user()->real_agent_percent ?? 4.9, 1) }}% <br>на карту
             </span>
                             </div>
 
@@ -136,37 +150,31 @@
                         </div>
                     </div>
 
-                    {{-- Описание --}}
-                    <div class="bg-white p-6 rounded-2xl shadow-sm">
-                        <h2 class="text-lg font-semibold mb-2">Описание</h2>
-                        <div class="prose max-w-none text-sm text-gray-700">
-                            {!! $product->description !!}
+                    {{-- Короткие карточки доп.информации (опционально) --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {{--<div class="bg-white p-4 rounded-xl shadow-sm">
+                            <h4 class="text-xs text-gray-500">Быстрая информация</h4>
+                            <div class="mt-2 text-sm text-gray-700">
+                                <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>
+                                <div>В наличии: <span class="font-medium">{{ $product->quantity }}</span></div>
+                            </div>
+                        </div>--}}
+
+                        <div class="bg-white p-4 rounded-xl shadow-sm">
+                            <h4 class="text-xs text-gray-500">Доставка</h4>
+                            <div class="mt-2 text-sm text-gray-700">
+                                Доставка по Казахстану 1–3 дня. Бесплатная доставка от 50 000 ₸.
+                            </div>
+                            <br>
+                            <h4 class="text-xs text-gray-500">Быстрая информация</h4>
+                            <div class="mt-2 text-sm text-gray-700">
+                                <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>
+                                <div>В наличии: <span class="font-medium">{{ $product->quantity }}</span></div>
+                            </div>
                         </div>
                     </div>
 
-                    {{-- Характеристики / meta --}}
-                    @if($product->meta)
-                        <div class="bg-white p-6 rounded-2xl shadow-sm">
-                            <h3 class="text-sm font-semibold mb-2">Характеристики</h3>
-                            <pre class="text-xs text-gray-600 whitespace-pre-wrap">{{ is_array($product->meta) ? json_encode($product->meta, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : $product->meta }}</pre>
-                        </div>
-                    @endif
 
-                    {{-- Опционально: похожие товары --}}
-                    @if(isset($related) && $related->isNotEmpty())
-                        <div>
-                            <h3 class="text-lg font-semibold mb-3">Похожие товары</h3>
-                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                @foreach($related as $r)
-                                    <a href="{{ route('product.show', $r) }}" class="block bg-white rounded-xl p-3 shadow-sm hover:shadow-md">
-                                        <img src="{{ $r->mainImage->url ?? asset('images/no-image.png') }}" alt="{{ $r->name }}" class="w-full h-28 object-cover rounded" />
-                                        <div class="mt-2 text-sm font-medium">{{ $r->name }}</div>
-                                        <div class="text-sm text-gray-600">{{ number_format($r->price,0,'.',' ') }} ₸</div>
-                                    </a>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
