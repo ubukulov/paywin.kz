@@ -1,4 +1,9 @@
 @extends('layouts.app')
+
+@section('og_title', $product->name)
+@section('og_description', "Купи {$product->name} на Paywin и получи гарантированный приз!")
+@section('og_image', $product->mainImage->url ?? asset('img/no-image.png'))
+
 @section('content')
     <div class="container product-page">
         <div class="max-w-7xl mx-auto px-4 py-8">

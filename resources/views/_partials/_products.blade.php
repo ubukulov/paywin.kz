@@ -23,15 +23,22 @@
 
                     <div class="flex items-center justify-between mt-2">
                         <div class="flex items-baseline gap-2">
-                            <div class="text-lg font-bold">{{ $product->price }}</div>
+                            <div class="text-lg font-bold">{{ number_format($product->price, 0, '.', ' ') }}</div>
                             <div class="text-sm text-gray-600">₸</div>
                         </div>
 
                         <div class="flex items-center gap-2">
                             <button class="px-3 py-1.5 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700 transition">
-                                В корзину
+                                Подробнее
                             </button>
                         </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-gray-500 mt-2 gap-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                        Гарантируем призы при каждой покупке
                     </div>
 
                     <div class="flex items-center justify-between text-xs text-gray-500 mt-2">

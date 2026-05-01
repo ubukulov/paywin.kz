@@ -98,7 +98,7 @@
                         </div>
 
                         <p class="text-gray-700 mb-4 text-sm sm:text-base">
-                            После оплаты будет разыгран <b>один</b> подарок:
+                            Вы сможете выиграть гарантированно <b>один</b> из призов
                         </p>
 
                         <div class="relative overflow-hidden">
@@ -158,11 +158,6 @@
 
                             </div>
                         </div>
-
-
-                        <p class="mt-4 text-xs sm:text-sm text-gray-500 text-center">
-                            🎲 Приз определяется случайном образом после оплаты
-                        </p>
                     </div>
 
                 @endif
@@ -178,7 +173,7 @@
 
                     <a href="{{ route('checkout.index') }}"
                        class="w-full sm:w-auto text-center px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition">
-                        Оформить заказ
+                        Оплатить и выиграть
                     </a>
 
                 </div>
