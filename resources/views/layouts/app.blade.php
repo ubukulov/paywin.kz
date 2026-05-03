@@ -148,9 +148,15 @@
             </a>
 
             {{-- Если нужно добавить Профиль --}}
-            <a @if(\Illuminate\Support\Facades\Auth::user()->user_type == 'user') href="{{ route('user.cabinet') }}" @else href="{{ route('partner.cabinet') }}"  @endif class="p-2.5 text-gray-400 hover:text-indigo-600 transition">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            </a>
+            @if(Auth::check())
+                <a @if(Auth::user()->user_type == 'user') href="{{ route('user.cabinet') }}" @else href="{{ route('partner.cabinet') }}"  @endif class="p-2.5 text-gray-400 hover:text-indigo-600 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="p-2.5 text-gray-400 hover:text-indigo-600 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </a>
+            @endif
         </div>
     </div>
 

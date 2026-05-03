@@ -80,8 +80,11 @@
                                 <input id="cart-qty" name="quantity" value="1" min="1" max="{{ max(1, $product->quantity) }}" type="number" class="w-16 text-center px-2 py-2 outline-none" />
                                 <button type="button" onclick="incrementQty()" class="px-3 py-2">＋</button>
                             </div>
-
+                            @if(Auth::check())
                             <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">В корзину</button>
+                            @else
+                                <a class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition" href="{{ route('login') }}">В корзину</a>
+                            @endif
 
                             {{-- ещё кнопка купить в 1 клик --}}
                             {{--<button type="button" class="ml-2 text-sm text-indigo-600 underline">Купить в 1 клик</button>--}}
@@ -92,6 +95,8 @@
                             <button class="px-3 py-1 rounded-md border">Поделиться</button>
                             <button class="px-3 py-1 rounded-md border">Добавить в избранное</button>
                         </div>--}}
+
+                        @if(Auth::check())
                         <div class="mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-sm font-bold text-gray-700">Поделись с друзьями и <br>заработай от покупки</span>
@@ -116,6 +121,7 @@
                             </div>
                             <p id="copyMessage" class="text-xs text-green-600 mt-2 hidden">Ссылка скопирована в буфер!</p>
                         </div>
+                        @endif
                     </div>
 
                     {{-- Короткие карточки доп.информации (опционально) --}}
@@ -131,7 +137,7 @@
                         <div class="bg-white p-4 rounded-xl shadow-sm">
                             <h4 class="text-xs text-gray-500">Доставка</h4>
                             <div class="mt-2 text-sm text-gray-700">
-                                Доставка по Казахстану 1–3 дня. Бесплатная доставка от 50 000 ₸.
+                                Доставка по @if($currentCity->name== "Алматы") Алматы 1–2 дня. @else Казахстану 3-5 дней. @endif Бесплатная доставка от 50 000 ₸.
                             </div>
                             <br>
                             <h4 class="text-xs text-gray-500">Быстрая информация</h4>

@@ -38,12 +38,12 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
-                        Гарантируем призы при каждой покупке
+                        Оплати и выиграй один из 20 призов
                     </div>
 
                     <div class="flex items-center justify-between text-xs text-gray-500 mt-2">
                         <div>В наличии: <span class="font-medium text-gray-700">{{ $product->quantity }}</span></div>
-                        <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>
+{{--                        <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>--}}
                     </div>
                 </div>
             </article>

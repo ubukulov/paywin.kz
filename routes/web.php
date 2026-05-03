@@ -40,8 +40,11 @@ Route::get('about-us', [IndexController::class, 'aboutUs'])->name('aboutUs');
 Route::get('forget-password', [AuthController::class, 'forgetPassword'])->name('forgetPassword');
 Route::post('forget-password', [AuthController::class, 'quickReset'])->name('password.quick_reset');
 
+Route::get('/', [IndexController::class, 'home'])->name('home');
+Route::get('product/{slug}', [ProductController::class, 'show'])->name('product.show');
+
 Route::group(['middleware' => 'auth'], function(){
-    Route::get('/', [IndexController::class, 'home'])->name('home');
+
 
     Route::get('success/payment', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
     Route::get('error/payment', [IndexController::class, 'paymentError'])->name('payment.error');
@@ -53,7 +56,7 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('category-all-partners', [CategoryController::class, 'allPartners'])->name('category.allPartners');
 
     Route::get('payment/{slug}/{id}/page', [IndexController::class, 'paymentPage'])->name('paymentPage');
-    Route::get('product/{slug}', [ProductController::class, 'show'])->name('product.show');
+
 
     Route::get('review', [IndexController::class, 'review'])->name('review');
     Route::get('partner/{id}/not-given-prize', [IndexController::class, 'notGivenPrize'])->name('notGivenPrize');
