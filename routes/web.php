@@ -42,6 +42,7 @@ Route::post('forget-password', [AuthController::class, 'quickReset'])->name('pas
 
 Route::get('/', [IndexController::class, 'home'])->name('home');
 Route::get('product/{slug}', [ProductController::class, 'show'])->name('product.show');
+Route::post('/set-city', [IndexController::class, 'setCity'])->name('city.set');
 
 Route::group(['middleware' => 'auth'], function(){
 
@@ -61,7 +62,7 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('review', [IndexController::class, 'review'])->name('review');
     Route::get('partner/{id}/not-given-prize', [IndexController::class, 'notGivenPrize'])->name('notGivenPrize');
 
-    Route::post('/set-city', [IndexController::class, 'setCity'])->name('city.set');
+
 
     # Partner's route
     Route::group(['prefix' => 'partner', 'middleware' => ['partner'], 'as' => 'partner.'], function(){
