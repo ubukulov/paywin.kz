@@ -34,7 +34,26 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between text-xs text-gray-500 mt-2 gap-3">
+                    <div class="mt-auto pt-3 border-t border-gray-100">
+                        <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-tight text-gray-600">
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="text-lg">✅</span>
+                                <span>Купи</span>
+                            </div>
+                            <div class="h-px flex-1 bg-gray-200 mx-2 mb-4"></div>
+                            <div class="flex flex-col items-center gap-1 text-indigo-600">
+                                <span class="text-lg">🎉</span>
+                                <span>Участвуй</span>
+                            </div>
+                            <div class="h-px flex-1 bg-gray-200 mx-2 mb-4"></div>
+                            <div class="flex flex-col items-center gap-1 text-pink-600">
+                                <span class="text-lg animate-bounce">🎁</span>
+                                <span>Выиграй</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{--<div class="flex items-center justify-between text-xs text-gray-500 mt-2 gap-3">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
@@ -43,8 +62,8 @@
 
                     <div class="flex items-center justify-between text-xs text-gray-500 mt-2">
                         <div>В наличии: <span class="font-medium text-gray-700">{{ $product->quantity }}</span></div>
-{{--                        <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>--}}
-                    </div>
+                        <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>
+                    </div>--}}
                 </div>
             </article>
         </a>
