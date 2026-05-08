@@ -11,4 +11,5 @@ enum OrderEnum:string
     case COMPLETED = 'completed';
     case CANCELLED = 'cancelled';
     case REFUNDED = 'refunded';
+    case PREORDER = 'preorder';
 }

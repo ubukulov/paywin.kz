@@ -100,21 +100,24 @@ class CheckoutController extends BaseController
             }
 
             // Создаём заказ
+            $isPreorder = $cart->isPreorder();
             $order = Order::create([
                 'user_id' => $user->id,
                 'user_discount_id' => $activePromo ? $activePromo->id : null, // Сохраняем ID промокода
                 'subtotal' => $cart->total,
                 'discount' => $discountValue,
                 'total' => $cart->total - $discountValue,
-                'status' => OrderEnum::PENDING->value,
+                'status' => ($isPreorder) ? OrderEnum::PREORDER->value  : OrderEnum::PENDING->value,
                 'payment_method' => 'card',
                 'shipping_address' => $request->address ?? 'Самовывоз',
             ]);
 
             foreach ($cart->items as $item) {
                 // Уменьшаем сток
-                ProductStock::where(['product_id' => $item->product_id, 'city_id' => 1])
-                    ->decrement('quantity', $item->quantity);
+                if (!$isPreorder) {
+                    ProductStock::where(['product_id' => $item->product_id, 'city_id' => 1])
+                        ->decrement('quantity', $item->quantity);
+                }
 
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -149,7 +152,7 @@ class CheckoutController extends BaseController
             }
 
             // Успех без 3DS
-            $this->finalizeOrder($order, $paymentResponse['Model']);
+            $this->finalizeOrder($order, $paymentResponse['Model'], $isPreorder);
 
             DB::commit();
             return redirect('/')->with('success', 'Заказ успешно оплачен!');
@@ -163,11 +166,11 @@ class CheckoutController extends BaseController
     /**
      * Логика распределения вознаграждений
      */
-    private function finalizeOrder(Order $order, $paymentModel)
+    private function finalizeOrder(Order $order, $paymentModel, $isPreorder = false)
     {
         $order->update([
             'meta' => json_encode($paymentModel, JSON_UNESCAPED_UNICODE),
-            'status' => OrderEnum::PAID->value,
+            'status' => ($isPreorder) ? OrderEnum::PREORDER->value  : OrderEnum::PAID->value,
             'transaction_id' => $paymentModel['TransactionId'] ?? $order->transaction_id
         ]);
 

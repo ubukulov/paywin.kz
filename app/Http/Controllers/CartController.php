@@ -8,6 +8,7 @@ use App\Models\CartItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use App\Services\PartnerGiftService;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends BaseController
 {
@@ -30,10 +31,31 @@ class CartController extends BaseController
     public function addToCart(Request $request)
     {
         $product = Product::where(['products.id' => $request->product_id])
-                ->selectRaw('products.*, product_stocks.price, product_stocks.quantity')
+                ->selectRaw('products.*, product_stocks.price, product_stocks.quantity, product_stocks.is_preorder')
                 ->join('product_stocks', 'product_stocks.product_id', 'products.id')
                 ->first();
+
         $cart = $this->getOrCreateCart();
+
+        if ($cart->items()->exists()) {
+            $cartStatus = DB::table('cart_items')
+                ->join('product_stocks', 'product_stocks.product_id', '=', 'cart_items.product_id')
+                ->where('cart_items.cart_id', $cart->id)
+                ->select('product_stocks.is_preorder')
+                ->first();
+
+            $isCartPreorder = (bool) ($cartStatus->is_preorder ?? false);
+
+            // Сравниваем тип нового товара с тем, что уже в корзине
+            if ((bool)$product->is_preorder !== $isCartPreorder) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $isCartPreorder
+                        ? 'В корзине уже есть предзаказ. Обычные товары нужно покупать отдельно.'
+                        : 'В корзине уже есть обычные товары. Предзаказ оформляется отдельной корзиной.'
+                ], 422);
+            }
+        }
 
         $item = CartItem::firstOrCreate(
             ['cart_id' => $cart->id, 'product_id' => $product->id],

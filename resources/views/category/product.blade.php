@@ -81,7 +81,11 @@
                                 <button type="button" onclick="incrementQty()" class="px-3 py-2">＋</button>
                             </div>
                             @if(Auth::check())
-                            <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">В корзину</button>
+                                @if($product->is_preorder)
+                                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Оформить предзаказ</button>
+                                @else
+                                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">В корзину</button>
+                                @endif
                             @else
                                 <a class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition" href="{{ route('login') }}">В корзину</a>
                             @endif
@@ -89,6 +93,25 @@
                             {{-- ещё кнопка купить в 1 клик --}}
                             {{--<button type="button" class="ml-2 text-sm text-indigo-600 underline">Купить в 1 клик</button>--}}
                         </form>
+
+                        @if($product->is_preorder && $product->available_at)
+                            <div class="mt-6 flex items-center p-4 bg-amber-50 border border-amber-100 rounded-2xl shadow-sm animate__animated animate__fadeIn">
+                                <div class="flex-shrink-0 bg-amber-100 p-2 rounded-lg text-amber-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-xs font-bold text-amber-800 uppercase tracking-wider">Предзаказ</p>
+                                    <p class="text-sm text-amber-700">
+                                        Ожидаемое поступление:
+                                        <span class="font-bold">
+                                            {{ \Carbon\Carbon::parse($product->available_at)->translatedFormat('d F Y') }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
 
                         {{-- Кнопки соц/поделиться/избранное --}}
                         {{--<div class="mt-4 flex gap-3 text-sm">
@@ -217,12 +240,16 @@
                     .then(res => res.json())
                     .then(data => {
                         // обновляем счетчик корзины
-                        const counter = document.getElementById('cart-count');
-                        if(counter) counter.innerText = data.total_items ?? 0;
+                        if (data.success) {
+                            const counter = document.getElementById('cart-count');
+                            if(counter) counter.innerText = data.total_items ?? 0;
 
-                        // toast уведомление
-                        window.showToast("Товар добавлен в корзину!");
-                    });
+                            // toast уведомление
+                            window.showToast(data.message);
+                        } else {
+                            window.showToast(data.message, "error");
+                        }
+                    })
             });
 
             function updateCartCounter(count) {

@@ -3,19 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TransactionEnum;
-use App\Http\Controllers\Controller;
-use App\Http\Middleware\Partner;
-use App\Models\Category;
 use App\Models\City;
-use App\Models\Payment;
 use App\Models\Product;
-use App\Models\UserGift;
 use App\Models\Share;
 use App\Models\User;
-use App\Models\UserBalance;
-use App\Models\UserDiscount;
-use App\Models\UserProfile;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +23,7 @@ class IndexController extends BaseController
             ->join('product_stocks', 'product_stocks.product_id', 'products.id')
             ->join('partner_warehouses', 'partner_warehouses.id', '=', 'product_stocks.warehouse_id')
             ->where('partner_warehouses.city_id', $cityId)
-            ->select('products.*', 'product_stocks.price', 'product_stocks.quantity')
+            ->select('products.*', 'product_stocks.price', 'product_stocks.quantity', 'product_stocks.is_preorder', 'product_stocks.available_at')
             ->get();
         return view('home-products',  compact('products'));
     }

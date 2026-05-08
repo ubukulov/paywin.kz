@@ -26,4 +26,16 @@ class Cart extends Model
     {
         return $this->hasMany(CartItem::class);
     }
+
+    public function isPreorder() :bool
+    {
+        foreach ($this->items as $item) {
+            $stock = ProductStock::where(['product_id' => $item->product_id])->first();
+            if ($stock && $stock->is_preorder) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

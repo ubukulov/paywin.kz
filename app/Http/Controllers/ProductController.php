@@ -11,7 +11,7 @@ class ProductController extends BaseController
         $product = Product::with('images')
                 ->whereSlug($slug)
                 ->join('product_stocks', 'product_stocks.product_id', '=', 'products.id')
-                ->select('products.*', 'product_stocks.quantity', 'product_stocks.price')
+                ->select('products.*', 'product_stocks.quantity', 'product_stocks.price', 'product_stocks.is_preorder', 'product_stocks.available_at')
                 ->firstOrFail();
 
         return view('category.product', compact('product'));

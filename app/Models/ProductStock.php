@@ -17,7 +17,9 @@ class ProductStock extends Model
         'warehouse_id',
         'price',
         'old_price',
-        'quantity'
+        'quantity',
+        'is_preorder',
+        'available_at'
     ];
 
     public function product(): BelongsTo

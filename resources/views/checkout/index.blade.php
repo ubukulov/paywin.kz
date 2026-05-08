@@ -45,7 +45,7 @@
                 <label class="block mb-4">
                     <span class="text-sm font-medium text-gray-700">Адрес доставки</span>
                     <textarea name="address" rows="3" required
-                              class="w-full border rounded-lg p-3 mt-1 focus:ring-indigo-500 focus:border-indigo-500">{{ auth()->user()->address }}</textarea>
+                              class="w-full border rounded-lg p-3 mt-1 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
                 </label>
             </div>
 
