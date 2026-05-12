@@ -30,7 +30,9 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $userProfile = Auth::user()->userProfile;
-        $prize = UserGift::where(['user_id' => $user->id, 'status' => 'available'])->first();
+        $prize = UserGift::where(['user_id' => $user->id, 'status' => 'available'])
+                ->whereNotNull('share_id')
+                ->first();
         return view('user.home', compact('userProfile', 'user', 'prize'));
     }
 

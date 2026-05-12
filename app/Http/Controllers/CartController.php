@@ -37,7 +37,7 @@ class CartController extends BaseController
 
         $cart = $this->getOrCreateCart();
 
-        if ($cart->items()->exists()) {
+        /*if ($cart->items()->exists()) {
             $cartStatus = DB::table('cart_items')
                 ->join('product_stocks', 'product_stocks.product_id', '=', 'cart_items.product_id')
                 ->where('cart_items.cart_id', $cart->id)
@@ -55,7 +55,7 @@ class CartController extends BaseController
                         : 'В корзине уже есть обычные товары. Предзаказ оформляется отдельной корзиной.'
                 ], 422);
             }
-        }
+        }*/
 
         $item = CartItem::firstOrCreate(
             ['cart_id' => $cart->id, 'product_id' => $product->id],

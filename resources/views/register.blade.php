@@ -15,6 +15,26 @@
                 Регистрация
             </h1>
 
+            @if($promo)
+                <div class="mb-6 p-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg animate__animated animate__pulse animate__infinite">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-white/20 p-3 rounded-xl backdrop-blur-md">
+                            <i class="fas fa-gift text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-lg leading-tight">{{ $promo->title }}</h4>
+                            <p class="text-sm text-indigo-100">
+                                @if($promo->reward_type === 'guaranteed')
+                                    Зарегистрируйся и получи гарантированный подарок!
+                                @else
+                                    Получи бесплатный билет на розыгрыш призов сразу после входа!
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <p class="text-gray-500 mb-6">
                 Зарегистрируйтесь, используя номер телефона
             </p>

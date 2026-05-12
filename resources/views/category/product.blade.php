@@ -82,7 +82,7 @@
                             </div>
                             @if(Auth::check())
                                 @if($product->is_preorder)
-                                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Оформить предзаказ</button>
+                                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">В корзину</button>
                                 @else
                                     <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">В корзину</button>
                                 @endif
@@ -102,7 +102,7 @@
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <p class="text-xs font-bold text-amber-800 uppercase tracking-wider">Предзаказ</p>
+{{--                                    <p class="text-xs font-bold text-amber-800 uppercase tracking-wider">Предзаказ</p>--}}
                                     <p class="text-sm text-amber-700">
                                         Ожидаемое поступление:
                                         <span class="font-bold">

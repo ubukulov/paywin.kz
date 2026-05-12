@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('promotions', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->enum('type', ['registration', 'purchase']); // Тип: за регистрацию или покупку
+            $table->string('type');
             $table->enum('scope', ['all', 'partners', 'products']); // Охват: все, только партнеры или товары
             $table->enum('reward_type', ['guaranteed', 'raffle']); // Награда: гарантированная или билет на розыгрыш
             $table->json('prizes')->nullable(); // Список призов (если гарантированные)

@@ -13,6 +13,7 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use App\Services\PartnerGiftService;
 use App\Services\TipTopPayService;
@@ -100,24 +101,27 @@ class CheckoutController extends BaseController
             }
 
             // Создаём заказ
-            $isPreorder = $cart->isPreorder();
+            //$isPreorder = $cart->isPreorder();
             $order = Order::create([
                 'user_id' => $user->id,
                 'user_discount_id' => $activePromo ? $activePromo->id : null, // Сохраняем ID промокода
                 'subtotal' => $cart->total,
                 'discount' => $discountValue,
                 'total' => $cart->total - $discountValue,
-                'status' => ($isPreorder) ? OrderEnum::PREORDER->value  : OrderEnum::PENDING->value,
+                'status' => OrderEnum::PENDING->value, //($isPreorder) ? OrderEnum::PREORDER->value  : OrderEnum::PENDING->value,
                 'payment_method' => 'card',
                 'shipping_address' => $request->address ?? 'Самовывоз',
             ]);
 
             foreach ($cart->items as $item) {
                 // Уменьшаем сток
-                if (!$isPreorder) {
+                /*if (!$isPreorder) {
                     ProductStock::where(['product_id' => $item->product_id, 'city_id' => 1])
                         ->decrement('quantity', $item->quantity);
-                }
+                }*/
+
+                ProductStock::where(['product_id' => $item->product_id, 'city_id' => Cookie::get('selected_city_id')])
+                    ->decrement('quantity', $item->quantity);
 
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -152,7 +156,7 @@ class CheckoutController extends BaseController
             }
 
             // Успех без 3DS
-            $this->finalizeOrder($order, $paymentResponse['Model'], $isPreorder);
+            $this->finalizeOrder($order, $paymentResponse['Model']);
 
             DB::commit();
             return redirect('/')->with('success', 'Заказ успешно оплачен!');
