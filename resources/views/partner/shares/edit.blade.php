@@ -10,7 +10,7 @@
         <div class="mypromo__header">
             <div class="mypromo__header-title">
                 Редактировать <br>
-                @if($share->type == 'share')
+                @if($share->type == 'gift')
                     приз
                 @elseif($share->type == 'discount')
                     скидку
@@ -22,7 +22,7 @@
             </div>
         </div>
 
-        @if($share->type == 'share')
+        @if($share->type == 'gift')
             @include('partner.shares.types.edit.gift-edit')
         @endif
 

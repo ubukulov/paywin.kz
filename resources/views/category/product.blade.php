@@ -119,6 +119,8 @@
                             <button class="px-3 py-1 rounded-md border">Добавить в избранное</button>
                         </div>--}}
 
+                        @include('category.block_shares')
+
                         @if(Auth::check())
                         <div class="mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
                             <div class="flex items-center justify-between mb-2">

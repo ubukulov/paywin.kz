@@ -1,8 +1,38 @@
-<form action="{{ route('partner.my-shares.store') }}" method="post"
+<form action="{{ route('partner.my-shares.store') }}" enctype="multipart/form-data" method="post"
       class="max-w-2xl mx-auto rounded-2xl space-y-6">
 
     @csrf
     <input type="hidden" name="type" value="gift">
+
+    {{-- Загрузка изображения --}}
+    <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-600">Изображение</label>
+
+        <div class="flex items-center gap-4">
+            {{-- Область предпросмотра --}}
+            <div id="image-preview-container" class="w-20 h-20 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50">
+                <img id="image-preview" src="{{ asset('images/no-image.png') }}" class="w-full h-full object-cover hidden">
+                <i id="upload-icon" class="fas fa-camera text-gray-300 text-xl"></i>
+            </div>
+
+            {{-- Кастомный инпут --}}
+            <div class="flex-1">
+                <input
+                    type="file"
+                    name="image"
+                    id="image-input"
+                    accept="image/*"
+                    class="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-lg file:border-0
+                file:text-sm file:font-semibold
+                file:bg-indigo-50 file:text-indigo-600
+                hover:file:bg-indigo-100 transition"
+                >
+                <p class="mt-1 text-[10px] text-gray-400 italic">Рекомендуемый размер: 800x800px (JPG, PNG)</p>
+            </div>
+        </div>
+    </div>
 
     {{-- Название --}}
     <div class="flex flex-col gap-2">
@@ -120,3 +150,24 @@
     </div>
 
 </form>
+
+<script>
+    document.getElementById('image-input').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('image-preview');
+        const icon = document.getElementById('upload-icon');
+        const container = document.getElementById('image-preview-container');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                icon.classList.add('hidden');
+                container.classList.remove('border-dashed');
+                container.classList.add('border-solid', 'border-indigo-200');
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>

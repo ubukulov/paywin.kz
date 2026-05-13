@@ -101,6 +101,11 @@ class ShareController extends Controller
             }
         }
 
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('shares', 'public');
+            $extraData['image'] = $path;
+        }
+
         $data['data'] = $extraData;
 
         // Сохранение записи

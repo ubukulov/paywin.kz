@@ -1,11 +1,43 @@
 <form action="{{ route('partner.my-shares.update', ['my_share' => $share->id]) }}"
       method="POST"
+      enctype="multipart/form-data"
       class="max-w-2xl mx-auto rounded-2xl space-y-6 px-3">
 
     @csrf
     @method('PUT')
 
-    <input type="hidden" name="type" value="share">
+    <input type="hidden" name="type" value="gift">
+
+    {{-- Загрузка изображения --}}
+    <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-600">Изображение</label>
+
+        <div class="flex items-center gap-4">
+            {{-- Область предпросмотра --}}
+            <div id="image-preview-container" class="w-20 h-20 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50">
+                <img id="image-preview" @if($share->data['image']) src="{{ asset('storage/' . $share->data['image']) }}" @else src="{{ asset('images/no-image.png') }}" @endif
+                class="w-full h-full object-cover @if(!$share->data['image']) hidden @endif">
+                <i id="upload-icon" class="fas fa-camera text-gray-300 text-xl"></i>
+            </div>
+
+            {{-- Кастомный инпут --}}
+            <div class="flex-1">
+                <input
+                    type="file"
+                    name="image"
+                    id="image-input"
+                    accept="image/*"
+                    class="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-lg file:border-0
+                file:text-sm file:font-semibold
+                file:bg-indigo-50 file:text-indigo-600
+                hover:file:bg-indigo-100 transition"
+                >
+                <p class="mt-1 text-[10px] text-gray-400 italic">Рекомендуемый размер: 800x800px (JPG, PNG)</p>
+            </div>
+        </div>
+    </div>
 
     {{-- Название --}}
     <div class="flex flex-col gap-2">
@@ -28,7 +60,7 @@
             type="number"
             min="1"
             name="cnt"
-            value="{{ $share->cnt }}"
+            value="{{ $share->count }}"
             required
             class="w-full rounded-lg border border-gray-300 px-4 py-2
                        focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
@@ -46,7 +78,7 @@
                 type="number"
                 min="1"
                 name="from_order"
-                value="{{ $share->from_order }}"
+                value="{{ $share->data['from_order'] }}"
                 required
                 class="w-full rounded-lg border border-gray-300 px-4 py-2
                        focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
@@ -74,7 +106,7 @@
             type="number"
             min="1"
             name="c_winning"
-            value="{{ $share->c_winning }}"
+            value="{{ $share->data['c_winning'] }}"
             required
             class="w-full rounded-lg border border-gray-300 px-4 py-2
                        focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
