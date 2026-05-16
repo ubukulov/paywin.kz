@@ -153,21 +153,18 @@ class PartnerGiftService
             ->values(); // Сбрасываем ключи коллекции для чистого JSON
     }
 
-    public function getEligiblePrizesForProduct(float $amount)
+    public function getEligiblePrizesForProduct()
     {
         return Share::where('type', '!=', 'promocode') // Исключаем регистрационные промокоды
         ->active()
             ->get()
-            ->filter(function ($share) use ($amount) {
+            ->filter(function ($share) {
                 $fromOrder = (float)($share->data['from_order'] ?? 0);
 
                 // Проверяем 2 условия:
                 // 1. Сумма чека подходит
                 // 2. Призы еще не закончились (count == 0 значит безлимитно)
-                $isAmountFit = $amount >= $fromOrder;
-                $hasStock = ($share->count == 0 || $share->used_count < $share->count);
-
-                return $isAmountFit && $hasStock;
+                return ($share->count == 0 || $share->used_count < $share->count);
             })
             // Сортируем: сначала самые ценные (где шанс выигрыша меньше)
             ->sortBy('data.c_winning')

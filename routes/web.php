@@ -18,6 +18,7 @@ use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PayoutController;
 use App\Http\Controllers\User\PromoController;
+use App\Http\Controllers\ProductReviewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -159,8 +160,9 @@ Route::group(['middleware' => 'auth'], function(){
 
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
-    # Referrals
-    #Route::get('ref/');
+    # Product reviews
+    Route::post('/product/review/store', [ProductReviewController::class, 'store'])->name('product.review.store');
+    Route::post('/product/review/{review}/reply', [ProductReviewController::class, 'reply'])->name('review.reply');
 
 });
 

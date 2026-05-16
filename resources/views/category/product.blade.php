@@ -22,10 +22,12 @@
                             >
 
                             {{-- Кнопки prev / next (на больших экранах) --}}
-                            <button onclick="galleryPrev()" class="hidden lg:flex items-center justify-center absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow">
+                            <button onclick="galleryPrev()"
+                                    class="hidden lg:flex items-center justify-center absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow">
                                 ‹
                             </button>
-                            <button onclick="galleryNext()" class="hidden lg:flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow">
+                            <button onclick="galleryNext()"
+                                    class="hidden lg:flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow">
                                 ›
                             </button>
                         </div>
@@ -41,7 +43,8 @@
                                         onclick="selectImage({{ $i }})"
                                         aria-label="Показать изображение {{ $i + 1 }}"
                                     >
-                                        <img src="{{ $image->url }}" alt="thumb-{{ $i }}" class="w-full h-full object-cover" loading="lazy">
+                                        <img src="{{ $image->url }}" alt="thumb-{{ $i }}"
+                                             class="w-full h-full object-cover" loading="lazy">
                                     </button>
                                 @empty
                                     <div class="text-sm text-gray-500">Изображений нет</div>
@@ -58,7 +61,8 @@
 
                         {{-- рейтинг или метки --}}
                         <div class="flex items-center gap-3 mt-2">
-                            <div class="text-sm text-gray-500">Категория: <span class="font-medium">{{ $product->category->name ?? '—' }}</span></div>
+                            <div class="text-sm text-gray-500">Категория: <span
+                                    class="font-medium">{{ $product->category->name ?? '—' }}</span></div>
                             {{-- пример метки --}}
                         </div>
 
@@ -67,27 +71,40 @@
                             <div class="text-3xl font-bold">{{ number_format($product->price, 0, '.', ' ') }}</div>
                             <div class="text-xl text-gray-600">₸</div>
                             @if($product->old_price ?? false)
-                                <div class="text-sm line-through text-gray-400 ml-3">{{ number_format($product->old_price,0,'.',' ') }} ₸</div>
+                                <div
+                                    class="text-sm line-through text-gray-400 ml-3">{{ number_format($product->old_price,0,'.',' ') }}
+                                    ₸
+                                </div>
                             @endif
                         </div>
 
                         {{-- Кнопка добавить в корзину (пример формы) --}}
-                        <form action="{{ route('cart.add') }}" method="POST" class="mt-6 flex gap-3 items-center" id="add-to-cart-form">
+                        <form action="{{ route('cart.add') }}" method="POST" class="mt-6 flex gap-3 items-center"
+                              id="add-to-cart-form">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
                             <div class="flex items-center border rounded-md overflow-hidden">
                                 <button type="button" onclick="decrementQty()" class="px-3 py-2">−</button>
-                                <input id="cart-qty" name="quantity" value="1" min="1" max="{{ max(1, $product->quantity) }}" type="number" class="w-16 text-center px-2 py-2 outline-none" />
+                                <input id="cart-qty" name="quantity" value="1" min="1"
+                                       max="{{ max(1, $product->quantity) }}" type="number"
+                                       class="w-16 text-center px-2 py-2 outline-none"/>
                                 <button type="button" onclick="incrementQty()" class="px-3 py-2">＋</button>
                             </div>
                             @if(Auth::check())
                                 @if($product->is_preorder)
-                                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">В корзину</button>
+                                    <button type="submit"
+                                            class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                                        В корзину
+                                    </button>
                                 @else
-                                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">В корзину</button>
+                                    <button type="submit"
+                                            class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                                        В корзину
+                                    </button>
                                 @endif
                             @else
-                                <a class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition" href="{{ route('login') }}">В корзину</a>
+                                <a class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                                   href="{{ route('login') }}">В корзину</a>
                             @endif
 
                             {{-- ещё кнопка купить в 1 клик --}}
@@ -95,14 +112,17 @@
                         </form>
 
                         @if($product->is_preorder && $product->available_at)
-                            <div class="mt-6 flex items-center p-4 bg-amber-50 border border-amber-100 rounded-2xl shadow-sm animate__animated animate__fadeIn">
+                            <div
+                                class="mt-6 flex items-center p-4 bg-amber-50 border border-amber-100 rounded-2xl shadow-sm animate__animated animate__fadeIn">
                                 <div class="flex-shrink-0 bg-amber-100 p-2 rounded-lg text-amber-600">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                         viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-{{--                                    <p class="text-xs font-bold text-amber-800 uppercase tracking-wider">Предзаказ</p>--}}
+                                    {{--                                    <p class="text-xs font-bold text-amber-800 uppercase tracking-wider">Предзаказ</p>--}}
                                     <p class="text-sm text-amber-700">
                                         Ожидаемое поступление:
                                         <span class="font-bold">
@@ -122,58 +142,64 @@
                         @include('category.block_shares')
 
                         @if(Auth::check())
-                        <div class="mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-bold text-gray-700">Поделись с друзьями и <br>заработай от покупки</span>
-                                <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">
+                            <div class="mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-bold text-gray-700">Поделись с друзьями и <br>заработай от покупки</span>
+                                    <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">
                 +{{ number_format(auth()->user()->real_agent_percent ?? 4.9, 1) }}% <br>на карту
             </span>
-                            </div>
+                                </div>
 
-                            <div class="relative">
-                                <input type="text"
-                                       id="refLinkInput"
-                                       value="{{ route('user.referral.product', ['agent_id' => auth()->id(), 'slug' => $product->slug]) }}"
-                                       readonly
-                                       class="w-full p-2 pr-10 text-xs border rounded bg-white focus:outline-none">
+                                <div class="relative">
+                                    <input type="text"
+                                           id="refLinkInput"
+                                           value="{{ route('user.referral.product', ['agent_id' => auth()->id(), 'slug' => $product->slug]) }}"
+                                           readonly
+                                           class="w-full p-2 pr-10 text-xs border rounded bg-white focus:outline-none">
 
-                                <button onclick="copyReferralLink()"
-                                        class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500 transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
-                                    </svg>
-                                </button>
+                                    <button onclick="copyReferralLink()"
+                                            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <p id="copyMessage" class="text-xs text-green-600 mt-2 hidden">Ссылка скопирована в
+                                    буфер!</p>
                             </div>
-                            <p id="copyMessage" class="text-xs text-green-600 mt-2 hidden">Ссылка скопирована в буфер!</p>
-                        </div>
                         @endif
-                    </div>
 
-                    {{-- Короткие карточки доп.информации (опционально) --}}
-                    <div class="bg-white p-6 rounded-2xl shadow-sm">
-                        {{--<div class="bg-white p-4 rounded-xl shadow-sm">
-                            <h4 class="text-xs text-gray-500">Быстрая информация</h4>
-                            <div class="mt-2 text-sm text-gray-700">
-                                <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>
-                                <div>В наличии: <span class="font-medium">{{ $product->quantity }}</span></div>
-                            </div>
-                        </div>--}}
+                        {{-- Короткие карточки доп.информации (опционально) --}}
+                        <div
+                            class="mt-5 p-5 bg-[#fff7ed] border border-orange-200/60 rounded-[2.25rem] shadow-sm relative group/main">
+                            {{--<div class="bg-white p-4 rounded-xl shadow-sm">
+                                <h4 class="text-xs text-gray-500">Быстрая информация</h4>
+                                <div class="mt-2 text-sm text-gray-700">
+                                    <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>
+                                    <div>В наличии: <span class="font-medium">{{ $product->quantity }}</span></div>
+                                </div>
+                            </div>--}}
 
-                        <div class="bg-white p-4 rounded-xl shadow-sm">
-                            <h4 class="text-xs text-gray-500">Доставка</h4>
-                            <div class="mt-2 text-sm text-gray-700">
-                                Доставка по @if($currentCity->name== "Алматы") Алматы 1–2 дня. @else Казахстану 3-5 дней. @endif Бесплатная доставка от 50 000 ₸.
-                            </div>
-                            <br>
-                            <h4 class="text-xs text-gray-500">Быстрая информация</h4>
-                            <div class="mt-2 text-sm text-gray-700">
-                                <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>
-                                <div>В наличии: <span class="font-medium">{{ $product->quantity }}</span></div>
+                            <div class="bg-white p-4 rounded-xl shadow-sm">
+                                <h4 class="text-xs text-gray-500">Доставка</h4>
+                                <div class="mt-2 text-sm text-gray-700">
+                                    Доставка по @if($currentCity->name== "Алматы")
+                                        Алматы 1–2 дня.
+                                    @else
+                                        Казахстану 3-5 дней.
+                                    @endif Бесплатная доставка от 50 000 ₸.
+                                </div>
+                                <br>
+                                <h4 class="text-xs text-gray-500">Быстрая информация</h4>
+                                <div class="mt-2 text-sm text-gray-700">
+                                    <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>
+                                    <div>В наличии: <span class="font-medium">{{ $product->quantity }}</span></div>
+                                </div>
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             </div>
 
@@ -190,7 +216,8 @@
                 @if($product->meta)
                     <div class="bg-white p-6 rounded-2xl shadow-sm">
                         <h3 class="text-sm font-semibold mb-2">Характеристики</h3>
-                        <pre class="text-xs text-gray-600 whitespace-pre-wrap">{{ is_array($product->meta) ? json_encode($product->meta, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : $product->meta }}</pre>
+                        <pre
+                            class="text-xs text-gray-600 whitespace-pre-wrap">{{ is_array($product->meta) ? json_encode($product->meta, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : $product->meta }}</pre>
                     </div>
                 @endif
 
@@ -200,8 +227,10 @@
                         <h3 class="text-lg font-semibold mb-3">Похожие товары</h3>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                             @foreach($related as $r)
-                                <a href="{{ route('product.show', $r) }}" class="block bg-white rounded-xl p-3 shadow-sm hover:shadow-md">
-                                    <img src="{{ $r->mainImage->url ?? asset('images/no-image.png') }}" alt="{{ $r->name }}" class="w-full h-28 object-cover rounded" />
+                                <a href="{{ route('product.show', $r) }}"
+                                   class="block bg-white rounded-xl p-3 shadow-sm hover:shadow-md">
+                                    <img src="{{ $r->mainImage->url ?? asset('images/no-image.png') }}"
+                                         alt="{{ $r->name }}" class="w-full h-28 object-cover rounded"/>
                                     <div class="mt-2 text-sm font-medium">{{ $r->name }}</div>
                                     <div class="text-sm text-gray-600">{{ number_format($r->price,0,'.',' ') }} ₸</div>
                                 </a>
@@ -209,6 +238,10 @@
                         </div>
                     </div>
                 @endif
+            </div>
+
+            <div class="mt-4">
+                @include('category.block_product_reviews')
             </div>
         </div>
 
@@ -227,7 +260,7 @@
 
         {{-- Скрипт галереи и управления кол-вом (минимальный, без библиотек) --}}
         <script>
-            document.getElementById('add-to-cart-form').addEventListener('submit', function(e) {
+            document.getElementById('add-to-cart-form').addEventListener('submit', function (e) {
                 e.preventDefault();
 
                 let formData = new FormData(this);
@@ -244,7 +277,7 @@
                         // обновляем счетчик корзины
                         if (data.success) {
                             const counter = document.getElementById('cart-count');
-                            if(counter) counter.innerText = data.total_items ?? 0;
+                            if (counter) counter.innerText = data.total_items ?? 0;
 
                             // toast уведомление
                             window.showToast(data.message);
@@ -281,7 +314,7 @@
                 document.querySelectorAll('.thumbnail').forEach((el, i) => {
                     //el.classList.toggle('ring-2 ring-indigo-500', i === currentIndex);
                     document.querySelectorAll('.thumbnail').forEach((el, i) => {
-                        if(i === currentIndex) {
+                        if (i === currentIndex) {
                             el.classList.add('ring-2', 'ring-indigo-500');
                         } else {
                             el.classList.remove('ring-2', 'ring-indigo-500');
@@ -313,12 +346,13 @@
                 const max = parseInt(el.max) || 9999;
                 el.value = Math.min(max, parseInt(el.value || 0) + 1);
             }
+
             function decrementQty() {
                 const el = document.getElementById('cart-qty');
                 el.value = Math.max(1, parseInt(el.value || 1) - 1);
             }
 
-            window.showToast = function(message) {
+            window.showToast = function (message) {
                 // Создаем контейнер, если его еще нет
                 let container = document.getElementById('toast-container');
                 if (!container) {

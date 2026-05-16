@@ -62,6 +62,17 @@ class Product extends Model
         ]);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class)->where('is_approved', true)->latest();
+    }
+
+// Быстрый подсчет среднего рейтинга
+    public function getAverageRatingAttribute()
+    {
+        return round($this->reviews()->avg('rating'), 1) ?? 0;
+    }
+
     // Пример метода в модели ProductImage
     public function setAsMain()
     {

@@ -22,7 +22,7 @@ class ProductController extends BaseController
                 ->select('products.*', 'product_stocks.quantity', 'product_stocks.price', 'product_stocks.is_preorder', 'product_stocks.available_at')
                 ->firstOrFail();
 
-        $gifts = $this->partnerGiftService->getEligiblePrizesForProduct($product->price);
+        $gifts = $this->partnerGiftService->getEligiblePrizesForProduct();
 
         return view('category.product', compact('product', 'gifts'));
     }
