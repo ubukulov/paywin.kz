@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\City;
+use App\Models\ProductCategory;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Cart;
 use Illuminate\Support\Facades\View;
@@ -38,6 +39,13 @@ class AppServiceProvider extends ServiceProvider
                 : City::first();
 
             $view->with('currentCity', $currentCity);
+
+            $categories = cache()->remember('app_categories', now()->addHour(), function () {
+                return ProductCategory::where('is_active', true) // если есть флаг активности
+                ->orderBy('sort_order') // если есть сортировка
+                ->get();
+            });
+            $view->with('categories', $categories);
         });
     }
 }

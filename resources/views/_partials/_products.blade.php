@@ -1,71 +1,99 @@
-<!-- сетка товаров -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-    <!-- карточка товара -->
-    @foreach($products as $product)
-        <a href="{{ route('product.show', ['slug' => $product->slug]) }}">
-            <article class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
-                <div class="relative">
-                    <img src="{{ $product->mainImage->url }}"
-                         alt="Название товара 1"
-                         class="w-full h-48 object-cover" loading="lazy" />
-                    <span class="absolute top-3 left-3 bg-indigo-600 text-white text-xs font-semibold px-2 py-1 rounded">Новинка</span>
-                    <button aria-label="Добавить в избранное"
-                            class="absolute top-3 right-3 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:bg-white">
-                        <!-- простая иконка сердечка -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 18.343 3.172 10.83a4 4 0 010-5.657z" />
-                        </svg>
-                    </button>
+@foreach($products as $product)
+    <a href="{{ route('product.show', ['slug' => $product->slug]) }}" class="group">
+        <article class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200 h-full flex flex-col">
+
+            {{-- Изображение товара --}}
+            <div class="relative bg-gray-50 aspect-square w-full overflow-hidden">
+                <img src="{{ $product->mainImage->url }}"
+                     alt="{{ $product->name }}"
+                     class="w-full h-full object-contain p-2 group-hover:scale-102 transition-transform duration-200"
+                     loading="lazy" />
+
+                <span class="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg shadow-sm">
+                    Новинка
+                </span>
+
+                <button type="button" aria-label="Добавить в избранное"
+                        class="absolute top-2 right-2 bg-white/90 backdrop-blur-xs p-2 rounded-full shadow-xs hover:bg-white transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 18.343 3.172 10.83a4 4 0 010-5.657z" />
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Контентная часть карточки --}}
+            <div class="p-3 sm:p-4 flex flex-col flex-1 justify-between gap-3">
+
+                <div class="flex flex-col flex-1 justify-between">
+                    <div>
+                        {{-- Название товара --}}
+                        <h3 class="text-xs sm:text-sm font-medium text-gray-800 leading-snug break-words line-clamp-2 min-h-[2.5rem]">
+                            {{ $product->name }}
+                        </h3>
+
+                        {{-- Цена в стиле маркетплейса --}}
+                        <div class="flex items-baseline gap-1 mt-2">
+                            <span class="text-base sm:text-lg font-black text-gray-900">
+                                {{ number_format($product->price, 0, '.', ' ') }}
+                            </span>
+                            <span class="text-xs font-bold text-gray-500">₸</span>
+                        </div>
+
+                        {{-- РЕЙТИНГ И ОТЗЫВЫ (В стиле Kaspi) --}}
+                        {{-- Предполагается, что в модели Product есть связи или поля для среднего рейтинга и количества одобренных отзывов --}}
+                        @php
+                            $rating = round($product->approved_reviews_avg_rating ?? $product->reviews_avg_rating ?? 0, 1);
+                            $reviewsCount = $product->approved_reviews_count ?? $product->reviews_count ?? 0;
+                        @endphp
+
+                        <div class="flex items-center gap-1 mt-1.5 min-h-[1.25rem]">
+                            @if($reviewsCount > 0)
+                                {{-- Иконка желтой звезды --}}
+                                <div class="flex items-center text-amber-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                </div>
+                                {{-- Оценка числом --}}
+                                <span class="text-xs font-black text-gray-800">{{ $rating }}</span>
+                                {{-- Количество отзывов в скобках --}}
+                                <span class="text-xs text-gray-400">({{ $reviewsCount }} {{ trans_choice('отзыв|отзыва|отзывов', $reviewsCount) }})</span>
+                            @else
+                                {{-- Фолбек, если отзывов еще нет (чтобы сетка не смещалась по высоте) --}}
+                                <span class="text-[11px] text-gray-400 font-medium">Нет отзывов</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Кнопка «Подробнее» --}}
+                    <div class="mt-3">
+                        <div class="w-full text-center py-2 bg-orange-500 group-hover:bg-orange-600 text-white rounded-xl text-xs sm:text-sm font-bold transition duration-200 shadow-sm">
+                            Подробнее
+                        </div>
+                    </div>
                 </div>
 
-                <div class="p-4 flex flex-col gap-3">
-                    <h3 class="text-sm font-semibold leading-tight">{{ $product->name }}</h3>
-
-                    <div class="flex items-center justify-between mt-2">
-                        <div class="flex items-baseline gap-2">
-                            <div class="text-lg font-bold">{{ number_format($product->price, 0, '.', ' ') }}</div>
-                            <div class="text-sm text-gray-600">₸</div>
+                {{-- Геймификация Paywin (Нижний брендированный блок купона) --}}
+                <div class="pt-2 border-t border-dashed border-gray-100 mt-auto">
+                    <div class="flex items-center justify-between text-[9px] sm:text-[10px] font-black uppercase tracking-tight text-gray-400">
+                        <div class="flex flex-col items-center text-center gap-0.5 shrink-0">
+                            <span class="text-base">✅</span>
+                            <span>Купи товар</span>
                         </div>
-
-                        <div class="flex items-center gap-2">
-                            <button class="px-3 py-1.5 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700 transition">
-                                Подробнее
-                            </button>
+                        <div class="h-0.5 flex-1 bg-gray-100 mx-1"></div>
+                        <div class="flex flex-col items-center text-center gap-0.5 shrink-0 text-orange-600">
+                            <span class="text-base">🎉</span>
+                            <span>Получи бонус</span>
                         </div>
-                    </div>
-
-                    <div class="mt-auto pt-3 border-t border-gray-100">
-                        <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-tight text-gray-600">
-                            <div class="flex flex-col items-center gap-1">
-                                <span class="text-lg">✅</span>
-                                <span>Купи</span>
-                            </div>
-                            <div class="h-px flex-1 bg-gray-200 mx-2 mb-4"></div>
-                            <div class="flex flex-col items-center gap-1 text-indigo-600">
-                                <span class="text-lg">🎉</span>
-                                <span>Участвуй</span>
-                            </div>
-                            <div class="h-px flex-1 bg-gray-200 mx-2 mb-4"></div>
-                            <div class="flex flex-col items-center gap-1 text-pink-600">
-                                <span class="text-lg animate-bounce">🎁</span>
-                                <span>Выиграй</span>
-                            </div>
+                        <div class="h-0.5 flex-1 bg-gray-100 mx-1"></div>
+                        <div class="flex flex-col items-center text-center gap-0.5 shrink-0 text-pink-600">
+                            <span class="text-base animate-bounce">🎁</span>
+                            <span>Выиграй приз</span>
                         </div>
                     </div>
-
-                    {{--<div class="flex items-center justify-between text-xs text-gray-500 mt-2 gap-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                        </svg>
-                        Оплати и выиграй один из 20 призов
-                    </div>
-
-                    <div class="flex items-center justify-between text-xs text-gray-500 mt-2">
-                        <div>В наличии: <span class="font-medium text-gray-700">{{ $product->quantity }}</span></div>
-                        <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>
-                    </div>--}}
                 </div>
-            </article>
-        </a>
-    @endforeach
-</div>
+
+            </div>
+        </article>
+    </a>
+@endforeach

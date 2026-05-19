@@ -44,6 +44,7 @@ Route::post('forget-password', [AuthController::class, 'quickReset'])->name('pas
 Route::get('/', [IndexController::class, 'home'])->name('home');
 Route::get('product/{slug}', [ProductController::class, 'show'])->name('product.show');
 Route::post('/set-city', [IndexController::class, 'setCity'])->name('city.set');
+Route::get('/p/category/{slug}', [CategoryController::class, 'products'])->name('category.products');
 
 Route::group(['middleware' => 'auth'], function(){
 

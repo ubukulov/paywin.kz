@@ -1,23 +1,22 @@
-{{-- Блок суперпризов (Обновленный заголовок: Рандомный супер бонус при покупке) --}}
+{{-- Блок суперпризов (Стиль: Картинка и имя в ряд, Счетчик строго внизу) --}}
 @if($gifts && $gifts->isNotEmpty())
     <div class="mt-5 p-5 bg-[#fff7ed] border border-orange-200/60 rounded-[2.25rem] shadow-sm relative group/main">
 
-        {{-- Крупный заголовок блока с новым текстом --}}
+        {{-- Крупный заголовок блока --}}
         <div class="flex items-center justify-between mb-4 pb-2 border-b border-orange-100">
             <div class="flex items-center gap-2.5">
                 {{-- Встроенный SVG Подарок --}}
                 <div class="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-orange-200/50 flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm0 0h4m-4 0H8m12 3v10a2 2 0 01-2 2H6a2 2 0 01-2-2V10m16 0H4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm0 0h4m-4 0H8m12 3v10a2 2 0 01-2 2H6a2 2 0 11-2-2V10m16 0H4" />
                     </svg>
                 </div>
-                {{-- НАШ ОБНОВЛЕННЫЙ ЗАГОЛОВОК --}}
                 <h4 class="text-sm font-black text-orange-900 uppercase tracking-wider">
-                    Рандомный бонус <br>при покупке
+                    Рандомный бонус
                 </h4>
             </div>
 
-            <span class="text-xs font-black text-orange-600 bg-white border border-orange-200 px-3 py-1.5 rounded-xl shadow-xs">
+            <span class="text-xs font-black text-orange-600 bg-white border border-orange-200 px-3 py-1.5 rounded-xl shadow-xs shrink-0">
                 при покупке от {{ number_format($gifts->first()->from_order ?? 4000, 0, '.', ' ') }} ₸
             </span>
         </div>
@@ -38,35 +37,42 @@
                 @foreach($gifts as $share)
                     <div class="snap-center shrink-0 w-full px-0.5">
 
+                        {{-- Карточка-Билет --}}
                         <div class="bg-white rounded-[1.75rem] border border-orange-100/80 relative group transition-all duration-300 shadow-xs">
 
-                            <div class="w-full h-36 overflow-hidden rounded-t-[1.75rem] bg-gray-50 relative">
-                                <img
-                                    src="{{ (isset($share->data['image']) && $share->data['image']) ? asset('storage/' . $share->data['image']) : asset('images/no-image.png') }}"
-                                    alt="{{ $share->title }}"
-                                    class="w-full h-full object-cover"
-                                    loading="lazy"
-                                >
+                            {{-- ВЕРХНИЙ БЛОК: Картинка слева, Наименование справа --}}
+                            <div class="p-4 pb-3 flex items-center gap-4">
+                                {{-- Картинка слева --}}
+                                <div class="w-24 h-20 overflow-hidden rounded-xl bg-gray-50 shrink-0 relative">
+                                    <img
+                                        src="{{ (isset($share->data['image']) && $share->data['image']) ? asset('storage/' . $share->data['image']) : asset('images/no-image.png') }}"
+                                        alt="{{ $share->title }}"
+                                        class="w-full h-full object-cover"
+                                        loading="lazy"
+                                    >
+                                </div>
+
+                                {{-- Наименование подарка справа --}}
+                                <div class="min-w-0 flex-1">
+                                    <h3 class="text-base font-black text-gray-900 leading-snug break-words line-clamp-2">
+                                        {{ $share->title }}
+                                    </h3>
+                                </div>
                             </div>
 
+                            {{-- ГОРИЗОНТАЛЬНАЯ ЛИНИЯ ОТРЫВА (Перфорация купона) --}}
                             <div class="relative my-0.5 z-10">
                                 <div class="border-t-2 border-dashed border-orange-100 mx-5"></div>
+                                {{-- Боковые вырезы под фон блока (#fff7ed) --}}
                                 <div class="absolute -left-2 -top-2 w-4 h-4 bg-[#fff7ed] border-r border-orange-100 rounded-full"></div>
                                 <div class="absolute -right-2 -top-2 w-4 h-4 bg-[#fff7ed] border-l border-orange-100 rounded-full"></div>
                             </div>
 
-                            <div class="p-4 bg-white rounded-b-[1.75rem] flex items-center justify-between gap-4">
-                                <div class="min-w-0 flex-1">
-                                    <h3 class="text-base font-black text-gray-900 leading-snug break-words">
-                                        🎁 {{ $share->title }}
-                                    </h3>
-                                </div>
-
-                                <div class="shrink-0">
-                                    <span class="bg-orange-50 border border-orange-200 text-orange-600 text-xs font-black px-3 py-1.5 rounded-xl block">
-                                        Осталось: {{ $share->count ?? 0 }} шт
-                                    </span>
-                                </div>
+                            {{-- НИЖНИЙ БЛОК: Количество строго снизу --}}
+                            <div class="px-4 py-3 bg-orange-50/20 rounded-b-[1.75rem] flex justify-center">
+                                <span class="bg-orange-50 border border-orange-200 text-orange-600 text-xs font-black px-4 py-1.5 rounded-xl block w-full text-center">
+                                    Осталось: {{ $share->count ?? 0 }} шт
+                                </span>
                             </div>
 
                         </div>

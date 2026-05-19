@@ -67,6 +67,38 @@ class Product extends Model
         return $this->hasMany(ProductReview::class)->where('is_approved', true)->latest();
     }
 
+    /**
+     * Аксессор для среднего рейтинга.
+     * Поддерживает как eager loading (withAvg), так и обычный вызов.
+     */
+    public function getApprovedReviewsAvgRatingAttribute(): float
+    {
+        // Если мы использовали ->withAvg('reviews', 'rating') в контроллере,
+        // Laravel автоматически запишет результат в атрибут 'reviews_avg_rating'
+        if (array_key_exists('reviews_avg_rating', $this->attributes)) {
+            return round((float) $this->attributes['reviews_avg_rating'], 1);
+        }
+
+        // Фолбек, если жадная загрузка не была вызвана (например, на детальной странице)
+        return round((float) $this->reviews()->avg('rating'), 1) ?: 0.0;
+    }
+
+    /**
+     * Аксессор для количества отзывов.
+     * Поддерживает как eager loading (withCount), так и обычный вызов.
+     */
+    public function getApprovedReviewsCountAttribute(): int
+    {
+        // Если мы использовали ->withCount('reviews') в контроллере,
+        // Laravel запишет результат в 'reviews_count'
+        if (array_key_exists('reviews_count', $this->attributes)) {
+            return (int) $this->attributes['reviews_count'];
+        }
+
+        // Фолбек на случай одиночного вызова
+        return $this->reviews()->count();
+    }
+
 // Быстрый подсчет среднего рейтинга
     public function getAverageRatingAttribute()
     {

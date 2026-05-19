@@ -5,7 +5,7 @@
 @section('og_image', $product->mainImage->url ?? asset('img/no-image.png'))
 
 @section('content')
-    <div class="container product-page">
+    <div class="product-page">
         <div class="max-w-7xl mx-auto px-4">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {{-- ЛЕВАЯ КОЛОНКА: Галерея --}}
@@ -17,7 +17,7 @@
                                 id="product-main-image"
                                 src="{{ $product->mainImage->url ?? ($product->images->first()->url ?? asset('images/no-image.png')) }}"
                                 alt="{{ $product->name }}"
-                                class="w-full h-[480px] object-contain bg-gray-100"
+                                class="w-full h-[380px] object-contain bg-gray-100"
                                 loading="lazy"
                             >
 
@@ -56,7 +56,7 @@
 
                 {{-- ПРАВАЯ КОЛОНКА: Информация и действие --}}
                 <div class="space-y-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm">
+                    <div class="bg-white p-3 rounded-2xl shadow-sm">
                         <h1 class="text-2xl font-semibold">{{ $product->name }}</h1>
 
                         {{-- рейтинг или метки --}}
@@ -139,66 +139,11 @@
                             <button class="px-3 py-1 rounded-md border">Добавить в избранное</button>
                         </div>--}}
 
-                        @include('category.block_shares')
+                        @include('category.block_product_shares')
 
-                        @if(Auth::check())
-                            <div class="mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-sm font-bold text-gray-700">Поделись с друзьями и <br>заработай от покупки</span>
-                                    <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">
-                +{{ number_format(auth()->user()->real_agent_percent ?? 4.9, 1) }}% <br>на карту
-            </span>
-                                </div>
+                        @include('category.block_product_delivery')
 
-                                <div class="relative">
-                                    <input type="text"
-                                           id="refLinkInput"
-                                           value="{{ route('user.referral.product', ['agent_id' => auth()->id(), 'slug' => $product->slug]) }}"
-                                           readonly
-                                           class="w-full p-2 pr-10 text-xs border rounded bg-white focus:outline-none">
-
-                                    <button onclick="copyReferralLink()"
-                                            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500 transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                             viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <p id="copyMessage" class="text-xs text-green-600 mt-2 hidden">Ссылка скопирована в
-                                    буфер!</p>
-                            </div>
-                        @endif
-
-                        {{-- Короткие карточки доп.информации (опционально) --}}
-                        <div
-                            class="mt-5 p-5 bg-[#fff7ed] border border-orange-200/60 rounded-[2.25rem] shadow-sm relative group/main">
-                            {{--<div class="bg-white p-4 rounded-xl shadow-sm">
-                                <h4 class="text-xs text-gray-500">Быстрая информация</h4>
-                                <div class="mt-2 text-sm text-gray-700">
-                                    <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>
-                                    <div>В наличии: <span class="font-medium">{{ $product->quantity }}</span></div>
-                                </div>
-                            </div>--}}
-
-                            <div class="bg-white p-4 rounded-xl shadow-sm">
-                                <h4 class="text-xs text-gray-500">Доставка</h4>
-                                <div class="mt-2 text-sm text-gray-700">
-                                    Доставка по @if($currentCity->name== "Алматы")
-                                        Алматы 1–2 дня.
-                                    @else
-                                        Казахстану 3-5 дней.
-                                    @endif Бесплатная доставка от 50 000 ₸.
-                                </div>
-                                <br>
-                                <h4 class="text-xs text-gray-500">Быстрая информация</h4>
-                                <div class="mt-2 text-sm text-gray-700">
-                                    <div>Артикул: <span class="font-mono">{{ $product->sku }}</span></div>
-                                    <div>В наличии: <span class="font-medium">{{ $product->quantity }}</span></div>
-                                </div>
-                            </div>
-                        </div>
+                        @include('category.block_product_referral')
                     </div>
                 </div>
             </div>
