@@ -17,10 +17,11 @@ class ProductController extends BaseController
     public function show($slug)
     {
         $product = Product::with('images')
-                ->whereSlug($slug)
-                ->join('product_stocks', 'product_stocks.product_id', '=', 'products.id')
-                ->select('products.*', 'product_stocks.quantity', 'product_stocks.price', 'product_stocks.is_preorder', 'product_stocks.available_at')
-                ->firstOrFail();
+            ->select('products.*', 'product_stocks.quantity', 'product_stocks.price', 'product_stocks.is_preorder', 'product_stocks.available_at')
+            ->join('product_stocks', 'product_stocks.product_id', '=', 'products.id')
+            ->whereSlug($slug)
+            ->withAvg('reviews', 'rating')
+            ->firstOrFail();
 
         $gifts = $this->partnerGiftService->getEligiblePrizesForProduct();
 

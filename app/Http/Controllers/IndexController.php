@@ -19,14 +19,15 @@ class IndexController extends BaseController
 //        $categories = Category::all();
 //        return view('home',  compact('categories'));
         $cityId = Cookie::get('selected_city_id') ?? City::first()->id;
-        $products = Product::with('images')
-            ->where('is_active', true)
-            ->withAvg('reviews', 'rating')
-            ->withCount('reviews')
+        $products = Product::query()
+            ->select('products.*', 'product_stocks.price', 'product_stocks.quantity', 'product_stocks.is_preorder', 'product_stocks.available_at')
             ->join('product_stocks', 'product_stocks.product_id', 'products.id')
             ->join('partner_warehouses', 'partner_warehouses.id', '=', 'product_stocks.warehouse_id')
+            ->where('products.is_active', true)
             ->where('partner_warehouses.city_id', $cityId)
-            ->select('products.*', 'product_stocks.price', 'product_stocks.quantity', 'product_stocks.is_preorder', 'product_stocks.available_at')
+            ->with('mainImage')
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->paginate(12);
         return view('home-products',  compact('products'));
     }

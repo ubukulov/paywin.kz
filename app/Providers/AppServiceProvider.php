@@ -28,18 +28,27 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        View::composer('*', function ($view) {
-            $cart = (auth()->check()) ? Cart::where('user_id', auth()->id())->first() : null;
-            $view->with('cartCount', $cart ? $cart->items()->sum('quantity') : 0);
-            $view->with('cities', City::all());
+        View::composer(['layouts.app', 'category.product'], function ($view) {
+            $cartCount = 0;
+            if (auth()->check()) {
+                $cart = Cart::where('user_id', auth()->id())->first();
+                $cartCount = $cart ? $cart->items()->sum('quantity') : 0;
+            }
+            $view->with('cartCount', $cartCount);
+
+            $cities = cache()->remember('app_cities', now()->addDay(), function () {
+                return City::all();
+            });
+            $view->with('cities', $cities);
 
             $cityId = Cookie::get('selected_city_id');
             $currentCity = $cityId
-                ? City::find($cityId)
-                : City::first();
-
+                ? $cities->firstWhere('id', $cityId) // firstWhere ищет в коллекции $cities, а не в БД
+                : $cities->first();
             $view->with('currentCity', $currentCity);
+        });
 
+        View::composer(['layouts.app', 'home-products'], function($view){
             $categories = cache()->remember('app_categories', now()->addHour(), function () {
                 return ProductCategory::where('is_active', true) // если есть флаг активности
                 ->orderBy('sort_order') // если есть сортировка

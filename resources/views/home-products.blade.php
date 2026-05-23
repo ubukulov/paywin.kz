@@ -85,14 +85,14 @@
             <section class="flex-1 w-full">
 
                 {{-- Хлебные крошки / Заголовок категории --}}
-                <div class="mb-4 px-1">
+                {{--<div class="mb-4 px-1">
                     <h1 class="text-xl font-black text-gray-900">
                         {{ $category->name ?? 'Все товары' }}
                     </h1>
                     <p class="text-xs text-gray-400 mt-1">
                         Найдено: <span class="text-gray-700 font-bold">{{ $products->count() ?? 0 }}</span> предложений
                     </p>
-                </div>
+                </div>--}}
 
                 {{-- Upper Panel: Сортировка и Поиск --}}
                 <div class="flex flex-col sm:flex-row gap-3 items-center justify-between mb-6 bg-white p-3 rounded-2xl border border-gray-100 shadow-xs">
