@@ -120,7 +120,7 @@ class CheckoutController extends BaseController
                         ->decrement('quantity', $item->quantity);
                 }*/
 
-                ProductStock::where(['product_id' => $item->product_id, 'city_id' => Cookie::get('selected_city_id')])
+                ProductStock::where(['product_id' => $item->product_id/*, 'city_id' => Cookie::get('selected_city_id')*/])
                     ->decrement('quantity', $item->quantity);
 
                 OrderItem::create([
