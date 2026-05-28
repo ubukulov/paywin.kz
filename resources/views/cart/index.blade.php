@@ -83,7 +83,7 @@
 
 
                 {{-- ================= GIFTS ================= --}}
-                @if($gifts->isNotEmpty())
+                {{--@if($gifts->isNotEmpty())
 
                     <div class="mt-8 p-5 rounded-2xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 shadow-sm">
 
@@ -103,21 +103,21 @@
 
                         <div class="relative overflow-hidden">
 
-                            {{-- стрелка влево --}}
+                            --}}{{-- стрелка влево --}}{{--
                             <button
                                 onclick="prevGift()"
                                 class="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white shadow rounded-full w-10 h-10 flex items-center justify-center">
                                 ‹
                             </button>
 
-                            {{-- стрелка вправо --}}
+                            --}}{{-- стрелка вправо --}}{{--
                             <button
                                 onclick="nextGift()"
                                 class="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white shadow rounded-full w-10 h-10 flex items-center justify-center">
                                 ›
                             </button>
 
-                            {{-- SLIDER --}}
+                            --}}{{-- SLIDER --}}{{--
                             <div class="w-full overflow-hidden">
 
                                 <div
@@ -126,7 +126,7 @@
 
                                     @foreach($gifts as $gift)
 
-                                        {{-- ВСЕГДА 100% ширины --}}
+                                        --}}{{-- ВСЕГДА 100% ширины --}}{{--
                                         <div class="w-[85%] mx-auto flex-shrink-0 px-1">
 
                                             <div class="p-4 bg-white border rounded-xl shadow-sm">
@@ -160,7 +160,9 @@
                         </div>
                     </div>
 
-                @endif
+                @endif--}}
+
+                @include('category.block_product_shares')
 
 
 
