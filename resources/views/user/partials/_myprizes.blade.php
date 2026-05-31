@@ -16,6 +16,7 @@
 
     // 2. Определяем, к чему привязан подарок (Заказ или Акция)
     $isOrderSource = $gift->source_type === \App\Models\Order::class;
+    $giftType = $gift->data['type'] ?? '';
 @endphp
 
 <div class="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 mb-4">
@@ -85,7 +86,7 @@
         <div class="flex items-center gap-3">
             {{-- Меняем цвет иконки в зависимости от типа --}}
             <div class="w-9 h-9 {{ $isPartnerGift ? 'bg-blue-50 text-blue-600' : 'bg-indigo-50 text-indigo-600' }} rounded-xl flex items-center justify-center">
-                <i class="fas {{ $gift->data['type'] === 'raffle' ? 'fa-ticket-alt' : 'fa-gift' }} text-sm"></i>
+                <i class="fas {{ $giftType === 'raffle' ? 'fa-ticket-alt' : 'fa-gift' }} text-sm"></i>
             </div>
             <div>
                 {{-- Заголовок типа награды --}}

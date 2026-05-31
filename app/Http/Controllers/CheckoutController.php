@@ -159,16 +159,19 @@ class CheckoutController extends BaseController
             $this->finalizeOrder($order, $paymentResponse['Model']);
 
             DB::commit();
-            return redirect('/')->with('success', 'Заказ успешно оплачен!');
+            return response()->json([
+                'success' => true,
+                'message' => 'Заказ успешно оплачен!'
+            ]);
 
         } catch (\Exception $exception) {
             DB::rollBack();
-            return response(['error' => $exception->getMessage()], 500);
+            return response()->json(['error' => $exception->getMessage()], 500);
         }
     }
 
     /**
-     * Логика распределения вознаграждений
+     * Логика распределения вознаграждений и выдачи призов
      */
     private function finalizeOrder(Order $order, $paymentModel, $isPreorder = false)
     {
@@ -227,7 +230,6 @@ class CheckoutController extends BaseController
                 }
             } else {
                 // Если партнер НЕ выплачивает %, он получает всю сумму за товар за вычетом ТОЛЬКО банка
-                // Агент здесь получает 0.
                 $bankFee = $item->total * (self::BANK_FEE_PERCENT / 100);
                 $partnerIncome = $item->total - $bankFee;
 
@@ -241,6 +243,16 @@ class CheckoutController extends BaseController
                     );
                 }
             }
+
+            // {{-- НАЧИСЛЕНИЕ ПРИЗА ЗА КАЖДЫЙ ОПЛАЧЕННЫЙ ТОВАР --}}
+            if ($partner && $partner->shares()->exists()) {
+                // Вызываем твой метод раздачи призов (или метод через Service, смотря как у тебя реализовано)
+                // Передаем акции партнера и сам заказ в качестве источника (source)
+                $buyer->givePrize($partner->shares, $order);
+            }
+
+            $platformPromotionService = app(\App\Services\PlatformPromotionService::class);
+            $platformPromotionService->checkAndGiveGifts($buyer, 'purchase', $order);
         }
 
         // Погашаем промокод
@@ -279,6 +291,14 @@ class CheckoutController extends BaseController
 
     public function success()
     {
-        return view('checkout.success');
+        $user = Auth::user();
+
+        // Подтягиваем последние призы пользователя, созданные за последние 5 минут для этого заказа
+        $gifts = \App\Models\UserGift::where('user_id', $user->id)
+            ->where('created_at', '>=', now()->subMinutes(5))
+            ->latest()
+            ->get();
+
+        return view('checkout.success', compact('gifts'));
     }
 }

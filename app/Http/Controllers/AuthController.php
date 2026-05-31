@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use App\Models\Referral;
 use App\Models\Share;
-use Sendpulse\RestApi\Storage\FileStorage;
+use App\Services\PlatformPromotionService;
 
 class AuthController extends Controller
 {
@@ -87,7 +87,7 @@ class AuthController extends Controller
             Auth::login($user);
             $this->applyReferral($user);
 
-            $this->processRegistrationPromotion($user);
+            app(PlatformPromotionService::class)->checkAndGiveGifts($user, 'registration', $user);
 
             return redirect()->route('home');
         });
@@ -245,52 +245,5 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Ошибка при отправке письма. Проверьте настройки почты.']);
         }
         return back()->withErrors(['status' => 'Новый пароль отправлен на вашу почту!']);
-    }
-
-    /**
-     * Обработка подарков за регистрацию
-     */
-    private function processRegistrationPromotion($user)
-    {
-        // Ищем активную акцию для регистрации
-        $promo = Promotion::where('type', 'registration')
-            ->where('is_active', true)
-            ->where('start_at', '<=', now())
-            ->where('end_at', '>=', now())
-            ->first();
-
-        if (!$promo) return;
-
-        // Подготавливаем данные для подарка
-        $giftData = [
-            'user_id'     => $user->id,
-            'source_type' => Promotion::class,
-            'source_id'   => $promo->id,
-            'status'      => \App\Enums\UserGiftEnum::AVAILABLE->value,
-            'valid_until' => $promo->end_at,
-        ];
-
-        if ($promo->reward_type === 'guaranteed') {
-            // Логика для ГАРАНТИРОВАННОГО подарка
-            \App\Models\UserGift::create(array_merge($giftData, [
-                'name' => "Подарок за регистрацию: " . $promo->title,
-                'data' => [
-                    'type' => 'guaranteed',
-                    'prizes' => $promo->prizes, // копируем список призов для истории
-                    'message' => 'Ваш гарантированный подарок уже доступен!'
-                ]
-            ]));
-        }
-        elseif ($promo->reward_type === 'raffle') {
-            // Логика для БИЛЕТА на розыгрыш
-            \App\Models\UserGift::create(array_merge($giftData, [
-                'name' => "Билет на розыгрыш: " . $promo->title,
-                'data' => [
-                    'type' => 'raffle',
-                    'ticket_number' => 'REG-' . strtoupper(\Illuminate\Support\Str::random(6)),
-                    'message' => 'Вы стали участником розыгрыша!'
-                ]
-            ]));
-        }
     }
 }

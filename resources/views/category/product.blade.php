@@ -141,6 +141,8 @@
 
                         @include('category.block_product_shares')
 
+                        @include('category.block_product_paywin_bonus')
+
                         @include('category.block_product_delivery')
 
                         @include('category.block_product_referral')

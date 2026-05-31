@@ -127,22 +127,51 @@ class User extends Authenticatable
         return ($user_discount) ?: null;
     }
 
-    public function givePrize($shares, $payment)
+    /**
+     * Универсальный метод выдачи призов (без сущности Payment)
+     * @param \Illuminate\Support\Collection $shares — Акции партнера
+     * @param Model $source — Объект-источник (Transaction или Order)
+     */
+    public function givePrize($shares, $source)
     {
         if (count($shares) != 0) {
+            // Сумма берется в зависимости от того, пришел заказ (total) или транзакция (amount)
+            $amount = $source->total ?? $source->amount ?? 0;
+            // ID покупателя
+            $buyerId = $source->user_id;
+
             foreach($shares->shuffle() as $share) {
-                if(($share->from_order >= $payment->amount) && ($payment->amount <= $share->to_order)) {
+                // Проверяем, попадает ли сумма в диапазон акции
+                if(($share->from_order <= $amount) && ($amount <= $share->to_order)) {
+
                     $prize = new UserGift();
-                    $prize->payment_id = $payment->id;
-                    $prize->user_id = $payment->user_id;
+
+                    // Заполняем полиморфные поля ( source_type и source_id )
+                    $prize->source_id = $source->id;
+                    $prize->source_type = get_class($source);
+
+                    $prize->user_id = $buyerId;
                     $prize->share_id = $share->id;
                     $prize->cnt = 1;
-                    $prize->status = 'got';
+
+                    // Безопасный статус (из Enum или строка 'available')
+                    $prize->status = \App\Enums\UserGiftEnum::AVAILABLE->value ?? 'available';
+
+                    // Формируем дефолтные данные, чтобы во фронтенд-шаблоне никогда не было ошибки "type"
+                    $prize->data = [
+                        'type' => $share->type ?? 'gift',
+                        'prizes' => [
+                            ['name' => $share->name ?? 'Подарок от партнера']
+                        ]
+                    ];
+
+                    $prize->name = $share->name ?? 'Подарок';
                     $prize->save();
 
+                    // Уменьшаем счетчик доступных подарков по акции
                     $share->cnt--;
                     $share->save();
-                    break;
+                    break; // Выдали один приз и выходим из цикла
                 }
             }
         }

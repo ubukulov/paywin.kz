@@ -25,6 +25,12 @@ class ProductController extends BaseController
 
         $gifts = $this->partnerGiftService->getEligiblePrizesForProduct();
 
-        return view('category.product', compact('product', 'gifts'));
+        $platformPromotions = \App\Models\Promotion::where('is_active', true)
+            ->where('type', 'purchase') // Акции за покупку
+            ->where('start_at', '<=', now())
+            ->where('end_at', '>=', now())
+            ->get();
+
+        return view('category.product', compact('product', 'gifts', 'platformPromotions'));
     }
 }
