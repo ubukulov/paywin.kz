@@ -150,8 +150,8 @@
                 </div>
             </div>
 
-            <div class="mt-4">
-                {{-- Описание --}}
+            {{--<div class="mt-4">
+                --}}{{-- Описание --}}{{--
                 <div class="bg-white p-6 rounded-2xl shadow-sm">
                     <h2 class="text-lg font-semibold mb-2">Описание</h2>
                     <div class="prose max-w-none text-sm text-gray-700">
@@ -159,7 +159,7 @@
                     </div>
                 </div>
 
-                {{-- Характеристики / meta --}}
+                --}}{{-- Характеристики / meta --}}{{--
                 @if($product->meta)
                     <div class="bg-white p-6 rounded-2xl shadow-sm">
                         <h3 class="text-sm font-semibold mb-2">Характеристики</h3>
@@ -168,7 +168,7 @@
                     </div>
                 @endif
 
-                {{-- Опционально: похожие товары --}}
+                --}}{{-- Опционально: похожие товары --}}{{--
                 @if(isset($related) && $related->isNotEmpty())
                     <div>
                         <h3 class="text-lg font-semibold mb-3">Похожие товары</h3>
@@ -185,7 +185,9 @@
                         </div>
                     </div>
                 @endif
-            </div>
+            </div>--}}
+
+            @include('category.block_product_desc')
 
             <div class="mt-4">
                 @include('category.block_product_reviews')

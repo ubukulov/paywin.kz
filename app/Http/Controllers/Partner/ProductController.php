@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Mockery\Exception;
 
 class ProductController extends Controller
 {
@@ -38,37 +37,39 @@ class ProductController extends Controller
         DB::beginTransaction();
         try {
             $product = Product::create([
-                'name' => $data['name'], 'description' => $data['description'], 'sku' => $data['article'],
-                'product_category_id' => $data['product_category_id'], 'partner_id' => Auth::id()
+                'name' => $data['name'],
+                'description' => $data['description'],
+                'sku' => $data['article'],
+                'product_category_id' => $data['product_category_id'],
+                'partner_id' => Auth::id()
             ]);
 
             $warehouses = json_decode($request->warehouses, true);
 
-            foreach ($warehouses as $warehouseId => $data) {
-                $partnerWarehouse = PartnerWarehouse::findOrFail($warehouseId);
+            foreach ($warehouses as $warehouseId => $wData) {
+                // ИСПРАВЛЕНО: Убран city_id (так как его нет в fillable модели ProductStock)
+                // Добавлены поля предзаказа с проверкой на существование ключей
+                $isPreorder = (bool) ($wData['is_preorder'] ?? false);
+
                 ProductStock::create([
                     'product_id'     => $product->id,
-                    'city_id'        => $partnerWarehouse->city_id,
                     'warehouse_id'   => $warehouseId,
-                    'price'          => $data['price'],
-                    'quantity'       => $data['count'],
+                    'price'          => $wData['price'],
+                    'quantity'       => $wData['count'],
+                    'is_preorder'    => $isPreorder,
+                    'available_at'   => ($isPreorder && !empty($wData['available_at'])) ? $wData['available_at'] : null,
                 ]);
             }
 
             if ($request->hasFile('photos')) {
                 foreach ($request->file('photos') as $index => $file) {
-
-                    // Формируем путь с годом и месяцем
                     $folder = 'products/' . date('Y-m');
-
-                    // Сохраняем файл в storage/app/public/products/YYYY-MM
                     $path = $file->store($folder, 'public');
 
-                    // Создаём запись в таблице product_images
                     $product->images()->create([
                         'product_id' => $product->id,
                         'path'     => $path,
-                        'main'     => $index === 0, // первое фото — главное
+                        'main'     => $index === 0,
                         'position' => $index,
                     ]);
                 }
@@ -121,7 +122,6 @@ class ProductController extends Controller
             }
 
             // 3. Обрабатываем НОВЫЕ файлы
-            // Создадим массив путей для новых фото, чтобы потом сопоставить их с порядком
             $newUploadedPaths = [];
             if ($request->hasFile('new_photos')) {
                 $folder = 'products/' . date('Y-m');
@@ -130,18 +130,16 @@ class ProductController extends Controller
                 }
             }
 
-            // 4. ГЛАВНОЕ: Сохраняем порядок (сортировку)
-            // images_order прилетает как: [{"id":1,"isNew":false}, {"id":null,"isNew":true}, ...]
+            // 4. Сохраняем порядок (сортировку)
             $imagesOrder = json_decode($request->images_order, true);
 
             if (!empty($imagesOrder)) {
                 $newPhotoIndex = 0;
 
                 foreach ($imagesOrder as $index => $item) {
-                    $isMain = ($index === 0); // Самое первое фото в массиве — всегда главное (обложка)
+                    $isMain = ($index === 0);
 
                     if ($item['isNew'] === true) {
-                        // Если это новое фото, создаем запись, берем путь из только что загруженных
                         if (isset($newUploadedPaths[$newPhotoIndex])) {
                             $product->images()->create([
                                 'path'     => $newUploadedPaths[$newPhotoIndex],
@@ -151,7 +149,6 @@ class ProductController extends Controller
                             $newPhotoIndex++;
                         }
                     } else {
-                        // Если это старое фото, просто обновляем его позицию и статус "главного"
                         ProductImage::where('id', $item['id'])->update([
                             'position' => $index,
                             'main'     => $isMain
@@ -160,13 +157,20 @@ class ProductController extends Controller
                 }
             }
 
-            // 5. Обновляем склады
+            // 5. ГЛАВНОЕ ИСПРАВЛЕНИЕ: Обновляем склады с поддержкой логики предзаказа
             $warehousesData = json_decode($request->warehouses, true);
             if (!empty($warehousesData)) {
-                foreach($warehousesData as $wId => $data) {
+                foreach($warehousesData as $wId => $wData) {
+
+                    $isPreorder = (bool) ($wData['is_preorder'] ?? false);
+
+                    // Используем метод обновления сводной таблицы Laravel (pivot),
+                    // включая новые поля is_preorder и available_at
                     $product->warehouses()->updateExistingPivot($wId, [
-                        'price'    => $data['price'],
-                        'quantity' => $data['count'],
+                        'price'        => $wData['price'],
+                        'quantity'     => $wData['count'],
+                        'is_preorder'  => $isPreorder,
+                        'available_at' => ($isPreorder && !empty($wData['available_at'])) ? $wData['available_at'] : null,
                     ]);
                 }
             }
@@ -176,8 +180,7 @@ class ProductController extends Controller
 
         } catch (\Exception $exception) {
             DB::rollback();
-            // В продакшене лучше логировать $exception->getMessage()
-            return response()->json(['error' => 'Ошибка при сохранении'], 500);
+            return response()->json(['error' => 'Ошибка при сохранении: ' . $exception->getMessage()], 500);
         }
     }
 }

@@ -192,6 +192,23 @@
                             <input type="number" v-model="points[point.id].count">
                         </div>
                     </div>
+
+                    {{-- ДОБАВЛЕНО: Блок предзаказа под стиль create.blade.php --}}
+                    <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox"
+                                   v-model="points[point.id].is_preorder"
+                                   :id="'preorder-' + point.id"
+                                   class="w-5 h-5 accent-indigo-600 rounded-lg cursor-pointer bg-slate-100 border-none transition-all">
+                            <label :for="'preorder-' + point.id" class="cursor-pointer m-0 text-slate-700 font-bold normal-case text-sm select-none">
+                                Это товар под предзаказ
+                            </label>
+                        </div>
+                        <div v-if="points[point.id].is_preorder" class="animate__animated animate__fadeIn">
+                            <label>Дата поступления товара</label>
+                            <input type="date" v-model="points[point.id].available_at">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -240,11 +257,23 @@
                 const points = ref({});
 
                 const stocks = {!! json_encode($product->stocks->keyBy('warehouse_id')) !!};
+
+                // ИЗМЕНЕНО: Инициализация полей предзаказа и форматирование даты под HTML5 input date
                 warehouses.forEach(p => {
                     const stock = stocks[p.id] || null;
+
+                    let formattedDate = null;
+                    if (stock && stock.available_at) {
+                        // Забираем строго первые 10 символов (ГГГГ-ММ-ДД),
+                        // это сработает для любого формата TIMESTAMP из базы
+                        formattedDate = stock.available_at.substring(0, 10);
+                    }
+
                     points.value[p.id] = {
                         price: stock ? stock.price : null,
-                        count: stock ? stock.quantity : null
+                        count: stock ? stock.quantity : null,
+                        is_preorder: stock ? (parseInt(stock.is_preorder) === 1 || stock.is_preorder === true) : false,
+                        available_at: formattedDate
                     };
                 });
 

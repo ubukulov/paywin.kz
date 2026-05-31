@@ -229,6 +229,23 @@
                                 <input type="number" v-model="points[point.id].count" placeholder="0">
                             </div>
                         </div>
+
+                        {{-- ЛОГИКА ПРЕДЗАКАЗА (Интегрирована без изменения дизайна) --}}
+                        <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox"
+                                       v-model="points[point.id].is_preorder"
+                                       :id="'preorder-' + point.id"
+                                       class="w-5 h-5 accent-indigo-600 rounded-lg cursor-pointer bg-slate-100 border-none transition-all">
+                                <label :for="'preorder-' + point.id" class="cursor-pointer m-0 text-slate-700 font-bold normal-case text-sm select-none">
+                                    Это товар под предзаказ
+                                </label>
+                            </div>
+                            <div v-if="points[point.id].is_preorder" class="animate__animated animate__fadeIn">
+                                <label>Дата поступления товара</label>
+                                <input type="date" v-model="points[point.id].available_at">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -269,7 +286,12 @@
                 const points = ref({});
 
                 warehouses.forEach(p => {
-                    points.value[p.id] = { price: null, count: null };
+                    points.value[p.id] = {
+                        price: null,
+                        count: null,
+                        is_preorder: false, // Флаг предзаказа (чекбокс)
+                        available_at: null  // Дата доступности
+                    };
                 });
 
                 // Инициализация редактора
