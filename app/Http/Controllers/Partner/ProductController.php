@@ -34,6 +34,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
+        $metaData = json_decode($request->input('meta'), true);
         DB::beginTransaction();
         try {
             $product = Product::create([
@@ -41,7 +42,8 @@ class ProductController extends Controller
                 'description' => $data['description'],
                 'sku' => $data['article'],
                 'product_category_id' => $data['product_category_id'],
-                'partner_id' => Auth::id()
+                'partner_id' => Auth::id(),
+                'data' => $metaData
             ]);
 
             $warehouses = json_decode($request->warehouses, true);
@@ -98,6 +100,7 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
+        $metaData = json_decode($request->input('meta'), true);
 
         DB::beginTransaction();
         try {
@@ -107,6 +110,7 @@ class ProductController extends Controller
                 'name' => $request->name,
                 'description' => $request->description,
                 'product_category_id' => $request->product_category_id,
+                'data' => $metaData
             ]);
 
             // 2. Удаляем фото, которые пользователь пометил на удаление

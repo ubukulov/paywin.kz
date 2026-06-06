@@ -115,6 +115,22 @@
             box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4); transition: all 0.3s;
         }
         .main-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        /* СТИЛИ ДЛЯ ДИНАМИЧЕСКИХ ХАРАКТЕРИСТИК */
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 16px;
+            align-items: center;
+        }
+        .btn-action-sec {
+            background: #f1f5f9; color: #64748b; border: none; padding: 14px;
+            border-radius: 16px; font-weight: 800; cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-action-sec:hover { background: #e2e8f0; color: #334155; }
+        .btn-delete-sec { background: #fef2f2; color: #ef4444; }
+        .btn-delete-sec:hover { background: #fee2e2; color: #dc2626; }
     </style>
 @endpush
 
@@ -135,7 +151,6 @@
                         <h3>Фотографии товара</h3>
                     </div>
                     <div class="photo-grid">
-                        {{-- ИЗМЕНЕНО: Добавлен tag="div", убран contents, оставлен photo-grid --}}
                         <draggable
                             v-model="images"
                             item-key="id"
@@ -198,6 +213,31 @@
                                 <div id="editor-container"></div>
                             </div>
                         </div>
+
+                        {{-- ДОБАВЛЕНО: Характеристики товара в стиле исходного дизайна --}}
+                        <div class="pt-4 border-t border-slate-100">
+                            <label class="mb-4">Характеристики товара (Опционально)</label>
+
+                            <div class="space-y-3 mb-4">
+                                <div v-for="(feature, index) in features" :key="feature.id" class="feature-row animate__animated animate__fadeIn">
+                                    <div>
+                                        <input type="text" v-model="feature.key" placeholder="Название (напр: Цвет)">
+                                    </div>
+                                    <div>
+                                        <input type="text" v-model="feature.value" placeholder="Значение (напр: Черный)">
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn-action-sec btn-delete-sec" @click="removeFeature(index)" title="Удалить">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn-action-sec text-xs uppercase" @click="addFeature">
+                                <i class="fas fa-plus"></i> Добавить характеристику
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -230,7 +270,7 @@
                             </div>
                         </div>
 
-                        {{-- ЛОГИКА ПРЕДЗАКАЗА (Интегрирована без изменения дизайна) --}}
+                        {{-- ЛОГИКА ПРЕДЗАКАЗА --}}
                         <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="flex items-center gap-3">
                                 <input type="checkbox"
@@ -281,6 +321,9 @@
                 const name = ref("");
                 const description = ref("");
 
+                // ДОБАВЛЕНО: Массив для хранения характеристик
+                const features = ref([]);
+
                 const warehouses = {!! json_encode($warehouses) !!};
                 const categories = {!! json_encode($productCategories) !!};
                 const points = ref({});
@@ -289,8 +332,8 @@
                     points.value[p.id] = {
                         price: null,
                         count: null,
-                        is_preorder: false, // Флаг предзаказа (чекбокс)
-                        available_at: null  // Дата доступности
+                        is_preorder: false,
+                        available_at: null
                     };
                 });
 
@@ -313,6 +356,19 @@
                     });
                 });
 
+                // ДОБАВЛЕНО: Методы добавления и удаления характеристик на фронтенде
+                const addFeature = () => {
+                    features.value.push({
+                        id: Date.now() + Math.random(),
+                        key: "",
+                        value: ""
+                    });
+                };
+
+                const removeFeature = (index) => {
+                    features.value.splice(index, 1);
+                };
+
                 const triggerUpload = () => document.getElementById("uploadInput").click();
 
                 const handleUpload = (event) => {
@@ -333,7 +389,6 @@
                         reader.readAsDataURL(file);
                     });
                     event.target.value = '';
-                    console.log(images)
                 };
 
                 const removePhoto = (index) => images.value.splice(index, 1);
@@ -351,6 +406,15 @@
                     formData.append('product_category_id', product_category_id.value);
                     formData.append('description', description.value);
                     formData.append('warehouses', JSON.stringify(points.value));
+
+                    // ДОБАВЛЕНО: Конвертируем массив характеристик в чистый Ключ->Значение объект для json_encode на сервере
+                    const metaObject = {};
+                    features.value.forEach(item => {
+                        if (item.key.trim() !== "" && item.value.trim() !== "") {
+                            metaObject[item.key.trim()] = item.value.trim();
+                        }
+                    });
+                    formData.append('meta', JSON.stringify(metaObject));
 
                     // Отправляем фото в порядке сортировки
                     images.value.forEach(img => {
@@ -370,6 +434,7 @@
 
                 return {
                     loading, images, article, name, description, warehouses, points, categories, product_category_id,
+                    features, addFeature, removeFeature, // Экспортируем новые реактивные переменные и методы
                     triggerUpload, handleUpload, removePhoto, createProduct
                 };
             }

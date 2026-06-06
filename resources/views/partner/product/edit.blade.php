@@ -79,6 +79,22 @@
             font-weight: 800; cursor: pointer; border: none; transition: 0.3s;
         }
         .main-submit:disabled { opacity: 0.6; }
+
+        /* СТИЛИ ДЛЯ ДИНАМИЧЕСКИХ ХАРАКТЕРИСТИК */
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 16px;
+            align-items: center;
+        }
+        .btn-action-sec {
+            background: #f1f5f9; color: #64748b; border: none; padding: 14px;
+            border-radius: 16px; font-weight: 800; cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-action-sec:hover { background: #e2e8f0; color: #334155; }
+        .btn-delete-sec { background: #fef2f2; color: #ef4444; }
+        .btn-delete-sec:hover { background: #fee2e2; color: #dc2626; }
     </style>
 @endpush
 
@@ -171,6 +187,31 @@
                             <div id="editor-container"></div>
                         </div>
                     </div>
+
+                    {{-- ДОБАВЛЕНО: Блок характеристик в режиме редактирования --}}
+                    <div class="pt-4 border-t border-slate-100">
+                        <label class="mb-4">Характеристики товара (Опционально)</label>
+
+                        <div class="space-y-3 mb-4">
+                            <div v-for="(feature, index) in features" :key="feature.id" class="feature-row animate__animated animate__fadeIn">
+                                <div>
+                                    <input type="text" v-model="feature.key" placeholder="Название (напр: Цвет)">
+                                </div>
+                                <div>
+                                    <input type="text" v-model="feature.value" placeholder="Значение (напр: Черный)">
+                                </div>
+                                <div>
+                                    <button type="button" class="btn-action-sec btn-delete-sec" @click="removeFeature(index)" title="Удалить">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-action-sec text-xs uppercase" @click="addFeature">
+                            <i class="fas fa-plus mr-1"></i> Добавить характеристику
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -193,7 +234,7 @@
                         </div>
                     </div>
 
-                    {{-- ДОБАВЛЕНО: Блок предзаказа под стиль create.blade.php --}}
+                    {{-- Блок предзаказа --}}
                     <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="flex items-center gap-3">
                             <input type="checkbox"
@@ -243,6 +284,19 @@
                 const description = ref("");
                 const product_category_id = ref({{ $product->product_category_id }});
 
+                // ДОБАВЛЕНО: Инициализация сохраненных характеристик мета-объекта из PHP в массив Vue
+                const rawMeta = {!! json_encode($product->meta ?? []) !!};
+                const features = ref([]);
+
+                // Переводим объект {"Размер": "XL", "Цвет": "Синий"} в реактивный массив [{id, key, value}]
+                Object.keys(rawMeta).forEach(key => {
+                    features.value.push({
+                        id: 'meta-' + Math.random(),
+                        key: key,
+                        value: rawMeta[key]
+                    });
+                });
+
                 // Единый массив для всех фото
                 const images = ref([
                         @foreach($product->images as $img)
@@ -250,7 +304,7 @@
                     @endforeach
                 ]);
 
-                const removedExistingIds = ref([]); // ID старых фото, которые были удалены пользователем
+                const removedExistingIds = ref([]);
 
                 const warehouses = {!! json_encode($warehouses) !!};
                 const categories = {!! json_encode($productCategories) !!};
@@ -258,14 +312,11 @@
 
                 const stocks = {!! json_encode($product->stocks->keyBy('warehouse_id')) !!};
 
-                // ИЗМЕНЕНО: Инициализация полей предзаказа и форматирование даты под HTML5 input date
                 warehouses.forEach(p => {
                     const stock = stocks[p.id] || null;
 
                     let formattedDate = null;
                     if (stock && stock.available_at) {
-                        // Забираем строго первые 10 символов (ГГГГ-ММ-ДД),
-                        // это сработает для любого формата TIMESTAMP из базы
                         formattedDate = stock.available_at.substring(0, 10);
                     }
 
@@ -278,14 +329,12 @@
                 });
 
                 onMounted(() => {
-                    // Quill инициализация
                     const quill = new Quill('#editor-container', {
                         theme: 'snow',
                         placeholder: 'Описание товара...',
                         modules: { toolbar: [['bold', 'italic'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
                     });
 
-                    // Загружаем старое описание
                     quill.root.innerHTML = `{!! $product->description !!}`;
                     description.value = quill.root.innerHTML;
 
@@ -293,6 +342,19 @@
                         description.value = quill.root.innerHTML;
                     });
                 });
+
+                // ДОБАВЛЕНО: Методы работы со свойствами
+                const addFeature = () => {
+                    features.value.push({
+                        id: Date.now() + Math.random(),
+                        key: "",
+                        value: ""
+                    });
+                };
+
+                const removeFeature = (index) => {
+                    features.value.splice(index, 1);
+                };
 
                 const triggerUpload = () => document.getElementById("uploadInput").click();
 
@@ -338,17 +400,23 @@
                     formData.append('description', description.value);
                     formData.append('warehouses', JSON.stringify(points.value));
 
-                    // Список ID для удаления на бэкенде
+                    // ДОБАВЛЕНО: Упаковываем характеристики обратно в JSON-объект
+                    const metaObject = {};
+                    features.value.forEach(item => {
+                        if (item.key.trim() !== "" && item.value.trim() !== "") {
+                            metaObject[item.key.trim()] = item.value.trim();
+                        }
+                    });
+                    formData.append('meta', JSON.stringify(metaObject));
+
                     formData.append('removed_photos', JSON.stringify(removedExistingIds.value));
 
-                    // Собираем финальный порядок (ID старых и метку для новых)
                     const finalOrder = images.value.map(img => ({
                         id: img.isNew ? null : img.id,
                         isNew: img.isNew
                     }));
                     formData.append('images_order', JSON.stringify(finalOrder));
 
-                    // Отправляем ТОЛЬКО новые файлы
                     images.value.filter(img => img.isNew).forEach(img => {
                         formData.append('new_photos[]', img.file);
                     });
@@ -367,11 +435,12 @@
                 return {
                     loading, product_id, images, article, name, description,
                     warehouses, points, categories, product_category_id,
+                    features, addFeature, removeFeature, // Экспортируем новые методы
                     triggerUpload, handleUpload, removePhoto, updateProduct
                 };
             }
         })
-            .component('draggable', window.vuedraggable) // Регистрация Draggable
+            .component('draggable', window.vuedraggable)
             .mount('#editGood');
     </script>
 @endpush
