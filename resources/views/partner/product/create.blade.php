@@ -270,7 +270,7 @@
                             </div>
                         </div>
 
-                        {{-- ЛОГИКА ПРЕДЗАКАЗА --}}
+                        {{-- ЛОГИКА ПРЕДЗАКАЗА (Изменено: Количество дней вместо даты) --}}
                         <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="flex items-center gap-3">
                                 <input type="checkbox"
@@ -282,8 +282,8 @@
                                 </label>
                             </div>
                             <div v-if="points[point.id].is_preorder" class="animate__animated animate__fadeIn">
-                                <label>Дата поступления товара</label>
-                                <input type="date" v-model="points[point.id].available_at">
+                                <label>Срок поставки (в днях)</label>
+                                <input type="number" v-model="points[point.id].delivery_days" min="1" placeholder="Напр: 5">
                             </div>
                         </div>
                     </div>
@@ -333,7 +333,7 @@
                         price: null,
                         count: null,
                         is_preorder: false,
-                        available_at: null
+                        delivery_days: null
                     };
                 });
 

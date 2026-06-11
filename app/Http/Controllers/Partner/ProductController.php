@@ -53,13 +53,18 @@ class ProductController extends Controller
                 // Добавлены поля предзаказа с проверкой на существование ключей
                 $isPreorder = (bool) ($wData['is_preorder'] ?? false);
 
+                $availableAt = null;
+                if ($isPreorder && !empty($wData['delivery_days'])) {
+                    $availableAt = now()->addDays((int) $wData['delivery_days'])->format('Y-m-data H:i:s');
+                }
+
                 ProductStock::create([
                     'product_id'     => $product->id,
                     'warehouse_id'   => $warehouseId,
                     'price'          => $wData['price'],
                     'quantity'       => $wData['count'],
                     'is_preorder'    => $isPreorder,
-                    'available_at'   => ($isPreorder && !empty($wData['available_at'])) ? $wData['available_at'] : null,
+                    'available_at'   => $availableAt,
                 ]);
             }
 
@@ -168,13 +173,18 @@ class ProductController extends Controller
 
                     $isPreorder = (bool) ($wData['is_preorder'] ?? false);
 
+                    $availableAt = null;
+                    if ($isPreorder && !empty($wData['delivery_days'])) {
+                        $availableAt = now()->addDays((int) $wData['delivery_days'])->format('Y-m-d H:i:s');
+                    }
+
                     // Используем метод обновления сводной таблицы Laravel (pivot),
                     // включая новые поля is_preorder и available_at
                     $product->warehouses()->updateExistingPivot($wId, [
                         'price'        => $wData['price'],
                         'quantity'     => $wData['count'],
                         'is_preorder'  => $isPreorder,
-                        'available_at' => ($isPreorder && !empty($wData['available_at'])) ? $wData['available_at'] : null,
+                        'available_at' => $availableAt,
                     ]);
                 }
             }
