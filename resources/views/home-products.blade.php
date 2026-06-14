@@ -4,29 +4,29 @@
     <main class="max-w-7xl mx-auto px-4 pb-12 mt-6">
 
         {{-- Кнопка "Каталог" для мобильных устройств (Скрыта на десктопе) --}}
-        <button onclick="toggleMobileCategories()" class="lg:hidden w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold py-3 px-4 rounded-2xl mb-4 transition focus:outline-none">
+        {{--<button onclick="toggleMobileCategories()" class="lg:hidden w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold py-3 px-4 rounded-2xl mb-4 transition focus:outline-none">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
             </svg>
             Каталог товаров
-        </button>
+        </button>--}}
 
         {{-- Главный контейнер --}}
         <div class="flex flex-col lg:flex-row gap-6 items-start relative">
 
             {{-- Затемняющий фон для мобильного меню --}}
-            <div id="mobile-categories-overlay"
+            {{--<div id="mobile-categories-overlay"
                  class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity opacity-0"
                  onclick="toggleMobileCategories()">
-            </div>
+            </div>--}}
 
             {{-- ЛЕВАЯ КОЛОНКА: Сайдбар с категориями --}}
             {{-- На мобильных: фиксированное выезжающее меню. На десктопе (lg): статичный блок --}}
-            <aside id="categories-sidebar"
+            {{--<aside id="categories-sidebar"
                    class="fixed inset-y-0 left-0 z-50 w-[85%] max-w-sm bg-white overflow-y-auto transform -translate-x-full transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-xs lg:static lg:translate-x-0 lg:w-72 lg:shrink-0 lg:p-4 lg:rounded-2xl lg:border lg:border-gray-100 lg:overflow-visible">
 
                 <div class="p-4 lg:p-0">
-                    {{-- Шапка мобильного меню с кнопкой закрытия --}}
+                    --}}{{-- Шапка мобильного меню с кнопкой закрытия --}}{{--
                     <div class="flex items-center justify-between mb-4 lg:hidden pb-4 border-b border-gray-100">
                         <h2 class="text-xl font-black text-gray-900">Каталог</h2>
                         <button onclick="toggleMobileCategories()" class="p-2 bg-gray-100 rounded-full text-gray-500 hover:bg-orange-500 hover:text-white transition focus:outline-none">
@@ -40,7 +40,7 @@
                         Категории
                     </h3>
 
-                    {{-- Список категорий --}}
+                    --}}{{-- Список категорий --}}{{--
                     <nav class="space-y-2" id="categories-tree">
                         @if(isset($categories) && $categories->isNotEmpty())
                             @foreach($categories->where('parent_id', 0) as $rootCat)
@@ -93,7 +93,7 @@
                         @endif
                     </nav>
                 </div>
-            </aside>
+            </aside>--}}
 
             {{-- ПРАВАЯ КОЛОНКА: Основной контент с товарами --}}
             <section class="flex-1 w-full">
