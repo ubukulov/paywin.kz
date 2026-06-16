@@ -31,7 +31,6 @@ class PlatformPromotionService
 
             // Защита от дублирования: проверяем, не получал ли уже пользователь приз по этой акции
             $alreadyHasGift = UserGift::where('user_id', $user->id)
-                ->where('promotion_id', $promotion->id) // если есть прямая колонка, либо через полиморфизм
                 ->where('source_type', $source ? get_class($source) : get_class($user))
                 ->where('source_id', $source ? $source->id : $user->id)
                 ->exists();
