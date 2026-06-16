@@ -44,7 +44,6 @@ class PlatformPromotionService
             $gift->share_id = null; // Поле null, так как это акция платформы, а не партнера!
             $gift->source_id = $source ? $source->id : $user->id;
             $gift->source_type = $source ? get_class($source) : get_class($user);
-            $gift->cnt = 1;
             $gift->status = 'available';
 
             // 2. Логика в зависимости от типа награды ( reward_type )
