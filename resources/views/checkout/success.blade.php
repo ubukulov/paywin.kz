@@ -49,7 +49,7 @@
                class="w-full sm:w-auto text-center bg-orange-500 hover:bg-orange-600 text-white py-3.5 px-8 rounded-2xl text-sm font-black transition duration-200 shadow-sm">
                 На главную витрину
             </a>
-            <a href="/profile/prizes"
+            <a href="/user/prizes"
                class="w-full sm:w-auto text-center bg-gray-100 hover:bg-gray-200 text-gray-800 py-3.5 px-8 rounded-2xl text-sm font-bold transition duration-200">
                 Мои призы в кабинете
             </a>
