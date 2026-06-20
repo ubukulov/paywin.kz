@@ -91,18 +91,20 @@
                                 <button type="button" onclick="incrementQty()" class="px-3 py-2">＋</button>
                             </div>
                             @if(Auth::check())
-                                @if($product->is_preorder)
-                                    <button type="submit"
-                                            class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                                        В корзину
-                                    </button>
-                                @else
-                                    <button type="submit"
-                                            class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                                        В корзину
-                                    </button>
-                                @endif
+                                {{-- КНОПКА КУПИТЬ (Мгновенное оформление) --}}
+                                <button type="button" onclick="quickPurchase()"
+                                        class="px-6 py-2 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition shadow-xs">
+                                    Купить
+                                </button>
+
+                                <button type="submit"
+                                        class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                                    В корзину
+                                </button>
                             @else
+                                {{-- Для неавторизованных ведем на логин --}}
+                                <a class="px-6 py-2 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition shadow-xs"
+                                   href="{{ route('login') }}">Купить</a>
                                 <a class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
                                    href="{{ route('login') }}">В корзину</a>
                             @endif
@@ -328,6 +330,42 @@
                     setTimeout(() => toast.remove(), 500);
                 }, 3000);
             };
+        </script>
+
+        <script>
+            // Функция для мгновенной покупки товара
+            function quickPurchase() {
+                const form = document.getElementById('add-to-cart-form');
+                if (!form) return;
+
+                let formData = new FormData(form);
+
+                fetch("{{ route('cart.add') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: formData
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Товар в корзине, перенаправляем на оформление чекаута
+                            window.location.href = "{{ route('checkout.index') }}";
+                        } else {
+                            // Если на складе нет или другая ошибка, выводим toast
+                            if (typeof window.showToast === 'function') {
+                                window.showToast(data.message, "error");
+                            } else {
+                                alert(data.message);
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Произошла ошибка при обработке заказа");
+                    });
+            }
         </script>
     </div>
 @endsection
