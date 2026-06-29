@@ -142,13 +142,20 @@ class CheckoutController extends BaseController
             if (!isset($paymentResponse['Success']) || !$paymentResponse['Success']) {
                 $model = $paymentResponse['Model'] ?? null;
                 if ($model && ($model['Status'] ?? '') === 'AwaitingAuthentication') {
-                    $order->update(['transaction_id' => $model['TransactionId']]);
+                    $mdId = $model['TransactionId'] ?? ($model['MD'] ?? $model['AcsTransactionId'] ?? null);
+
+                    $order->update([
+                        'data' => array_merge($order->data ?? [], [
+                            'transaction_id' => $mdId
+                        ])
+                    ]);
+
                     DB::commit();
                     return response()->json([
                         'status' => '3ds_required',
                         'acs_url' => $model['AcsUrl'],
                         'pareq' => $model['PaReq'],
-                        'transaction_id' => $model['TransactionId'],
+                        'transaction_id' => $mdId,
                         'order_id' => $order->id
                     ]);
                 }
@@ -303,7 +310,7 @@ class CheckoutController extends BaseController
         if ($result['Success'] && $result['Model']['Status'] === 'Completed') {
             DB::beginTransaction();
             try {
-                $order = Order::where('transaction_id', $transactionId)->first();
+                $order = Order::where('data->transaction_id', $transactionId)->first();
 
                 if (!$order) {
                     \Log::error("Order not found for transaction: " . $transactionId);
@@ -312,9 +319,10 @@ class CheckoutController extends BaseController
                     return response('<!DOCTYPE html><html><head><script>window.top.location.href = "/checkout/success";</script></head></html>');
                 }
 
-                if ($order->status !== 'paid') {
+                if ($order->status !== OrderEnum::PAID->value) {
                     $this->finalizeOrder($order, $result['Model']);
                 }
+
                 DB::commit();
                 return response('<!DOCTYPE html><html><head><script>window.top.location.href = "/checkout/success";</script></head></html>');
             } catch (\Exception $e) {
