@@ -265,7 +265,7 @@ class CheckoutController extends BaseController
         $buyer->cart?->delete();
     }
 
-    public function handle3DS(Request $request)
+    /*public function handle3DS(Request $request)
     {
         $transactionId = $request->input('MD');
         $pares = $request->input('PaRes');
@@ -286,6 +286,45 @@ class CheckoutController extends BaseController
                 return response('Error', 500);
             }
         }
+        return response('FAILED', 200);
+    }*/
+
+    public function handle3DS(Request $request)
+    {
+        // Проверяем оба варианта, которые может прислать шлюз/банк
+        $transactionId = $request->input('MD') ?? $request->input('TransactionId');
+        $pares = $request->input('PaRes');
+
+        // Логируем для дебага, чтобы видеть, что прилетает от реальных юзеров
+        \Log::info('3DS Callback Data', $request->all());
+
+        $result = (new TipTopPayService())->confirm3DS($transactionId, $pares);
+
+        if ($result['Success'] && $result['Model']['Status'] === 'Completed') {
+            DB::beginTransaction();
+            try {
+                $order = Order::where('transaction_id', $transactionId)->first();
+
+                if (!$order) {
+                    \Log::error("Order not found for transaction: " . $transactionId);
+                    // Если заказ не найден, всё равно редиректим на успех,
+                    // чтобы юзер не пугался белого экрана (а там разберемся)
+                    return response('<!DOCTYPE html><html><head><script>window.top.location.href = "/checkout/success";</script></head></html>');
+                }
+
+                if ($order->status !== 'paid') {
+                    $this->finalizeOrder($order, $result['Model']);
+                }
+                DB::commit();
+                return response('<!DOCTYPE html><html><head><script>window.top.location.href = "/checkout/success";</script></head></html>');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                \Log::error("3DS Finalize Error: " . $e->getMessage());
+                return response('Error', 500);
+            }
+        }
+
+        \Log::error("3DS Confirmation Failed for Trans: " . $transactionId, $result);
         return response('FAILED', 200);
     }
 
