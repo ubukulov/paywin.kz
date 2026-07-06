@@ -83,6 +83,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('images/store', [PartnerController::class, 'imageStore'])->name('imageStore');
         Route::get('images/lists', [PartnerController::class, 'imageLists'])->name('imageLists');
         Route::get('image/{id}/delete', [PartnerController::class, 'imageDelete'])->name('imageDelete');
+        Route::get('orders', [PartnerController::class, 'orders'])->name('orders');
 
         # Products
         Route::group(['prefix' => 'products'], function(){

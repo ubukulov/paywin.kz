@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Partner;
 
+use App\Enums\OrderEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\OrderItem;
 use App\Models\PartnerProfile;
 use App\Models\Payment;
 use App\Models\PartnerAddress;
 use App\Models\PartnerImage;
 use App\Models\User;
+use App\Models\UserGift;
 use App\Models\UserProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -146,5 +149,35 @@ class PartnerController extends Controller
         $image = PartnerImage::findOrFail($id);
         $image->delete();
         return redirect()->route('partner.cabinet');
+    }
+
+    public function orders()
+    {
+        $partner = Auth::user();
+
+        // Безопасность: проверяем, что это действительно партнер
+        if ($partner->user_type !== 'partner') {
+            abort(403, 'Доступ запрещен');
+        }
+
+        // Получаем пункты заказов, принадлежащие товарам этого партнера
+        $partnerOrderItems = OrderItem::with(['order.user', 'product'])
+            ->whereHas('product', function ($query) use ($partner) {
+                $query->where('user_id', $partner->id); // Предполагаем, что связь partner_id или user_id в products указывает на владельца
+            })
+            ->whereHas('order', function ($query) {
+                $query->whereIn('status', [OrderEnum::PAID->value, OrderEnum::PREORDER->value]);
+            })
+            ->latest()
+            ->paginate(15);
+
+        // Для каждого элемента подтянем призы, которые этот конкретный юзер выиграл за этот заказ
+        foreach ($partnerOrderItems as $item) {
+            $item->gifts = UserGift::where('user_id', $item->order->user_id)
+                ->where('order_id', $item->order_id)
+                ->get();
+        }
+
+        return view('partner.orders.index', compact('partnerOrderItems'));
     }
 }
