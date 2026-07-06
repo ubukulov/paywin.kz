@@ -121,6 +121,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('prizes', [UserController::class, 'prizes'])->name('prizes');
         Route::get('history', [UserController::class, 'history'])->name('history');
         Route::post('balance-replenishment', [UserController::class, 'balanceReplenishment'])->name('balanceReplenishment');
+        Route::get('products', [UserController::class, 'purchasedProducts'])->name('purchasedProducts');
 
         Route::post('promo/activate', [UserController::class, 'promoActivate'])->name('promoActivate');
 

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Enums\OrderEnum;
 use App\Http\Controllers\Controller;
+use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\UserGift;
 use App\Models\Share;
@@ -150,5 +152,21 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
+    }
+
+    public function purchasedProducts()
+    {
+        $user = Auth::user();
+
+        // Вытягиваем товары только из ОПЛАЧЕННЫХ или ПРЕДЗАКАЗАННЫХ заказов
+        $purchasedItems = OrderItem::with(['product.mainImage', 'order'])
+            ->whereHas('order', function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->whereIn('status', [OrderEnum::PAID->value, OrderEnum::PREORDER->value]);
+            })
+            ->latest()
+            ->paginate(10); // Пагинация по 10 товаров
+
+        return view('user.purchased_products', compact('purchasedItems'));
     }
 }
