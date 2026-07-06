@@ -172,7 +172,7 @@ class PartnerController extends Controller
         // Для каждого элемента подтянем призы, которые этот конкретный юзер выиграл за этот заказ
         foreach ($partnerOrderItems as $item) {
             $item->gifts = UserGift::where('user_id', $item->order->user_id)
-                ->where('order_id', $item->order_id)
+                ->where('source_id', $item->order_id)
                 ->get();
         }
 
