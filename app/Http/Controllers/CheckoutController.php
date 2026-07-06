@@ -120,12 +120,20 @@ class CheckoutController extends BaseController
                         ->decrement('quantity', $item->quantity);
                 }*/
 
+                $currentWarehouseId = $item->warehouse_id ?? 1;
+
                 ProductStock::where(['product_id' => $item->product_id/*, 'city_id' => Cookie::get('selected_city_id')*/])
                     ->decrement('quantity', $item->quantity);
+
+                $product = Product::find($item->product_id);
 
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product_id,
+                    'partner_id'   => $product->partner_id, // или $product->partner_id (ID партнера-владельца)
+                    'warehouse_id' => $currentWarehouseId,
+                    'product_name' => $product->name,
+                    'product_sku'  => $product->sku,
                     'quantity' => $item->quantity,
                     'price' => $item->price,
                     'total' => $item->total,

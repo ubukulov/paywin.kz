@@ -161,10 +161,8 @@ class PartnerController extends Controller
         }
 
         // Получаем пункты заказов, принадлежащие товарам этого партнера
-        $partnerOrderItems = OrderItem::with(['order.user', 'product'])
-            ->whereHas('product', function ($query) use ($partner) {
-                $query->where('user_id', $partner->id); // Предполагаем, что связь partner_id или user_id в products указывает на владельца
-            })
+        $partnerOrderItems = OrderItem::with(['order.user', 'warehouse'])
+            ->where('partner_id', $partner->id) // Ищем напрямую по индексу!
             ->whereHas('order', function ($query) {
                 $query->whereIn('status', [OrderEnum::PAID->value, OrderEnum::PREORDER->value]);
             })

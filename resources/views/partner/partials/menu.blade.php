@@ -23,6 +23,10 @@
                     Профиль
                 </a>
 
+                <a href="{{ route('partner.orders') }}" class="nav-link {{ request()->is('partner/orders*') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
+                    Заказы
+                </a>
+
                 <a href="{{ route('partner.my-shares.index') }}" class="nav-link {{ request()->is('partner/my-shares*') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-sm font-medium">
                     Акции
                 </a>
@@ -58,6 +62,9 @@
     <div id="mobileMenu" class="sm:hidden hidden px-2 pt-2 pb-3 space-y-1">
         <a href="{{ route('partner.cabinet') }}" class="block {{ request()->is('partner') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
             Профиль
+        </a>
+        <a href="{{ route('partner.orders') }}" class="block {{ request()->is('partner/orders*') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
+            Заказы
         </a>
         <a href="{{ route('partner.my-shares.index') }}" class="block {{ request()->is('partner/my-shares*') ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-orange-500 hover:text-white' }} px-3 py-2 rounded-md text-base font-medium">
             Акции

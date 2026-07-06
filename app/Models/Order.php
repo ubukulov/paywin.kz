@@ -12,8 +12,6 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'partner_id',
-        'warehouse_id',
         'agent_id',
         'user_discount_id',
         'subtotal',
@@ -34,16 +32,6 @@ class Order extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function partner(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'partner_id');
-    }
-
-    public function warehouse(): BelongsTo
-    {
-        return $this->belongsTo(PartnerWarehouse::class, 'warehouse_id');
     }
 
     public function agent(): BelongsTo

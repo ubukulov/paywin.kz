@@ -13,6 +13,8 @@ class OrderItem extends Model
 
     protected $fillable = [
         'order_id',
+        'partner_id',
+        'warehouse_id',
         'product_id',
         'product_name',
         'product_sku',
@@ -20,6 +22,16 @@ class OrderItem extends Model
         'price',
         'total',
     ];
+
+    public function partner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'partner_id');
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(PartnerWarehouse::class, 'warehouse_id');
+    }
 
     public function product(): BelongsTo
     {
