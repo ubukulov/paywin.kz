@@ -346,13 +346,42 @@ class CheckoutController extends BaseController
 
     public function success()
     {
-        $user = Auth::user();
+        /*$user = Auth::user();
 
         // Подтягиваем последние призы пользователя, созданные за последние 5 минут для этого заказа
         $gifts = \App\Models\UserGift::where('user_id', $user->id)
             ->where('created_at', '>=', now()->subMinutes(5))
             ->latest()
+            ->get();*/
+
+        $user = Auth::user();
+
+        // Подтягиваем последние призы за последние 5 минут
+        $rawGifts = \App\Models\UserGift::where('user_id', $user->id)
+            ->where('created_at', '>=', now()->subMinutes(5))
+            ->latest()
             ->get();
+
+        // Группируем по имени приза
+        $gifts = $rawGifts->groupBy('name')->map(function ($group) {
+            // Берем первый элемент как основу для карточки
+            $firstGift = $group->first();
+
+            // Собираем все номера билетов из группы в один массив
+            $ticketNumbers = [];
+            foreach ($group as $gift) {
+                $giftData = is_array($gift->data) ? $gift->data : json_decode($gift->data, true);
+                if (!empty($giftData['ticket_number'])) {
+                    $ticketNumbers[] = $giftData['ticket_number'];
+                }
+            }
+
+            // Клонируем объект или добавляем кастомные свойства для Blade
+            $firstGift->quantity_count = $group->count();
+            $firstGift->all_tickets = $ticketNumbers;
+
+            return $firstGift;
+        });
 
         return view('checkout.success', compact('gifts'));
     }

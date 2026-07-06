@@ -20,12 +20,12 @@
                 <div class="flex items-center gap-2 mb-4">
                     <span class="text-xl">🎁</span>
                     <h2 class="text-lg font-black text-gray-900 uppercase tracking-tight">
-                        Вы выиграли призы!
+                        Поздравляем, Вы выиграли приз! 🎉
                     </h2>
                 </div>
 
                 <p class="text-xs text-gray-400 mb-4 -mt-3">
-                    Они уже добавлены в ваш личный кабинет. Покажите QR-код партнеру для получения.
+                    Все призы доступны в вашем личном кабинете
                 </p>
 
                 {{-- Цикл по сгенерированным подаркам --}}
