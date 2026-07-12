@@ -340,6 +340,8 @@
 
                 let formData = new FormData(form);
 
+                formData.append('instant', '1');
+
                 fetch("{{ route('cart.add') }}", {
                     method: 'POST',
                     headers: {

@@ -25,12 +25,12 @@
 
         {{-- Вкладка 2: Характеристики --}}
         <div id="tab-content-features" class="tab-content hidden">
-            @if($product->meta && (is_array($product->meta) ? !empty($product->meta) : trim($product->meta) !== ''))
+            @if($product->data && (is_array($product->data) ? !empty($product->data) : trim($product->data) !== ''))
                 <div class="max-w-2xl">
                     <table class="w-full text-sm text-left text-gray-600">
                         <tbody>
-                        @if(is_array($product->meta))
-                            @foreach($product->meta as $key => $value)
+                        @if(is_array($product->data))
+                            @foreach($product->data as $key => $value)
                                 <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition">
                                     <td class="py-3 pr-4 font-bold text-gray-400 w-1/3">{{ $key }}</td>
                                     <td class="py-3 text-gray-800 font-medium">{{ is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value }}</td>
@@ -38,7 +38,7 @@
                             @endforeach
                         @else
                             <tr class="border-b border-gray-50">
-                                <td class="py-3 text-gray-800 whitespace-pre-wrap">{{ $product->meta }}</td>
+                                <td class="py-3 text-gray-800 whitespace-pre-wrap">{{ $product->data }}</td>
                             </tr>
                         @endif
                         </tbody>

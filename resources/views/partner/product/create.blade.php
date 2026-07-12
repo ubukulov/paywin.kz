@@ -214,7 +214,7 @@
                             </div>
                         </div>
 
-                        {{-- ДОБАВЛЕНО: Характеристики товара в стиле исходного дизайна --}}
+                        {{-- Характеристики товара --}}
                         <div class="pt-4 border-t border-slate-100">
                             <label class="mb-4">Характеристики товара (Опционально)</label>
 
@@ -270,7 +270,7 @@
                             </div>
                         </div>
 
-                        {{-- ЛОГИКА ПРЕДЗАКАЗА --}}
+                        {{-- ИЗМЕНЕНО: ЛОГИКА ПРЕДЗАКАЗА (Количество дней вместо инпута типа date) --}}
                         <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="flex items-center gap-3">
                                 <input type="checkbox"
@@ -282,8 +282,8 @@
                                 </label>
                             </div>
                             <div v-if="points[point.id].is_preorder" class="animate__animated animate__fadeIn">
-                                <label>Дата поступления товара</label>
-                                <input type="date" v-model="points[point.id].available_at">
+                                <label>Срок поставки (в днях)</label>
+                                <input type="number" v-model="points[point.id].delivery_days" min="1" placeholder="Напр: 5">
                             </div>
                         </div>
                     </div>
@@ -321,19 +321,19 @@
                 const name = ref("");
                 const description = ref("");
 
-                // ДОБАВЛЕНО: Массив для хранения характеристик
                 const features = ref([]);
 
                 const warehouses = {!! json_encode($warehouses) !!};
                 const categories = {!! json_encode($productCategories) !!};
                 const points = ref({});
 
+                // ИЗМЕНЕНО: Используем delivery_days вместо available_at
                 warehouses.forEach(p => {
                     points.value[p.id] = {
                         price: null,
                         count: null,
                         is_preorder: false,
-                        available_at: null
+                        delivery_days: null
                     };
                 });
 
@@ -356,7 +356,6 @@
                     });
                 });
 
-                // ДОБАВЛЕНО: Методы добавления и удаления характеристик на фронтенде
                 const addFeature = () => {
                     features.value.push({
                         id: Date.now() + Math.random(),
@@ -407,7 +406,6 @@
                     formData.append('description', description.value);
                     formData.append('warehouses', JSON.stringify(points.value));
 
-                    // ДОБАВЛЕНО: Конвертируем массив характеристик в чистый Ключ->Значение объект для json_encode на сервере
                     const metaObject = {};
                     features.value.forEach(item => {
                         if (item.key.trim() !== "" && item.value.trim() !== "") {
@@ -416,7 +414,6 @@
                     });
                     formData.append('meta', JSON.stringify(metaObject));
 
-                    // Отправляем фото в порядке сортировки
                     images.value.forEach(img => {
                         formData.append('photos[]', img.file);
                     });
@@ -434,7 +431,7 @@
 
                 return {
                     loading, images, article, name, description, warehouses, points, categories, product_category_id,
-                    features, addFeature, removeFeature, // Экспортируем новые реактивные переменные и методы
+                    features, addFeature, removeFeature,
                     triggerUpload, handleUpload, removePhoto, createProduct
                 };
             }

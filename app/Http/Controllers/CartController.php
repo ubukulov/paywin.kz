@@ -57,6 +57,18 @@ class CartController extends BaseController
             }
         }*/
 
+        $user = auth()->user();
+
+        if ($request->boolean('instant')) {
+            $oldCart = Cart::where('user_id', $user->id)->first();
+            if ($oldCart) {
+                // Удаляем все старые элементы корзины
+                $oldCart->items()->delete();
+                // Обнуляем сумму самой корзины
+                $oldCart->update(['total' => 0]);
+            }
+        }
+
         $item = CartItem::firstOrCreate(
             ['cart_id' => $cart->id, 'product_id' => $product->id],
             ['quantity' => 0, 'price' => $product->price, 'total' => 0]

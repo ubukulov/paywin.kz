@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('partner_id')->constrained('users'); // Кто продавец
-            $table->foreignId('warehouse_id')->nullable()->constrained('partner_warehouses'); // С какой точки
 
             // Реферальная система
             $table->foreignId('agent_id')->nullable()->constrained('users');

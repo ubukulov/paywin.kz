@@ -188,7 +188,7 @@
                         </div>
                     </div>
 
-                    {{-- ДОБАВЛЕНО: Блок характеристик в режиме редактирования --}}
+                    {{-- Блок характеристик товара --}}
                     <div class="pt-4 border-t border-slate-100">
                         <label class="mb-4">Характеристики товара (Опционально)</label>
 
@@ -234,7 +234,7 @@
                         </div>
                     </div>
 
-                    {{-- Блок предзаказа --}}
+                    {{-- Блок предзаказа на количество дней --}}
                     <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="flex items-center gap-3">
                             <input type="checkbox"
@@ -246,8 +246,8 @@
                             </label>
                         </div>
                         <div v-if="points[point.id].is_preorder" class="animate__animated animate__fadeIn">
-                            <label>Дата поступления товара</label>
-                            <input type="date" v-model="points[point.id].available_at">
+                            <label>Срок поставки (в днях)</label>
+                            <input type="number" v-model="points[point.id].delivery_days" min="1" placeholder="Напр: 5">
                         </div>
                     </div>
                 </div>
@@ -284,20 +284,20 @@
                 const description = ref("");
                 const product_category_id = ref({{ $product->product_category_id }});
 
-                // ДОБАВЛЕНО: Инициализация сохраненных характеристик мета-объекта из PHP в массив Vue
-                const rawMeta = {!! json_encode($product->meta ?? []) !!};
+                const rawMeta = {!! json_encode($product->meta ?? $product->data ?? []) !!};
                 const features = ref([]);
 
-                // Переводим объект {"Размер": "XL", "Цвет": "Синий"} в реактивный массив [{id, key, value}]
-                Object.keys(rawMeta).forEach(key => {
-                    features.value.push({
-                        id: 'meta-' + Math.random(),
-                        key: key,
-                        value: rawMeta[key]
+                // Наполнение характеристик
+                if (rawMeta && typeof rawMeta === 'object') {
+                    Object.keys(rawMeta).forEach(key => {
+                        features.value.push({
+                            id: 'meta-' + Math.random(),
+                            key: key,
+                            value: rawMeta[key]
+                        });
                     });
-                });
+                }
 
-                // Единый массив для всех фото
                 const images = ref([
                         @foreach($product->images as $img)
                     { id: {{ $img->id }}, preview: '{{ $img->url }}', isNew: false, file: null },
@@ -315,16 +315,25 @@
                 warehouses.forEach(p => {
                     const stock = stocks[p.id] || null;
 
-                    let formattedDate = null;
+                    let days = null;
                     if (stock && stock.available_at) {
-                        formattedDate = stock.available_at.substring(0, 10);
+                        const availableDate = new Date(stock.available_at.substring(0, 10));
+                        const today = new Date();
+
+                        availableDate.setHours(0,0,0,0);
+                        today.setHours(0,0,0,0);
+
+                        const diffTime = availableDate.getTime() - today.getTime();
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        days = diffDays > 0 ? diffDays : 1;
                     }
 
                     points.value[p.id] = {
                         price: stock ? stock.price : null,
                         count: stock ? stock.quantity : null,
                         is_preorder: stock ? (parseInt(stock.is_preorder) === 1 || stock.is_preorder === true) : false,
-                        available_at: formattedDate
+                        delivery_days: days
                     };
                 });
 
@@ -335,7 +344,8 @@
                         modules: { toolbar: [['bold', 'italic'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
                     });
 
-                    quill.root.innerHTML = `{!! $product->description !!}`;
+                    // Безопасная инициализация текста без разрывов строк JS
+                    quill.root.innerHTML = `{!! addslashes($product->description) !!}`;
                     description.value = quill.root.innerHTML;
 
                     quill.on('text-change', () => {
@@ -343,10 +353,9 @@
                     });
                 });
 
-                // ДОБАВЛЕНО: Методы работы со свойствами
                 const addFeature = () => {
                     features.value.push({
-                        id: Date.now() + Math.random(),
+                        id: 'new-feature-' + Date.now() + Math.random(),
                         key: "",
                         value: ""
                     });
@@ -368,7 +377,7 @@
                         const reader = new FileReader();
                         reader.onload = e => {
                             images.value.push({
-                                id: 'new-' + Date.now() + Math.random(),
+                                id: 'new-img-' + Date.now() + Math.random(),
                                 preview: e.target.result,
                                 isNew: true,
                                 file: file
@@ -400,7 +409,6 @@
                     formData.append('description', description.value);
                     formData.append('warehouses', JSON.stringify(points.value));
 
-                    // ДОБАВЛЕНО: Упаковываем характеристики обратно в JSON-объект
                     const metaObject = {};
                     features.value.forEach(item => {
                         if (item.key.trim() !== "" && item.value.trim() !== "") {
@@ -435,7 +443,7 @@
                 return {
                     loading, product_id, images, article, name, description,
                     warehouses, points, categories, product_category_id,
-                    features, addFeature, removeFeature, // Экспортируем новые методы
+                    features, addFeature, removeFeature,
                     triggerUpload, handleUpload, removePhoto, updateProduct
                 };
             }

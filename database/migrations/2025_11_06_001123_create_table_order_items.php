@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
             $table->foreignId('product_id')->nullable()->constrained('products')->onDelete('set null');
+            $table->foreignId('partner_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('warehouse_id')->nullable()->constrained('partner_warehouses')->onDelete('set null');
 
             // Снапшоты данных
             $table->string('product_name'); // Чтобы имя не поменялось в истории

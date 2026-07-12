@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class ProductController extends Controller
 {
@@ -49,9 +50,13 @@ class ProductController extends Controller
             $warehouses = json_decode($request->warehouses, true);
 
             foreach ($warehouses as $warehouseId => $wData) {
-                // ИСПРАВЛЕНО: Убран city_id (так как его нет в fillable модели ProductStock)
-                // Добавлены поля предзаказа с проверкой на существование ключей
                 $isPreorder = (bool) ($wData['is_preorder'] ?? false);
+
+                // РАСЧЕТ ДАТЫ: Переводим переданные дни в дату доступности товара
+                $availableAt = null;
+                if ($isPreorder && !empty($wData['delivery_days'])) {
+                    $availableAt = Carbon::now()->addDays((int)$wData['delivery_days'])->startOfDay();
+                }
 
                 ProductStock::create([
                     'product_id'     => $product->id,
@@ -59,7 +64,7 @@ class ProductController extends Controller
                     'price'          => $wData['price'],
                     'quantity'       => $wData['count'],
                     'is_preorder'    => $isPreorder,
-                    'available_at'   => ($isPreorder && !empty($wData['available_at'])) ? $wData['available_at'] : null,
+                    'available_at'   => $availableAt,
                 ]);
             }
 
@@ -161,20 +166,24 @@ class ProductController extends Controller
                 }
             }
 
-            // 5. ГЛАВНОЕ ИСПРАВЛЕНИЕ: Обновляем склады с поддержкой логики предзаказа
+            // 5. ИСПРАВЛЕНО: Обновляем склады с пересчетом количества дней в дату
             $warehousesData = json_decode($request->warehouses, true);
             if (!empty($warehousesData)) {
                 foreach($warehousesData as $wId => $wData) {
 
                     $isPreorder = (bool) ($wData['is_preorder'] ?? false);
 
-                    // Используем метод обновления сводной таблицы Laravel (pivot),
-                    // включая новые поля is_preorder и available_at
+                    // Расчет даты на базе переданных дней
+                    $availableAt = null;
+                    if ($isPreorder && !empty($wData['delivery_days'])) {
+                        $availableAt = Carbon::now()->addDays((int)$wData['delivery_days'])->startOfDay();
+                    }
+
                     $product->warehouses()->updateExistingPivot($wId, [
                         'price'        => $wData['price'],
                         'quantity'     => $wData['count'],
                         'is_preorder'  => $isPreorder,
-                        'available_at' => ($isPreorder && !empty($wData['available_at'])) ? $wData['available_at'] : null,
+                        'available_at' => $availableAt,
                     ]);
                 }
             }
