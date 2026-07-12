@@ -31,6 +31,7 @@
                         <tbody>
                         @if(is_array($product->data))
                             @foreach($product->data as $key => $value)
+                                @if($key == 'system_video_url') @continue @endif
                                 <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition">
                                     <td class="py-3 pr-4 font-bold text-gray-400 w-1/3">{{ $key }}</td>
                                     <td class="py-3 text-gray-800 font-medium">{{ is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value }}</td>

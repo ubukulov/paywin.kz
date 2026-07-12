@@ -188,6 +188,13 @@
                         </div>
                     </div>
 
+                    {{-- ДОБАВЛЕНО: Ссылка на видеообзор товара --}}
+                    <div class="pt-4 border-t border-slate-100">
+                        <label><i class="fab fa-youtube text-red-500 mr-1 text-sm"></i> Видеообзор товара (Ссылка)</label>
+                        <input type="url" v-model="video_url" placeholder="Напр: https://www.youtube.com/watch?v=XXXXXX">
+                        <p class="text-[10px] text-slate-400 mt-1">Вы можете обновить или вставить новую прямую ссылку на видео.</p>
+                    </div>
+
                     {{-- Блок характеристик товара --}}
                     <div class="pt-4 border-t border-slate-100">
                         <label class="mb-4">Характеристики товара (Опционально)</label>
@@ -284,17 +291,28 @@
                 const description = ref("");
                 const product_category_id = ref({{ $product->product_category_id }});
 
+                // ДОБАВЛЕНО: Реактивная переменная для ссылки на видео
+                const video_url = ref("");
+
                 const rawMeta = {!! json_encode($product->meta ?? $product->data ?? []) !!};
                 const features = ref([]);
 
-                // Наполнение характеристик
+                // Наполнение характеристик с исключением ключа видео
                 if (rawMeta && typeof rawMeta === 'object') {
+                    // Сначала вытаскиваем ссылку, если она существует в базе
+                    if (rawMeta['system_video_url']) {
+                        video_url.value = rawMeta['system_video_url'];
+                    }
+
                     Object.keys(rawMeta).forEach(key => {
-                        features.value.push({
-                            id: 'meta-' + Math.random(),
-                            key: key,
-                            value: rawMeta[key]
-                        });
+                        // ИСПРАВЛЕНО: Не добавляем системную ссылку на видео в общую таблицу характеристик
+                        if (key !== 'system_video_url') {
+                            features.value.push({
+                                id: 'meta-' + Math.random(),
+                                key: key,
+                                value: rawMeta[key]
+                            });
+                        }
                     });
                 }
 
@@ -415,6 +433,12 @@
                             metaObject[item.key.trim()] = item.value.trim();
                         }
                     });
+
+                    // ДОБАВЛЕНО: Дописываем обновленную ссылку на видео в metaObject перед отправкой
+                    if (video_url.value.trim() !== "") {
+                        metaObject['system_video_url'] = video_url.value.trim();
+                    }
+
                     formData.append('meta', JSON.stringify(metaObject));
 
                     formData.append('removed_photos', JSON.stringify(removedExistingIds.value));
@@ -443,7 +467,7 @@
                 return {
                     loading, product_id, images, article, name, description,
                     warehouses, points, categories, product_category_id,
-                    features, addFeature, removeFeature,
+                    features, addFeature, removeFeature, video_url, // Экспортируем video_url в шаблон
                     triggerUpload, handleUpload, removePhoto, updateProduct
                 };
             }

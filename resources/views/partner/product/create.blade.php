@@ -214,6 +214,13 @@
                             </div>
                         </div>
 
+                        {{-- ДОБАВЛЕНО: Ссылка на видеообзор товара --}}
+                        <div class="pt-4 border-t border-slate-100">
+                            <label><i class="fab fa-youtube text-red-500 mr-1 text-sm"></i> Видеообзор товара (Ссылка)</label>
+                            <input type="url" v-model="video_url" placeholder="Напр: https://www.youtube.com/watch?v=XXXXXX">
+                            <p class="text-[10px] text-slate-400 mt-1">Вставьте прямую ссылку на YouTube-видео или обзор товара.</p>
+                        </div>
+
                         {{-- Характеристики товара --}}
                         <div class="pt-4 border-t border-slate-100">
                             <label class="mb-4">Характеристики товара (Опционально)</label>
@@ -270,7 +277,7 @@
                             </div>
                         </div>
 
-                        {{-- ИЗМЕНЕНО: ЛОГИКА ПРЕДЗАКАЗА (Количество дней вместо инпута типа date) --}}
+                        {{-- ЛОГИКА ПРЕДЗАКАЗА --}}
                         <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="flex items-center gap-3">
                                 <input type="checkbox"
@@ -315,11 +322,14 @@
         const app = createApp({
             setup() {
                 const loading = ref(false);
-                const images = ref([]); // { id, preview, file }
+                const images = ref([]);
                 const article = ref("");
                 const product_category_id = ref(0);
                 const name = ref("");
                 const description = ref("");
+
+                // ДОБАВЛЕНО: Реактивное свойство для ссылки на видео
+                const video_url = ref("");
 
                 const features = ref([]);
 
@@ -327,7 +337,6 @@
                 const categories = {!! json_encode($productCategories) !!};
                 const points = ref({});
 
-                // ИЗМЕНЕНО: Используем delivery_days вместо available_at
                 warehouses.forEach(p => {
                     points.value[p.id] = {
                         price: null,
@@ -406,12 +415,19 @@
                     formData.append('description', description.value);
                     formData.append('warehouses', JSON.stringify(points.value));
 
+                    // ДОБАВЛЕНО: Записываем ссылку на видео внутрь metaObject
                     const metaObject = {};
                     features.value.forEach(item => {
                         if (item.key.trim() !== "" && item.value.trim() !== "") {
                             metaObject[item.key.trim()] = item.value.trim();
                         }
                     });
+
+                    // Также добавляем скрытый или системный ключ для видео, чтобы бэкенд сохранил его в json-поле data
+                    if (video_url.value.trim() !== "") {
+                        metaObject['system_video_url'] = video_url.value.trim();
+                    }
+
                     formData.append('meta', JSON.stringify(metaObject));
 
                     images.value.forEach(img => {
@@ -431,7 +447,7 @@
 
                 return {
                     loading, images, article, name, description, warehouses, points, categories, product_category_id,
-                    features, addFeature, removeFeature,
+                    features, addFeature, removeFeature, video_url, // Экспортируем video_url в шаблон
                     triggerUpload, handleUpload, removePhoto, createProduct
                 };
             }

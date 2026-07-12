@@ -5,50 +5,108 @@
 @section('og_image', $product->mainImage->url ?? asset('img/no-image.png'))
 
 @section('content')
+    @php
+        // 1. Извлекаем ссылку на видео из JSON (data или meta)
+        $videoUrl = null;
+        if ($product->data && is_array($product->data) && !empty($product->data['system_video_url'])) {
+            $videoUrl = $product->data['system_video_url'];
+        } elseif ($product->meta && is_array($product->meta) && !empty($product->meta['system_video_url'])) {
+            $videoUrl = $product->meta['system_video_url'];
+        }
+
+        // 2. Парсим ID видео для корректного Embed iframe
+        $embedUrl = null;
+        $youtubeId = null;
+        if ($videoUrl) {
+            if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/|youtube\.com/shorts/)([^"&?/ ]{11})%i', $videoUrl, $match)) {
+                $youtubeId = $match[1];
+                // origin параметр защищает от CORS блокировок в браузере
+                $embedUrl = "https://www.youtube.com/embed/" . $youtubeId . "?enablejsapi=1&origin=" . urlencode(url('/'));
+            }
+        }
+    @endphp
+
     <div class="product-page">
         <div class="max-w-7xl mx-auto px-4">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {{-- ЛЕВАЯ КОЛОНКА: Галерея --}}
+
+                {{-- ЛЕВАЯ КОЛОНКА: Галерея + Видео --}}
                 <div class="space-y-4">
                     <div class="bg-white rounded-2xl shadow overflow-hidden">
-                        <div class="relative">
-                            {{-- Основное изображение --}}
+                        <div class="relative h-[380px] bg-gray-100 flex items-center justify-center">
+
+                            {{-- Основное изображение товара --}}
                             <img
                                 id="product-main-image"
                                 src="{{ $product->mainImage->url ?? ($product->images->first()->url ?? asset('images/no-image.png')) }}"
                                 alt="{{ $product->name }}"
-                                class="w-full h-[380px] object-contain bg-gray-100"
+                                class="w-full h-full object-contain"
                                 loading="lazy"
                             >
 
-                            {{-- Кнопки prev / next (на больших экранах) --}}
-                            <button onclick="galleryPrev()"
-                                    class="hidden lg:flex items-center justify-center absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow">
+                            {{-- Плеер для видеообзора (по умолчанию скрыт через hidden) --}}
+                            @if($embedUrl)
+                                <div id="product-video-container" class="absolute inset-0 hidden bg-black w-full h-full">
+                                    <iframe
+                                        id="product-iframe"
+                                        class="w-full h-full"
+                                        src="{{ $embedUrl }}"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen>
+                                    </iframe>
+                                </div>
+                            @endif
+
+                            {{-- Стрелки навигации слайдера --}}
+                            <button type="button" onclick="galleryPrev()"
+                                    class="hidden lg:flex items-center justify-center absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 w-10 h-10 rounded-full shadow z-10 font-bold text-xl outline-none hover:bg-white transition">
                                 ‹
                             </button>
-                            <button onclick="galleryNext()"
-                                    class="hidden lg:flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow">
+                            <button type="button" onclick="galleryNext()"
+                                    class="hidden lg:flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 w-10 h-10 rounded-full shadow z-10 font-bold text-xl outline-none hover:bg-white transition">
                                 ›
                             </button>
                         </div>
 
-                        {{-- Тумбнейлы --}}
+                        {{-- Миниатюры (Тумбнейлы) --}}
                         <div class="px-4 py-3 border-t">
-                            <div class="flex gap-3 overflow-x-auto pb-1">
-                                @forelse($product->images as $i => $image)
+                            <div class="flex gap-3 overflow-x-auto pb-1 scrollbar-none">
+                                @php $imgCount = 0; @endphp
+                                @foreach($product->images as $i => $image)
                                     <button
                                         type="button"
-                                        class="thumbnail shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition"
+                                        class="thumbnail shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition outline-none"
                                         data-index="{{ $i }}"
                                         onclick="selectImage({{ $i }})"
                                         aria-label="Показать изображение {{ $i + 1 }}"
                                     >
-                                        <img src="{{ $image->url }}" alt="thumb-{{ $i }}"
-                                             class="w-full h-full object-cover" loading="lazy">
+                                        <img src="{{ $image->url }}" alt="thumb-{{ $i }}" class="w-full h-full object-cover" loading="lazy">
                                     </button>
-                                @empty
-                                    <div class="text-sm text-gray-500">Изображений нет</div>
-                                @endforelse
+                                    @php $imgCount++; @endphp
+                                @endforeach
+
+                                {{-- Кнопка видеообзора в самом конце списка картинок --}}
+                                @if($embedUrl)
+                                    <button
+                                        type="button"
+                                        class="thumbnail shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition relative bg-slate-900 border-gray-200 outline-none"
+                                        data-index="{{ $imgCount }}"
+                                        onclick="selectImage({{ $imgCount }})"
+                                        aria-label="Показать видеообзор"
+                                    >
+                                        @if($youtubeId)
+                                            <img src="https://img.youtube.com/vi/{{ $youtubeId }}/hqdefault.jpg" class="w-full h-full object-cover opacity-60" alt="Video cover">
+                                        @endif
+                                        <div class="absolute inset-0 flex items-center justify-center bg-black/20 text-white text-xl">
+                                            <i class="fas fa-play text-red-500 animate-pulse"></i>
+                                        </div>
+                                    </button>
+                                @endif
+
+                                @if($imgCount === 0 && !$embedUrl)
+                                    <div class="text-sm text-gray-500 py-2 font-medium">Изображений нет</div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -57,137 +115,68 @@
                 {{-- ПРАВАЯ КОЛОНКА: Информация и действие --}}
                 <div class="space-y-6">
                     <div class="bg-white p-3 rounded-2xl shadow-sm">
-                        <h1 class="text-2xl font-semibold">{{ $product->name }}</h1>
+                        <h1 class="text-2xl font-semibold text-gray-900 leading-tight">{{ $product->name }}</h1>
 
-                        {{-- рейтинг или метки --}}
                         <div class="flex items-center gap-3 mt-2">
-                            <div class="text-sm text-gray-500">Категория: <span
-                                    class="font-medium">{{ $product->category->name ?? '—' }}</span></div>
-                            {{-- пример метки --}}
+                            <div class="text-sm text-gray-500">Категория: <span class="font-medium text-gray-800">{{ $product->category->name ?? '—' }}</span></div>
                         </div>
 
-                        {{-- Цена --}}
-                        <div class="mt-4 flex items-baseline gap-3">
-                            <div class="text-3xl font-bold">{{ number_format($product->price, 0, '.', ' ') }}</div>
-                            <div class="text-xl text-gray-600">₸</div>
+                        {{-- Цены --}}
+                        <div class="mt-4 flex items-baseline gap-1.5">
+                            <div class="text-3xl font-black text-gray-900">{{ number_format($product->price, 0, '.', ' ') }}</div>
+                            <div class="text-xl text-gray-600 font-bold">₸</div>
                             @if($product->old_price ?? false)
-                                <div
-                                    class="text-sm line-through text-gray-400 ml-3">{{ number_format($product->old_price,0,'.',' ') }}
-                                    ₸
-                                </div>
+                                <div class="text-sm line-through text-gray-400 ml-3 font-medium">{{ number_format($product->old_price,0,'.',' ') }} ₸</div>
                             @endif
                         </div>
 
-                        {{-- Кнопка добавить в корзину (пример формы) --}}
-                        <form action="{{ route('cart.add') }}" method="POST" class="mt-6 flex gap-3 items-center"
-                              id="add-to-cart-form">
+                        {{-- Форма корзины и быстрого заказа --}}
+                        <form action="{{ route('cart.add') }}" method="POST" class="mt-6 flex gap-3 items-center" id="add-to-cart-form">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <div class="flex items-center border rounded-md overflow-hidden">
-                                <button type="button" onclick="decrementQty()" class="px-3 py-2">−</button>
-                                <input id="cart-qty" name="quantity" value="1" min="1"
-                                       max="{{ max(1, $product->quantity) }}" type="number"
-                                       class="w-16 text-center px-2 py-2 outline-none"/>
-                                <button type="button" onclick="incrementQty()" class="px-3 py-2">＋</button>
+                            <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                                <button type="button" onclick="decrementQty()" class="px-3 py-2 font-bold text-gray-500 hover:bg-gray-100 transition">−</button>
+                                <input id="cart-qty" name="quantity" value="1" min="1" max="{{ max(1, $product->quantity) }}" type="number" class="w-12 text-center bg-transparent font-bold text-gray-800 outline-none p-2"/>
+                                <button type="button" onclick="incrementQty()" class="px-3 py-2 font-bold text-gray-500 hover:bg-gray-100 transition">＋</button>
                             </div>
+
                             @if(Auth::check())
-                                {{-- КНОПКА КУПИТЬ (Мгновенное оформление) --}}
-                                <button type="button" onclick="quickPurchase()"
-                                        class="px-6 py-2 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition shadow-xs">
+                                <button type="button" onclick="quickPurchase()" class="px-6 py-2.5 bg-orange-500 text-white font-black rounded-xl hover:bg-orange-600 transition shadow-sm">
                                     Купить
                                 </button>
-
-                                <button type="submit"
-                                        class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                                <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-sm">
                                     В корзину
                                 </button>
                             @else
-                                {{-- Для неавторизованных ведем на логин --}}
-                                <a class="px-6 py-2 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition shadow-xs"
-                                   href="{{ route('login') }}">Купить</a>
-                                <a class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-                                   href="{{ route('login') }}">В корзину</a>
+                                <a class="px-6 py-2.5 bg-orange-500 text-white font-black rounded-xl hover:bg-orange-600 transition text-center shadow-sm" href="{{ route('login') }}">Купить</a>
+                                <a class="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition text-center shadow-sm" href="{{ route('login') }}">В корзину</a>
                             @endif
-
-                            {{-- ещё кнопка купить в 1 клик --}}
-                            {{--<button type="button" class="ml-2 text-sm text-indigo-600 underline">Купить в 1 клик</button>--}}
                         </form>
 
+                        {{-- Блок предзаказа --}}
                         @if($product->is_preorder && $product->available_at)
-                            <div
-                                class="mt-6 flex items-center p-4 bg-amber-50 border border-amber-100 rounded-2xl shadow-sm animate__animated animate__fadeIn">
+                            <div class="mt-6 flex items-center p-4 bg-amber-50 border border-amber-100 rounded-2xl shadow-xs animate__animated animate__fadeIn">
                                 <div class="flex-shrink-0 bg-amber-100 p-2 rounded-lg text-amber-600">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                         viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    {{--                                    <p class="text-xs font-bold text-amber-800 uppercase tracking-wider">Предзаказ</p>--}}
-                                    <p class="text-sm text-amber-700">
+                                    <p class="text-sm text-amber-700 font-medium">
                                         Ожидаемое поступление:
-                                        <span class="font-bold">
-                                            {{ \Carbon\Carbon::parse($product->available_at)->translatedFormat('d F Y') }}
-                                        </span>
+                                        <span class="font-black text-gray-900">{{ \Carbon\Carbon::parse($product->available_at)->translatedFormat('d F Y') }} г.</span>
                                     </p>
                                 </div>
                             </div>
                         @endif
 
-                        {{-- Кнопки соц/поделиться/избранное --}}
-                        {{--<div class="mt-4 flex gap-3 text-sm">
-                            <button class="px-3 py-1 rounded-md border">Поделиться</button>
-                            <button class="px-3 py-1 rounded-md border">Добавить в избранное</button>
-                        </div>--}}
-
                         @include('category.block_product_shares')
-
                         @include('category.block_product_paywin_bonus')
-
                         @include('category.block_product_delivery')
-
                         @include('category.block_product_referral')
                     </div>
                 </div>
             </div>
-
-            {{--<div class="mt-4">
-                --}}{{-- Описание --}}{{--
-                <div class="bg-white p-6 rounded-2xl shadow-sm">
-                    <h2 class="text-lg font-semibold mb-2">Описание</h2>
-                    <div class="prose max-w-none text-sm text-gray-700">
-                        {!! $product->description !!}
-                    </div>
-                </div>
-
-                --}}{{-- Характеристики / meta --}}{{--
-                @if($product->meta)
-                    <div class="bg-white p-6 rounded-2xl shadow-sm">
-                        <h3 class="text-sm font-semibold mb-2">Характеристики</h3>
-                        <pre
-                            class="text-xs text-gray-600 whitespace-pre-wrap">{{ is_array($product->meta) ? json_encode($product->meta, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : $product->meta }}</pre>
-                    </div>
-                @endif
-
-                --}}{{-- Опционально: похожие товары --}}{{--
-                @if(isset($related) && $related->isNotEmpty())
-                    <div>
-                        <h3 class="text-lg font-semibold mb-3">Похожие товары</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            @foreach($related as $r)
-                                <a href="{{ route('product.show', $r) }}"
-                                   class="block bg-white rounded-xl p-3 shadow-sm hover:shadow-md">
-                                    <img src="{{ $r->mainImage->url ?? asset('images/no-image.png') }}"
-                                         alt="{{ $r->name }}" class="w-full h-28 object-cover rounded"/>
-                                    <div class="mt-2 text-sm font-medium">{{ $r->name }}</div>
-                                    <div class="text-sm text-gray-600">{{ number_format($r->price,0,'.',' ') }} ₸</div>
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-            </div>--}}
 
             @include('category.block_product_desc')
 
@@ -196,63 +185,24 @@
             </div>
         </div>
 
+        {{-- Скрипты галереи и управления заказами --}}
         <script>
-            function copyReferralLink() {
-                const copyText = document.getElementById("refLinkInput");
-                copyText.select();
-                copyText.setSelectionRange(0, 99999);
-                navigator.clipboard.writeText(copyText.value);
-
-                const msg = document.getElementById("copyMessage");
-                msg.classList.remove('hidden');
-                setTimeout(() => msg.classList.add('hidden'), 2000);
-            }
-        </script>
-
-        {{-- Скрипт галереи и управления кол-вом (минимальный, без библиотек) --}}
-        <script>
-            document.getElementById('add-to-cart-form').addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                let formData = new FormData(this);
-
-                fetch("{{ route('cart.add') }}", {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: formData
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        // обновляем счетчик корзины
-                        if (data.success) {
-                            const counter = document.getElementById('cart-count');
-                            if (counter) counter.innerText = data.total_items ?? 0;
-
-                            // toast уведомление
-                            window.showToast(data.message);
-                        } else {
-                            window.showToast(data.message, "error");
-                        }
-                    })
-            });
-
-            function updateCartCounter(count) {
-                document.getElementById('cart-count').innerText = count;
-            }
-
-            // Собираем картинки из blade в массив
+            // Массив путей картинок
             const productImages = [
                 @foreach($product->images as $img)
                     "{{ $img->url }}",
                 @endforeach
             ];
 
+            // Наличие видео на странице
+            const hasVideo = {!! $embedUrl ? 'true' : 'false' !!};
+            const totalElementsCount = productImages.length + (hasVideo ? 1 : 0);
+
             let currentIndex = 0;
             const mainImage = document.getElementById('product-main-image');
+            const videoContainer = document.getElementById('product-video-container');
+            const videoIframe = document.getElementById('product-iframe');
 
-            // Если есть mainImage -> установить индекс на него
             @if($product->mainImage)
                 currentIndex = productImages.indexOf("{{ $product->mainImage->url }}");
             if (currentIndex < 0) currentIndex = 0;
@@ -260,38 +210,55 @@
 
             function selectImage(index) {
                 currentIndex = index;
-                mainImage.src = productImages[currentIndex] || mainImage.src;
-                // подсветка миниатюр
-                document.querySelectorAll('.thumbnail').forEach((el, i) => {
-                    //el.classList.toggle('ring-2 ring-indigo-500', i === currentIndex);
-                    document.querySelectorAll('.thumbnail').forEach((el, i) => {
-                        if (i === currentIndex) {
-                            el.classList.add('ring-2', 'ring-indigo-500');
-                        } else {
-                            el.classList.remove('ring-2', 'ring-indigo-500');
+
+                // Если выбран индекс видео (оно всегда в конце)
+                if (hasVideo && currentIndex === productImages.length) {
+                    if (mainImage) mainImage.classList.add('hidden');
+                    if (videoContainer) videoContainer.classList.remove('hidden');
+                } else {
+                    // Если выбрана обычная картинка
+                    if (mainImage) {
+                        mainImage.classList.remove('hidden');
+                        if (productImages[currentIndex]) {
+                            mainImage.src = productImages[currentIndex];
                         }
-                    });
+                    }
+                    if (videoContainer) {
+                        videoContainer.classList.add('hidden');
+                        // Стопаем видео через postMessage, чтобы звук не накладывался на фотки
+                        if (videoIframe && videoIframe.contentWindow) {
+                            videoIframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                        }
+                    }
+                }
+
+                // Смена стилей рамок у миниатюр
+                document.querySelectorAll('.thumbnail').forEach((el, i) => {
+                    if (i === currentIndex) {
+                        el.classList.add('ring-2', 'ring-indigo-500', 'border-transparent');
+                    } else {
+                        el.classList.remove('ring-2', 'ring-indigo-500', 'border-transparent');
+                    }
                 });
             }
 
             function galleryNext() {
-                if (!productImages.length) return;
-                currentIndex = (currentIndex + 1) % productImages.length;
+                if (!totalElementsCount) return;
+                currentIndex = (currentIndex + 1) % totalElementsCount;
                 selectImage(currentIndex);
             }
 
             function galleryPrev() {
-                if (!productImages.length) return;
-                currentIndex = (currentIndex - 1 + productImages.length) % productImages.length;
+                if (!totalElementsCount) return;
+                currentIndex = (currentIndex - 1 + totalElementsCount) % totalElementsCount;
                 selectImage(currentIndex);
             }
 
-            // thumbnails initial highlight
             document.addEventListener('DOMContentLoaded', () => {
                 selectImage(currentIndex);
             });
 
-            // qty controls
+            // Кнопки каунтера
             function incrementQty() {
                 const el = document.getElementById('cart-qty');
                 const max = parseInt(el.max) || 9999;
@@ -303,59 +270,46 @@
                 el.value = Math.max(1, parseInt(el.value || 1) - 1);
             }
 
-            window.showToast = function (message) {
-                // Создаем контейнер, если его еще нет
-                let container = document.getElementById('toast-container');
-                if (!container) {
-                    container = document.createElement('div');
-                    container.id = 'toast-container';
-                    document.body.appendChild(container);
-                }
-
-                // Создаем само уведомление
-                const toast = document.createElement('div');
-                toast.className = 'toast-notification';
-                toast.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-        </svg>
-        <span>${message}</span>
-    `;
-
-                container.appendChild(toast);
-
-                // Удаляем через 3 секунды
-                setTimeout(() => {
-                    toast.classList.add('fade-out');
-                    setTimeout(() => toast.remove(), 500);
-                }, 3000);
-            };
-        </script>
-
-        <script>
-            // Функция для мгновенной покупки товара
-            function quickPurchase() {
-                const form = document.getElementById('add-to-cart-form');
-                if (!form) return;
-
-                let formData = new FormData(form);
-
-                formData.append('instant', '1');
+            // Добавление в корзину через AJAX
+            document.getElementById('add-to-cart-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+                let formData = new FormData(this);
 
                 fetch("{{ route('cart.add') }}", {
                     method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                     body: formData
                 })
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            // Товар в корзине, перенаправляем на оформление чекаута
+                            const counter = document.getElementById('cart-count');
+                            if (counter) counter.innerText = data.total_items ?? 0;
+                            if (typeof window.showToast === 'function') window.showToast(data.message);
+                        } else {
+                            if (typeof window.showToast === 'function') window.showToast(data.message, "error");
+                        }
+                    });
+            });
+
+            // Мгновенная сквозная покупка (в 1 клик с очисткой корзины)
+            function quickPurchase() {
+                const form = document.getElementById('add-to-cart-form');
+                if (!form) return;
+
+                let formData = new FormData(form);
+                formData.append('instant', '1'); // Сигнал бэкенду на очистку
+
+                fetch("{{ route('cart.add') }}", {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: formData
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
                             window.location.href = "{{ route('checkout.index') }}";
                         } else {
-                            // Если на складе нет или другая ошибка, выводим toast
                             if (typeof window.showToast === 'function') {
                                 window.showToast(data.message, "error");
                             } else {
@@ -365,7 +319,7 @@
                     })
                     .catch(err => {
                         console.error(err);
-                        alert("Произошла ошибка при обработке заказа");
+                        alert("Ошибка отправки экспресс-заказа");
                     });
             }
         </script>
