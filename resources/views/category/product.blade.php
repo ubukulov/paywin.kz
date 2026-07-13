@@ -163,7 +163,7 @@
                                 </div>
                                 <div class="ml-4">
                                     <p class="text-sm text-amber-700 font-medium">
-                                        Ожидаемое поступление:
+                                        Ориентировочная доставка:
                                         <span class="font-black text-gray-900">{{ now()->addDays($product->delivery_days)->translatedFormat('d F Y') }} г.</span>
                                     </p>
                                 </div>
