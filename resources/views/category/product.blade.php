@@ -154,7 +154,7 @@
                         </form>
 
                         {{-- Блок предзаказа --}}
-                        @if($product->is_preorder && $product->available_at)
+                        @if($product->is_preorder && $product->delivery_days)
                             <div class="mt-6 flex items-center p-4 bg-amber-50 border border-amber-100 rounded-2xl shadow-xs animate__animated animate__fadeIn">
                                 <div class="flex-shrink-0 bg-amber-100 p-2 rounded-lg text-amber-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -164,7 +164,7 @@
                                 <div class="ml-4">
                                     <p class="text-sm text-amber-700 font-medium">
                                         Ожидаемое поступление:
-                                        <span class="font-black text-gray-900">{{ \Carbon\Carbon::parse($product->available_at)->translatedFormat('d F Y') }} г.</span>
+                                        <span class="font-black text-gray-900">{{ now()->addDays($product->delivery_days)->translatedFormat('d F Y') }} г.</span>
                                     </p>
                                 </div>
                             </div>

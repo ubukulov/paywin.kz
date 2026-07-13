@@ -17,7 +17,7 @@ class ProductController extends BaseController
     public function show($slug)
     {
         $product = Product::with('images')
-            ->select('products.*', 'product_stocks.quantity', 'product_stocks.price', 'product_stocks.is_preorder', 'product_stocks.available_at')
+            ->select('products.*', 'product_stocks.quantity', 'product_stocks.price', 'product_stocks.is_preorder', 'product_stocks.delivery_days')
             ->join('product_stocks', 'product_stocks.product_id', '=', 'products.id')
             ->whereSlug($slug)
             ->withAvg('reviews', 'rating')

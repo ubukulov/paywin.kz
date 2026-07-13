@@ -174,16 +174,16 @@ class ProductController extends Controller
                     $isPreorder = (bool) ($wData['is_preorder'] ?? false);
 
                     // Расчет даты на базе переданных дней
-                    $availableAt = null;
+                    $deliveryDays = null;
                     if ($isPreorder && !empty($wData['delivery_days'])) {
-                        $availableAt = Carbon::now()->addDays((int)$wData['delivery_days'])->startOfDay();
+                        $deliveryDays = (int) $wData['delivery_days'];
                     }
 
                     $product->warehouses()->updateExistingPivot($wId, [
                         'price'        => $wData['price'],
                         'quantity'     => $wData['count'],
                         'is_preorder'  => $isPreorder,
-                        'available_at' => $availableAt,
+                        'delivery_days' => $deliveryDays,
                     ]);
                 }
             }
