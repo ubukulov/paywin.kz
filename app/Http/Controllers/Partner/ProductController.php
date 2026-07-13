@@ -62,7 +62,7 @@ class ProductController extends Controller
                     'product_id'     => $product->id,
                     'warehouse_id'   => $warehouseId,
                     'price'          => $wData['price'],
-                    'quantity'       => $wData['count'],
+                    'quantity'       => $wData['count'] ?? 0,
                     'is_preorder'    => $isPreorder,
                     'available_at'   => $availableAt,
                 ]);
