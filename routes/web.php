@@ -160,8 +160,10 @@ Route::group(['middleware' => 'auth'], function(){
     # Checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
+    # купить в 1 клик
+    Route::post('/checkout/instant', [CheckoutController::class, 'instant'])->name('checkout.instant');
 
     # Product reviews
     Route::post('/product/review/store', [ProductReviewController::class, 'store'])->name('product.review.store');

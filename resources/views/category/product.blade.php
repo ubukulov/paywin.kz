@@ -298,20 +298,23 @@
                 if (!form) return;
 
                 let formData = new FormData(form);
-                formData.append('instant', '1'); // Сигнал бэкенду на очистку
 
-                fetch("{{ route('cart.add') }}", {
+                // Шлем запрос на специальный метод экспресс-чекаута
+                fetch("{{ route('checkout.instant') }}", {
                     method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
                     body: formData
                 })
                     .then(res => res.json())
                     .then(data => {
-                        if (data.success) {
-                            window.location.href = "{{ route('checkout.index') }}";
+                        if (data.success && data.redirect_url) {
+                            // Переходим на оформление, где отобразится ТОЛЬКО этот товар
+                            window.location.href = data.redirect_url;
                         } else {
                             if (typeof window.showToast === 'function') {
-                                window.showToast(data.message, "error");
+                                window.showToast(data.message || "Ошибка оформления", "error");
                             } else {
                                 alert(data.message);
                             }
@@ -319,7 +322,7 @@
                     })
                     .catch(err => {
                         console.error(err);
-                        alert("Ошибка отправки экспресс-заказа");
+                        alert("Произошла ошибка при обработке экспресс-заказа");
                     });
             }
         </script>
