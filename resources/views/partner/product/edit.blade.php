@@ -332,26 +332,11 @@
 
                 warehouses.forEach(p => {
                     const stock = stocks[p.id] || null;
-
-                    let days = null;
-                    if (stock && stock.available_at) {
-                        const availableDate = new Date(stock.available_at.substring(0, 10));
-                        const today = new Date();
-
-                        availableDate.setHours(0,0,0,0);
-                        today.setHours(0,0,0,0);
-
-                        const diffTime = availableDate.getTime() - today.getTime();
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                        days = diffDays > 0 ? diffDays : 1;
-                    }
-
                     points.value[p.id] = {
                         price: stock ? stock.price : null,
                         count: stock ? stock.quantity : null,
                         is_preorder: stock ? (parseInt(stock.is_preorder) === 1 || stock.is_preorder === true) : false,
-                        delivery_days: days
+                        delivery_days: stock ? stock.delivery_days : null
                     };
                 });
 

@@ -52,10 +52,10 @@ class ProductController extends Controller
             foreach ($warehouses as $warehouseId => $wData) {
                 $isPreorder = (bool) ($wData['is_preorder'] ?? false);
 
-                // РАСЧЕТ ДАТЫ: Переводим переданные дни в дату доступности товара
-                $availableAt = null;
+                // Срок доставки при предзаказе
+                $deliveryDays = null;
                 if ($isPreorder && !empty($wData['delivery_days'])) {
-                    $availableAt = Carbon::now()->addDays((int)$wData['delivery_days'])->startOfDay();
+                    $deliveryDays = (int) $wData['delivery_days'];
                 }
 
                 ProductStock::create([
@@ -64,7 +64,7 @@ class ProductController extends Controller
                     'price'          => $wData['price'],
                     'quantity'       => (int) $wData['count'],
                     'is_preorder'    => $isPreorder,
-                    'available_at'   => $availableAt,
+                    'delivery_days'  => $deliveryDays,
                 ]);
             }
 

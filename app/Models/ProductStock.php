@@ -19,7 +19,7 @@ class ProductStock extends Model
         'old_price',
         'quantity',
         'is_preorder',
-        'available_at'
+        'delivery_days'
     ];
 
     public function product(): BelongsTo

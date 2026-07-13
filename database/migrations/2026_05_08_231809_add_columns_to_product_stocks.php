@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('product_stocks', function (Blueprint $table) {
             $table->boolean('is_preorder')->default(false)->after('quantity');
-            $table->timestamp('available_at')->nullable();
+            $table->integer('delivery_days')->nullable();
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('product_stocks', function (Blueprint $table) {
-            $table->dropColumn(['is_preorder', 'available_at']);
+            $table->dropColumn(['is_preorder', 'delivery_days']);
         });
     }
 };
