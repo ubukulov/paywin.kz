@@ -52,7 +52,7 @@
             </div>
         </div>
 
-        <div class="flex items-center justify-between {{ $isActive ? 'bg-violet-50/50' : 'bg-gray-50' }} rounded-[1.25rem] p-4 mb-8 transition-colors">
+        {{--<div class="flex items-center justify-between {{ $isActive ? 'bg-violet-50/50' : 'bg-gray-50' }} rounded-[1.25rem] p-4 mb-8 transition-colors">
             <div class="flex items-center gap-2">
                 <div class="w-6 h-6 bg-white rounded-lg flex items-center justify-center shadow-sm">
                     <i class="fas fa-star text-yellow-400 text-[10px]"></i>
@@ -62,7 +62,7 @@
             <button class="text-[10px] uppercase font-black tracking-widest {{ $isActive ? 'text-violet-600' : 'text-gray-400' }} hover:underline">
                 отзывы
             </button>
-        </div>
+        </div>--}}
 
         <div class="mt-auto relative bg-gradient-to-br {{ $isActive ? 'from-violet-600 to-indigo-800 shadow-lg shadow-violet-100' : 'from-gray-500 to-gray-600 shadow-none' }} rounded-[1.5rem] p-6 overflow-hidden group/ticket transition-all">
             <img src="/images/mypromo/slider-card-elem.svg" alt="element" class="absolute -right-2 -bottom-2 w-16 opacity-20 transition-transform group-hover/ticket:scale-110">
@@ -76,7 +76,7 @@
                         @if($share->promo == 'discount') Скидка {{ $share->data['size'] }}% @elseif($share->data['bonus_type'] == 'money') Бонус {{ $share->data['size'] }} ₸ @else Подарок: {{ $share->data['gift_name'] }} @endif
                     @elseif($share->type == 'discount') Скидка {{ $share->data['size'] }}%
                     @elseif($share->type == 'cashback') Кэшбек {{ $share->data['size'] }}%
-                    @else от {{ number_format($share->data['from_order'], 0, '.', ' ') }} ₸ @endif
+                    @else до {{ number_format($share->data['to_order'], 0, '.', ' ') }} ₸ @endif
                 </div>
             </div>
         </div>
