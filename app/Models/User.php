@@ -141,6 +141,11 @@ class User extends Authenticatable
             $buyerId = $source->user_id;
 
             foreach($shares->shuffle() as $share) {
+                // Проверяем: активна ли еще акция по датам и лимитам (используем твой метод из Share)
+                if (!$share->isActive()) {
+                    continue;
+                }
+
                 // Проверяем, попадает ли сумма в диапазон акции
                 if(($share->from_order <= $amount) && ($amount <= $share->to_order)) {
 
@@ -152,7 +157,8 @@ class User extends Authenticatable
 
                     $prize->user_id = $buyerId;
                     $prize->share_id = $share->id;
-                    $prize->cnt = 1;
+
+                    // ИСПРАВЛЕНО: Убрали $prize->cnt = 1, так как в таблице user_gifts этого поля нет
 
                     // Безопасный статус (из Enum или строка 'available')
                     $prize->status = \App\Enums\UserGiftEnum::AVAILABLE->value ?? 'available';
@@ -168,9 +174,9 @@ class User extends Authenticatable
                     $prize->name = $share->name ?? 'Подарок';
                     $prize->save();
 
-                    // Уменьшаем счетчик доступных подарков по акции
-                    $share->cnt--;
-                    $share->save();
+                    // ИСПРАВЛЕНО: Увеличиваем счетчик ИСПОЛЬЗОВАННЫХ подарков в акции (used_count)
+                    $share->increment('used_count');
+
                     break; // Выдали один приз и выходим из цикла
                 }
             }

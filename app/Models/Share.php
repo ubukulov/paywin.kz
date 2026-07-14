@@ -43,8 +43,12 @@ class Share extends Model
     // Получить остаток
     public function getRemainder()
     {
-        $clients = UserGift::where(['share_id' => $this->id, 'status' => 'got'])->get();
-        return $this->cnt - count($clients);
+        // Если лимит равен 0, то акция безлимитная
+        if ($this->count == 0) {
+            return 9999; // Или любое условное обозначение бесконечности
+        }
+
+        return $this->count - $this->used_count;
     }
 
     public function getProfit()
