@@ -32,7 +32,7 @@
             <label class="relative inline-flex items-center cursor-pointer" style="font-size: 14px;">Скидка</label>
 
             <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" name="discount_or_money" class="sr-only peer">
+                <input type="checkbox" @if($share->data['bonus_type'] == 'money') checked @endif name="discount_or_money" class="sr-only peer">
                 <div
                     class="w-11 h-6 bg-gray-300 rounded-full peer
                                peer-checked:bg-indigo-600
@@ -48,7 +48,7 @@
             type="number"
             min="1"
             name="size"
-            value="{{ $share->size }}"
+            value="{{ $share->data['size'] }}"
             required
             placeholder="Размер"
             class="mt-3 w-full rounded-lg border border-gray-300 px-4 py-2

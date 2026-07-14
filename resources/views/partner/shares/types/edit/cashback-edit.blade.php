@@ -26,7 +26,7 @@
             type="number"
             min="1"
             name="cnt"
-            value="{{ $share->cnt }}"
+            value="{{ $share->count }}"
             required
             class="w-full rounded-lg border border-gray-300 px-4 py-2
                        focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
@@ -41,7 +41,7 @@
             type="number"
             min="1"
             name="size"
-            value="{{ $share->size }}"
+            value="{{ $share->data['size'] }}"
             required
             class="w-full rounded-lg border border-gray-300 px-4 py-2
                        focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
@@ -86,7 +86,7 @@
             type="number"
             min="1"
             name="c_winning"
-            value="{{ $share->c_winning }}"
+            value="{{ $share->data['c_winning'] }}"
             required
             class="w-full rounded-lg border border-gray-300 px-4 py-2
                        focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200

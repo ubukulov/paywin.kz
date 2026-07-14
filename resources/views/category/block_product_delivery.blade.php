@@ -13,7 +13,11 @@
         <h4 class="text-xs text-gray-500">Доставка</h4>
         <div class="mt-2 text-sm text-gray-700">
             Доставка по @if($currentCity->name== "Алматы")
-                Алматы 1–2 дня.
+                @if($product->is_preorder)
+                    Алматы 15 дней.
+                @else
+                    Алматы 1–2 дня.
+                @endif
             @else
                 Казахстану 3-5 дней.
             @endif Бесплатная доставка от 50 000 ₸.
