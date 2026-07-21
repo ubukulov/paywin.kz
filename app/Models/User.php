@@ -147,7 +147,8 @@ class User extends Authenticatable
                 }
 
                 // Проверяем, попадает ли сумма в диапазон акции
-                if(($share->from_order <= $amount) && ($amount <= $share->to_order)) {
+                //if(($share->from_order <= $amount) && ($amount <= $share->to_order)) {
+                if(($share->from_order <= $amount) || ($amount <= $share->to_order)) {
 
                     $prize = new UserGift();
 
