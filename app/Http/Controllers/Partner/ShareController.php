@@ -147,7 +147,70 @@ class ShareController extends Controller
     public function update(Request $request, $id)
     {
         $share = Share::findOrFail($id);
-        $share->update($request->all());
+        $data = $request->all();
+
+        // Форматирование дат для БД
+        $data['from_date'] = date('Y-m-d H:i:s', strtotime($data['from_date']));
+        $data['to_date'] = date('Y-m-d H:i:s', strtotime($data['to_date']));
+
+        if ($data['type'] == ShareType::GIFT->value) {
+            $extraData = [
+                'from_order' => $request->from_order,
+                'to_order' => $request->to_order,
+                'c_winning' => $request->c_winning,
+            ];
+        } elseif ($data['type'] == ShareType::DISCOUNT->value) {
+            $extraData = [
+                'size' => $request->size,
+                'from_order' => $request->from_order,
+                'to_order' => $request->to_order,
+                'c_winning' => $request->c_winning,
+                'max_sum' => $request->max_sum,
+            ];
+        } elseif ($data['type'] == ShareType::CASHBACK->value) {
+            $extraData = [
+                'size' => $request->size,
+                'from_order' => $request->from_order,
+                'to_order' => $request->to_order,
+                'c_winning' => $request->c_winning,
+            ];
+        } else {
+            $request->validate([
+                'title' => [
+                    'required',
+                    'string',
+                    'max:20',
+                    'regex:/^[a-zA-Z0-9]+$/u', // Только латиница и цифры, без пробелов
+                ],
+            ], [
+                'title.regex' => 'Название должно содержать только латинские буквы и цифры без пробелов.'
+            ]);
+            $data['code'] = $request->title;
+            $extraData['agent_percent'] = $request->agent_percent;
+
+            if ($request->bonus_type == ShareType::DISCOUNT->value) {
+                $extraData['bonus_type'] = ShareType::DISCOUNT->value;
+                $extraData['min_sum'] = $request->min_sum;
+                $extraData['size'] = $request->size;
+            } elseif ($request->bonus_type == 'money') {
+                $extraData['bonus_type'] = 'money';
+                $extraData['size'] = $request->size;
+            } else {
+                $extraData['bonus_type'] = 'gift';
+                $extraData['gift_name'] = $request->gift_name;
+            }
+        }
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('shares', 'public');
+            $extraData['image'] = $path;
+        }
+
+        $data['data'] = $extraData;
+
+        // обновление записи
+        $share->update($data);
+
         return redirect()->route('partner.my-shares.index');
     }
 
