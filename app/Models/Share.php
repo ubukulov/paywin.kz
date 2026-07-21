@@ -113,16 +113,33 @@ class Share extends Model
         return route('referral.link', ['code' => $this->title . Auth::id()]);
     }
 
-    public function getRealAgentPercentAttribute()
+    /**
+     * Эффективный процент агента (70% от чистого остатка после эквайринга)
+     */
+    public function getRealAgentPercentAttribute(): float
     {
-        $partnerPercent = $this->data['agent_percent']; // Например, 10
-        $bankFee = 3; // Комиссия TipTopPay
-        $agentShareOfNet = 0.7; // Доля агента (70%)
+        // Берем процент из настроек акции (по дефолту 10, если не задан)
+        $partnerPercent = (float) ($this->data['agent_percent'] ?? 10);
+        $bankFee = 3;           // 3% TipTopPay
+        $agentShareOfNet = 0.7; // 70% агенту
 
-        // Формула: (10 - 3) * 0.7 = 4.9
-        $result = ($partnerPercent - $bankFee) * $agentShareOfNet;
+        // Чистая комиссия = Partner% - 3%
+        $netPercent = max(0, $partnerPercent - $bankFee);
 
-        // Возвращаем 0, если партнер дает меньше 3%, чтобы не было минуса
-        return max(0, $result);
+        return $netPercent * $agentShareOfNet;
+    }
+
+    /**
+     * Эффективный процент платформы (30% от чистого остатка после эквайринга)
+     */
+    public function getPlatformPercentAttribute(): float
+    {
+        $partnerPercent = (float) ($this->data['agent_percent'] ?? 10);
+        $bankFee = 3;
+        $platformShareOfNet = 0.3; // 30% нам
+
+        $netPercent = max(0, $partnerPercent - $bankFee);
+
+        return $netPercent * $platformShareOfNet;
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\OrderEnum;
 use App\Enums\TransactionEnum;
 use App\Enums\UserDiscountEnum;
+use App\Models\PlatformEarning;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\UserDiscount;
@@ -399,38 +400,89 @@ class CheckoutController extends BaseController
     {
         $order->update([
             'meta' => json_encode($paymentModel, JSON_UNESCAPED_UNICODE),
-            'status' => ($isPreorder) ? OrderEnum::PREORDER->value  : OrderEnum::PAID->value,
+            'status' => ($isPreorder) ? OrderEnum::PREORDER->value : OrderEnum::PAID->value,
             'transaction_id' => $paymentModel['TransactionId'] ?? $order->transaction_id
         ]);
 
         $buyer = $order->user;
-        $referrer = $buyer->referrer;
 
         foreach ($order->items as $item) {
             $product = $item->product;
             $partner = $product->partner;
 
+            // 1. Считаем банковскую комиссию (3%) и чистый доход партнера
             $bankFee = $item->total * (self::BANK_FEE_PERCENT / 100);
             $partnerIncome = $item->total - $bankFee;
 
+            // 2. Начисляем доход партнеру за проданный товар
             if ($partner) {
                 $partner->changeBalance(
                     $partnerIncome,
                     TransactionEnum::SALE_INCOME,
                     $buyer,
-                    "Продажа (без комиссии): {$product->title}",
+                    "Продажа товара: {$product->name}",
                     ['bank_payment_id' => $paymentModel['TransactionId'] ?? null]
                 );
             }
 
+            // 3. АГЕНТСКОЕ ВОЗНАГРАЖДЕНИЕ (4.9%) И ДОХОД ПЛАТФОРМЫ (2.1%)
+            $referral = \App\Models\Referral::with('share')
+                ->where('user_id', $buyer->id)
+                ->whereHas('share', function ($q) use ($product) {
+                    $q->where('partner_id', $product->partner_id);
+                })
+                ->first();
+
+            if ($referral && $referral->agent && $referral->share) {
+                $agentPercent = $referral->share->real_agent_percent; // 4.9%
+                $platformPercent = $referral->share->platform_percent; // 2.1%
+
+                $agentIncome = $item->total * ($agentPercent / 100);
+                $platformIncome = $item->total * ($platformPercent / 100);
+
+                // 3.1 Выплата агенту на его личный баланс
+                if ($agentIncome > 0) {
+                    $referral->agent->changeBalance(
+                        $agentIncome,
+                        TransactionEnum::REFERRAL,
+                        $referral,
+                        "Реферальное вознаграждение ({$agentPercent}%) за товар: {$product->name}",
+                        [
+                            'order_id'   => $order->id,
+                            'product_id' => $product->id,
+                            'share_id'   => $referral->share_id
+                        ]
+                    );
+                }
+
+                // 3.2 Фиксация дохода Платформы в реестр platform_earnings
+                if ($platformIncome > 0) {
+                    PlatformEarning::create([
+                        'order_id'            => $order->id,
+                        'partner_id'          => $product->partner_id,
+                        'agent_id'            => $referral->agent_id,
+                        'gross_amount'        => $item->total,
+                        'bank_fee_amount'     => $bankFee,
+                        'agent_fee_amount'    => $agentIncome,
+                        'platform_net_amount' => $platformIncome,
+                        'type'                => 'referral_commission',
+                        'created_at'          => now(),
+                        'updated_at'          => now(),
+                    ]);
+                }
+            }
+
+            // 4. Выдача призов и подарков по акциям партнера
             if ($partner && $partner->shares()->exists()) {
                 $buyer->givePrize($partner->shares, $order);
             }
 
+            // 5. Системные подарки платформы
             $platformPromotionService = app(\App\Services\PlatformPromotionService::class);
             $platformPromotionService->checkAndGiveGifts($buyer, 'purchase', $order);
         }
 
+        // 6. Очистка корзины / сессии
         if (session()->has('instant_checkout')) {
             session()->forget('instant_checkout');
         } else {
