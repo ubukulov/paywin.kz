@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
         <div>
             <div class="text-3xl font-extrabold">
-                {{ Auth::user()->getBalanceAttribute }} ₸
+                {{ Auth::user()->getBalanceAttribute() }} ₸
             </div>
             <div class="text-xs opacity-70 mt-1 uppercase tracking-wider font-medium">
                 Текущий баланс
