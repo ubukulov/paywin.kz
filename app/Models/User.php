@@ -128,7 +128,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Универсальный метод выдачи призов (без сущности Payment)
+     * Универсальный метод выдачи призов
      * @param \Illuminate\Support\Collection $shares — Акции партнера
      * @param Model $source — Объект-источник (Transaction или Order)
      */
@@ -168,11 +168,11 @@ class User extends Authenticatable
                     $prize->data = [
                         'type' => $share->type ?? 'gift',
                         'prizes' => [
-                            ['name' => $share->name ?? 'Подарок от партнера']
+                            ['name' => $share->title ?? 'Подарок от партнера']
                         ]
                     ];
 
-                    $prize->name = $share->name ?? 'Подарок';
+                    $prize->name = $share->title ?? 'Подарок';
                     $prize->save();
 
                     // ИСПРАВЛЕНО: Увеличиваем счетчик ИСПОЛЬЗОВАННЫХ подарков в акции (used_count)
