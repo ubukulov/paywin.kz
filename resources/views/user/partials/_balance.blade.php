@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
         <div>
             <div class="text-3xl font-extrabold">
-                {{ number_format(Auth::user()->balance, 0, '.', ' ') }} ₸
+                {{ Auth::user()->getBalanceAttribute }} ₸
             </div>
             <div class="text-xs opacity-70 mt-1 uppercase tracking-wider font-medium">
                 Текущий баланс
@@ -45,11 +45,11 @@
             <div class="text-right">
                 {{-- Сумма: зеленая для плюса, красная для минуса --}}
                 <div class="font-bold {{ $transaction->amount > 0 ? 'text-green-600' : 'text-red-600' }}">
-                    {{ $transaction->amount > 0 ? '+' : '' }}{{ number_format($transaction->amount, 0, '.', ' ') }} ₸
+                    {{ $transaction->amount > 0 ? '+' : '' }}{{ $transaction->amount }} ₸
                 </div>
                 {{-- Показываем остаток после этой операции --}}
                 <div class="text-[10px] text-gray-400">
-                    {{ number_format($transaction->balance_after, 0, '.', ' ') }} ₸
+                    {{ $transaction->balance_after }} ₸
                 </div>
             </div>
 

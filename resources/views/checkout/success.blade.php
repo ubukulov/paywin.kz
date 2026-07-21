@@ -10,7 +10,7 @@
             </div>
             <h1 class="text-3xl font-black mb-2 text-gray-900">Спасибо за заказ!</h1>
             <p class="text-gray-500 text-sm max-w-md mx-auto">
-                Ваш платеж успешно прошёл через TipTopPay, и заказ уже принят в обработку партнерами.
+                Ваш платеж успешно прошёл и заказ уже принят в обработку партнерами.
             </p>
         </div>
 
@@ -47,11 +47,11 @@
         <div class="flex flex-col sm:flex-row items-center gap-3 justify-center pt-4 border-t border-gray-100">
             <a href="/"
                class="w-full sm:w-auto text-center bg-orange-500 hover:bg-orange-600 text-white py-3.5 px-8 rounded-2xl text-sm font-black transition duration-200 shadow-sm">
-                На главную витрину
+                На главную страницу
             </a>
             <a href="/user/prizes"
                class="w-full sm:w-auto text-center bg-gray-100 hover:bg-gray-200 text-gray-800 py-3.5 px-8 rounded-2xl text-sm font-bold transition duration-200">
-                Мои призы в кабинете
+                Посмотрет мои заказы
             </a>
         </div>
 

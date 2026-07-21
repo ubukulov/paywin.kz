@@ -53,7 +53,7 @@
                 </div>
             @else
                 <p class="text-xs text-gray-500 mt-1 font-medium">
-                    {{ $giftData['message'] ?? 'Подарок успешно активирован и ждет вас в кабинете.' }}
+                    {{ $giftData['message'] ?? '' }}
                 </p>
             @endif
         </div>
