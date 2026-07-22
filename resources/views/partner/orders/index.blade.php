@@ -24,8 +24,11 @@
                             <th class="p-4">Покупатель</th>
                             <th class="p-4">Товар</th>
                             <th class="p-4">Кол-во / Сумма</th>
+                            <th class="p-4">Город</th>
                             <th class="p-4">Адрес доставки</th>
                             <th class="p-4">Выигранный приз</th>
+                            <th class="p-4">Канал продаж</th>
+                            <th class="p-4">Доставка</th>
                         </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50 text-xs">
@@ -70,6 +73,13 @@
                                     <span class="font-bold text-gray-900 block mt-0.5">{{ number_format($item->total, 0, '.', ' ') }} ₸</span>
                                 </td>
 
+                                {{-- Город --}}
+                                <td class="p-4 max-w-xs">
+                                    <p class="text-gray-600 break-words line-clamp-2">
+                                        Алматы
+                                    </p>
+                                </td>
+
                                 {{-- Адрес доставки --}}
                                 <td class="p-4 max-w-xs">
                                     <p class="text-gray-600 break-words line-clamp-2" title="{{ $order->shipping_address }}">
@@ -90,6 +100,24 @@
                                     @else
                                         <span class="text-gray-400 italic text-[11px]">Без приза</span>
                                     @endif
+                                </td>
+
+                                {{-- Канал продаж --}}
+                                <td class="p-4 max-w-xs">
+                                    <p class="text-gray-600 break-words line-clamp-2">
+                                        @if($buyer->isReferral)
+                                        Агент
+                                        @else
+                                        Платформа
+                                        @endif
+                                    </p>
+                                </td>
+
+                                {{-- Доставка --}}
+                                <td class="p-4 max-w-xs">
+                                    <p class="text-gray-600 break-words line-clamp-2">
+                                        30.08.2026
+                                    </p>
                                 </td>
                             </tr>
                         @endforeach

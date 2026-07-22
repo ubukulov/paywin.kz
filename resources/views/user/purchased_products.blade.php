@@ -93,6 +93,10 @@
                                         Количество: <span class="text-gray-900 font-bold">{{ $item->quantity }} шт.</span>
                                         • на сумму <span class="text-gray-900 font-bold">{{ number_format($item->total, 0, '.', ' ') }} ₸</span>
                                     </p>
+
+                                    <p class="text-xs text-gray-500 mt-1 font-medium">
+                                        Наименование приза: <span class="text-gray-900 font-bold"></span>
+                                    </p>
                                 </div>
                             </div>
                         </div>

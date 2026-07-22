@@ -278,4 +278,9 @@ class User extends Authenticatable
             })
             ->sum('amount');
     }
+
+    public function isReferral()
+    {
+        return (bool) Referral::where(['user_id' => $this->id])->exists();
+    }
 }
