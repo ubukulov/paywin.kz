@@ -15,7 +15,7 @@
         <div class="flex items-center gap-4">
             {{-- Область предпросмотра --}}
             <div id="image-preview-container" class="w-20 h-20 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50">
-                <img id="image-preview" @if($share->data['image']) src="{{ asset('storage/' . $share->data['image']) }}" @else src="{{ asset('images/no-image.png') }}" @endif
+                <img id="image-preview" @if(isset($share->data['image']) && $share->data['image']) src="{{ asset('storage/' . $share->data['image']) }}" @else src="{{ asset('images/no-image.png') }}" @endif
                 class="w-full h-full object-cover @if(!$share->data['image']) hidden @endif">
                 <i id="upload-icon" class="fas fa-camera text-gray-300 text-xl"></i>
             </div>

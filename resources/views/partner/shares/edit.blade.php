@@ -7,20 +7,6 @@
 
 @section('content')
     <div class="mypromo">
-        <div class="mypromo__header">
-            <div class="mypromo__header-title">
-                Редактировать <br>
-                @if($share->type == 'gift')
-                    приз
-                @elseif($share->type == 'discount')
-                    скидку
-                @elseif($share->type == 'cashback')
-                    кэшбека
-                @else
-                    промокод
-                @endif
-            </div>
-        </div>
 
         <div class="relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 p-8 rounded-[2.5rem] shadow-xl">
             {{-- Декоративный блюр - обязательно внутри overflow-hidden --}}
