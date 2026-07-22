@@ -105,7 +105,7 @@
                                 {{-- Канал продаж --}}
                                 <td class="p-4 max-w-xs">
                                     <p class="text-gray-600 break-words line-clamp-2">
-                                        @if($buyer->isReferral)
+                                        @if($buyer->isReferral())
                                         Агент
                                         @else
                                         Платформа
