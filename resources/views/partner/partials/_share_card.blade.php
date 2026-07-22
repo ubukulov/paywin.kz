@@ -73,7 +73,7 @@
                 </h3>
                 <div class="text-[10px] font-bold opacity-80 uppercase tracking-wide">
                     @if($share->type == 'promocode')
-                        @if($share->promo == 'discount') Скидка {{ $share->data['size'] }}% @elseif($share->data['bonus_type'] == 'money') Бонус {{ $share->data['size'] }} ₸ @else Подарок: {{ $share->data['gift_name'] }} @endif
+                        @if($share->data['bonus_type'] == 'discount') Скидка {{ $share->data['size'] }}% @elseif($share->data['bonus_type'] == 'money') Бонус {{ $share->data['size'] }} ₸ @else Подарок: {{ $share->data['gift_name'] }} @endif
                     @elseif($share->type == 'discount') Скидка {{ $share->data['size'] }}%
                     @elseif($share->type == 'cashback') Кэшбек {{ $share->data['size'] }}%
                     @else до {{ number_format($share->data['to_order'], 0, '.', ' ') }} ₸ @endif
