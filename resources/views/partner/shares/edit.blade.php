@@ -22,6 +22,26 @@
             </div>
         </div>
 
+        <div class="relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 p-8 rounded-[2.5rem] shadow-xl">
+            {{-- Декоративный блюр - обязательно внутри overflow-hidden --}}
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10">
+                <h1 class="text-3xl md:text-4xl font-black text-white leading-tight tracking-tight uppercase">
+                    Редактировать <br>
+                    @if($share->type == 'gift')
+                    <span class="text-violet-200">приз</span>
+                    @elseif($share->type == 'discount')
+                    <span class="text-violet-200">скидку</span>
+                    @elseif($share->type == 'cashback')
+                    <span class="text-violet-200">кэшбека</span>
+                    @else
+                    <span class="text-violet-200">промокод</span>
+                    @endif
+                </h1>
+            </div>
+        </div>
+
         @if($share->type == 'gift')
             @include('partner.shares.types.edit.gift-edit')
         @endif
