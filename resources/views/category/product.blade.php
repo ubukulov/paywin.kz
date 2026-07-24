@@ -180,9 +180,15 @@
 
             @include('category.block_product_desc')
 
+            @php
+                $canLeaveReview = $product->isPurchasedBy(Auth::user());
+            @endphp
+
+            @if($canLeaveReview)
             <div class="mt-4">
                 @include('category.block_product_reviews')
             </div>
+            @endif
         </div>
 
         {{-- Скрипты галереи и управления заказами --}}

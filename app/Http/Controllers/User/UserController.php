@@ -50,8 +50,20 @@ class UserController extends Controller
 
     public function earn()
     {
+        $agentId = auth()->id();
         $shares = Share::actualPromocodes()->get();
-        return view('user.earn', compact('shares'));
+        $referrals = Referral::where('agent_id', $agentId)
+            ->with(['user.orders' => function($q) {
+                // Берем только оплаченные/завершенные заказы
+                $q->whereIn('status', [
+                    \App\Enums\OrderEnum::PAID->value ?? 'paid',
+                    \App\Enums\OrderEnum::COMPLETED->value ?? 'completed',
+                ])->latest();
+            }, 'share'])
+            ->latest()
+            ->paginate(15);
+
+        return view('user.earn', compact('shares', 'referrals'));
     }
 
     public function history(Request $request)
