@@ -57,12 +57,13 @@ class Referral extends Model
             ->sum('amount');
     }
 
-    public function getReferralEarn(): float
+    public function getReferralEarnInOrder(Order $order): float
     {
         return (float) Transaction::where('user_id', $this->agent_id)
             ->where('type', 'referral')
             ->where('source_type', self::class)
             ->where('source_id', $this->id)
+            ->where('data->order_id', $order->id)
             ->sum('amount');
     }
 }
