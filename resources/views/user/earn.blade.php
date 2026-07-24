@@ -8,7 +8,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <h2 class="text-2xl font-black text-gray-900 flex items-center gap-3">
                     <span class="bg-orange-500 text-white p-2 rounded-lg shadow-orange-200 shadow-lg">🎁</span>
-                    Партнерская программа
+                    Выбери и заработай
                 </h2>
 
                 {{-- Кнопки Табов --}}
@@ -31,6 +31,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @foreach($shares as $share)
                         @php
+                            // Ищем, создал ли уже текущий агент свой код для этой акции
                             $myPromo = \App\Models\Promocode::where('agent_id', auth()->id())
                                         ->where('share_id', $share->id)
                                         ->first();
@@ -162,30 +163,31 @@
             <div id="tab-content-purchases" class="hidden space-y-4">
                 <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100">
 
-                    @if(isset($referralOrders) && $referralOrders->count() > 0)
+                    @if(isset($orders) && $orders->count() > 0)
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                 <tr class="border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-wider">
-                                    <th class="pb-3 px-2">Заказ</th>
-                                    <th class="pb-3 px-2">Клиент</th>
-                                    <th class="pb-3 px-2">Сумма заказа</th>
+                                    <th class="pb-3 px-2">№ Заказа / Дата</th>
+                                    <th class="pb-3 px-2">Клиент (Реферал)</th>
+                                    <th class="pb-3 px-2">Сумма покупки</th>
                                     <th class="pb-3 px-2 text-center">Статус</th>
                                     <th class="pb-3 px-2 text-right">Вознаграждение</th>
                                 </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50 text-xs font-semibold">
-                                @foreach($referralOrders as $order)
+                                @foreach($orders as $order)
                                     @php
-                                        // Рассчитываем суммарное вознаграждение агента по этому заказу из транзакций
-                                        $agentReward = \App\Models\Transaction::where('user_id', auth()->id())
-                                            ->where('type', \App\Enums\TransactionEnum::REFERRAL->value ?? 'referral')
-                                            ->where('source_type', \App\Models\Order::class)
-                                            ->where('source_id', $order->id)
-                                            ->sum('amount');
+                                        // 1. Ищем запись реферала для этого пользователя и агента
+                                        $referral = \App\Models\Referral::where('agent_id', auth()->id())
+                                            ->where('user_id', $order->user_id)
+                                            ->first();
+
+                                        // 2. Рассчитываем вознаграждение через метод getEarn() модели Referral (если запись найдена)
+                                        $reward = $referral ? $referral->getEarn() : 0;
                                     @endphp
                                     <tr class="hover:bg-gray-50/50 transition-colors">
-                                        {{-- Номер и дата заказа --}}
+                                        {{-- Номер заказа и дата --}}
                                         <td class="py-4 px-2">
                                             <div class="font-black text-gray-900">#{{ $order->id }}</div>
                                             <div class="text-[10px] text-gray-400 font-medium">{{ $order->created_at->format('d.m.Y H:i') }}</div>
@@ -193,36 +195,36 @@
 
                                         {{-- Имя клиента --}}
                                         <td class="py-4 px-2">
-                                            <div class="font-bold text-gray-800">{{ $order->user->name ?? 'Покупатель' }}</div>
-                                            <div class="text-[10px] text-gray-400">{{ $order->user->email ?? '' }}</div>
+                                            <div class="font-bold text-gray-800">{{ $order->user->name ?? 'Клиент #' . $order->user_id }}</div>
+                                            <div class="text-[10px] text-gray-400 font-medium">{{ $order->user->email ?? '' }}</div>
                                         </td>
 
-                                        {{-- Суммарная стоимость заказа --}}
+                                        {{-- Сумма заказа --}}
                                         <td class="py-4 px-2 font-black text-gray-900">
                                             {{ number_format($order->total, 0, '.', ' ') }} ₸
                                         </td>
 
                                         {{-- Статус заказа --}}
                                         <td class="py-4 px-2 text-center">
-                                            @if($order->status === (\App\Enums\OrderEnum::PAID->value ?? 'paid') || $order->status === 'completed')
+                                            @php
+                                                $statusValue = is_object($order->status) ? $order->status->value : $order->status;
+                                            @endphp
+                                            @if(in_array($statusValue, ['paid', 'completed', 'PAID', 'COMPLETED']))
                                                 <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2.5 py-1 rounded-lg text-[10px] font-black border border-green-200">
-                                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> Оплачен
-                                                </span>
-                                            @elseif($order->status === 'pending')
-                                                <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg text-[10px] font-black border border-amber-200">
-                                                    Ожидает оплаты
-                                                </span>
+                                                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                                                        {{ $statusValue === 'completed' || $statusValue === 'COMPLETED' ? 'Выполнен' : 'Оплачен' }}
+                                                    </span>
                                             @else
-                                                <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 px-2.5 py-1 rounded-lg text-[10px] font-black">
-                                                    {{ $order->status }}
-                                                </span>
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black bg-gray-100 text-gray-600">
+                                                        {{ $statusValue }}
+                                                    </span>
                                             @endif
                                         </td>
 
-                                        {{-- Твое вознаграждение --}}
+                                        {{-- Вознаграждение агента --}}
                                         <td class="py-4 px-2 text-right">
-                                            @if($agentReward > 0)
-                                                <span class="text-sm font-black text-green-600">+{{ number_format($agentReward, 0, '.', ' ') }} ₸</span>
+                                            @if($reward > 0)
+                                                <span class="text-sm font-black text-green-600">+{{ number_format($reward, 0, '.', ' ') }} ₸</span>
                                             @else
                                                 <span class="text-xs font-bold text-gray-300">0 ₸</span>
                                             @endif
@@ -234,9 +236,9 @@
                         </div>
 
                         {{-- Пагинация --}}
-                        @if(method_exists($referralOrders, 'links'))
+                        @if(method_exists($orders, 'links'))
                             <div class="mt-4">
-                                {{ $referralOrders->links() }}
+                                {{ $orders->links() }}
                             </div>
                         @endif
                     @else
@@ -244,7 +246,9 @@
                         <div class="text-center py-12">
                             <div class="text-4xl mb-3">🛒</div>
                             <h4 class="text-base font-bold text-gray-800">Покупок пока нет</h4>
-                            <p class="text-xs text-gray-400 mt-1 max-w-sm mx-auto">Делись своими промокодами. Как только рефералы сделают первый заказ, покупка сразу отобразится здесь!</p>
+                            <p class="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+                                Делись своими промокодами. Как только рефералы сделают покупки, они сразу отобразятся в этом списке!
+                            </p>
                         </div>
                     @endif
 

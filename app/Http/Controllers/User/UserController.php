@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Enums\OrderEnum;
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\UserGift;
@@ -52,18 +53,21 @@ class UserController extends Controller
     {
         $agentId = auth()->id();
         $shares = Share::actualPromocodes()->get();
-        $referrals = Referral::where('agent_id', $agentId)
-            ->with(['user.orders' => function($q) {
-                // Берем только оплаченные/завершенные заказы
-                $q->whereIn('status', [
-                    \App\Enums\OrderEnum::PAID->value ?? 'paid',
-                    \App\Enums\OrderEnum::COMPLETED->value ?? 'completed',
-                ])->latest();
-            }, 'share'])
+
+        // Получаем ID всех привлеченных пользователей
+        $referralsIds = Referral::where('agent_id', $agentId)->pluck('user_id')->toArray();
+
+        // Берем все оплаченные и завершенные заказы этих пользователей
+        $statusPaid = OrderEnum::PAID->value ?? 'paid';
+        $statusCompleted = OrderEnum::COMPLETED->value ?? 'completed';
+
+        $orders = Order::whereIn('user_id', $referralsIds)
+            ->whereIn('status', [$statusPaid, $statusCompleted])
+            ->with(['user', 'items'])
             ->latest()
             ->paginate(15);
 
-        return view('user.earn', compact('shares', 'referrals'));
+        return view('user.earn', compact('shares', 'orders'));
     }
 
     public function history(Request $request)
