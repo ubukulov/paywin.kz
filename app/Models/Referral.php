@@ -59,11 +59,10 @@ class Referral extends Model
 
     public function getReferralEarn(): float
     {
-        return Transaction::where('user_id', $this->agent_id)
+        return (float) Transaction::where('user_id', $this->agent_id)
             ->where('type', 'referral')
-            ->whereHasMorph('source', [self::class], function($query) {
-                $query->where('source_id', $this->id);
-            })
+            ->where('source_type', self::class)
+            ->where('source_id', $this->id)
             ->sum('amount');
     }
 }
