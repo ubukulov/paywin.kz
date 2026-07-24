@@ -184,7 +184,7 @@
                                             ->first();
 
                                         // 2. Рассчитываем вознаграждение через метод getEarn() модели Referral (если запись найдена)
-                                        $reward = 0;
+                                        $reward = $referral ? $referral->getReferralEarn() : 0;
                                     @endphp
                                     <tr class="hover:bg-gray-50/50 transition-colors">
                                         {{-- Номер заказа и дата --}}

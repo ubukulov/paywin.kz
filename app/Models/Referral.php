@@ -50,9 +50,19 @@ class Referral extends Model
         // Ищем все транзакции типа referral_income, связанные с этим агентом
         // и через таблицу referrals (source) привязанные к этой акции
         return Transaction::where('user_id', $this->agent_id)
-            ->where('type', 'referral_income')
+            ->where('type', 'referral')
             ->whereHasMorph('source', [self::class], function($query) {
                 $query->where('share_id', $this->share_id);
+            })
+            ->sum('amount');
+    }
+
+    public function getReferralEarn(): float
+    {
+        return Transaction::where('user_id', $this->agent_id)
+            ->where('type', 'referral')
+            ->whereHasMorph('source', [self::class], function($query) {
+                $query->where('source_id', $this->id);
             })
             ->sum('amount');
     }
