@@ -224,7 +224,7 @@
                                         {{-- Вознаграждение агента --}}
                                         <td class="py-4 px-2 text-right">
                                             @if($reward > 0)
-                                                <span class="text-sm font-black text-green-600">+{{ number_format($reward, 0, '.', ' ') }} ₸</span>
+                                                <span class="text-sm font-black text-green-600">+{{ $reward }} ₸</span>
                                             @else
                                                 <span class="text-xs font-bold text-gray-300">0 ₸</span>
                                             @endif
