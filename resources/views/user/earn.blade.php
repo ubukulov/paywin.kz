@@ -21,6 +21,10 @@
                             class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 text-gray-500 hover:text-gray-900">
                         🛒 Покупки рефералов
                     </button>
+                    <button type="button" onclick="switchTab('referrals')" id="tab-btn-referrals"
+                            class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 text-gray-500 hover:text-gray-900">
+                        🛒 Мои рефералы
+                    </button>
                 </div>
             </div>
 
@@ -254,6 +258,64 @@
 
                 </div>
             </div>
+
+            {{-- ========================================== --}}
+            {{-- ТАБ 3: МОИ РЕФЕРАЛЫ                   --}}
+            {{-- ========================================== --}}
+            <div id="tab-content-referrals" class="hidden space-y-4">
+                <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100">
+
+                    @if(isset($referrals) && $referrals->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                <tr class="border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-wider">
+                                    <th class="pb-3 px-2">ФИО</th>
+                                    <th class="pb-3 px-2">Телефон</th>
+                                    <th class="pb-3 px-2">Email</th>
+                                    <th class="pb-3 px-2 text-center">Дата</th>
+                                </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50 text-xs font-semibold">
+                                @foreach($referrals as $referral)
+                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                        {{-- ФИО --}}
+                                        <td class="py-4 px-2">
+                                            <div class="font-black text-gray-900">{{ $referral->full_name ?? 'не указан' }}</div>
+                                        </td>
+
+                                        {{-- Телефон --}}
+                                        <td class="py-4 px-2">
+                                            <div class="text-[10px] text-gray-400 font-medium">{{ $referral->phone ?? '' }}</div>
+                                        </td>
+
+                                        {{-- Email --}}
+                                        <td class="py-4 px-2 font-black text-gray-900">
+                                            <div class="text-[10px] text-gray-400 font-medium">{{ $referral->email ?? '' }}</div>
+                                        </td>
+
+                                        {{-- Дата --}}
+                                        <td class="py-4 px-2 text-right">
+                                            <div class="text-[10px] text-gray-400 font-medium">{{ $referral->created_at->format('d.m.Y H:i') ?? '' }}</div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        {{-- Пустое состояние --}}
+                        <div class="text-center py-12">
+                            <div class="text-4xl mb-3">🛒</div>
+                            <h4 class="text-base font-bold text-gray-800">Рефералов пока нет</h4>
+                            <p class="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+                                Делись своими промокодами. Как только рефералы появится, они сразу отобразятся в этом списке!
+                            </p>
+                        </div>
+                    @endif
+
+                </div>
+            </div>
         </section>
     </div>
 
@@ -262,23 +324,38 @@
         function switchTab(tabName) {
             const tabPromo = document.getElementById('tab-content-promocodes');
             const tabPurchases = document.getElementById('tab-content-purchases');
+            const tabReferrals = document.getElementById('tab-content-referrals');
             const btnPromo = document.getElementById('tab-btn-promocodes');
             const btnPurchases = document.getElementById('tab-btn-purchases');
+            const btnReferral = document.getElementById('tab-btn-referrals');
 
             if (tabName === 'promocodes') {
                 tabPromo.classList.remove('hidden');
                 tabPurchases.classList.add('hidden');
+                tabReferrals.classList.add('hidden');
 
                 // Стили активной кнопки
                 btnPromo.className = "flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 bg-white text-gray-900 shadow-sm";
                 btnPurchases.className = "flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 text-gray-500 hover:text-gray-900";
+                btnReferral.className = "flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 text-gray-500 hover:text-gray-900";
+            } else if(tabName === 'referrals'){
+                tabReferrals.classList.remove('hidden');
+                tabPromo.classList.add('hidden');
+                tabPurchases.classList.add('hidden');
+
+                // Стили активной кнопки
+                btnReferral.className = "flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 bg-white text-gray-900 shadow-sm";
+                btnPurchases.className = "flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 text-gray-500 hover:text-gray-900";
+                btnPromo.className = "flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 text-gray-500 hover:text-gray-900";
             } else {
                 tabPromo.classList.add('hidden');
                 tabPurchases.classList.remove('hidden');
+                tabReferrals.classList.add('hidden');
 
                 // Стили активной кнопки
                 btnPurchases.className = "flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 bg-white text-gray-900 shadow-sm";
                 btnPromo.className = "flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 text-gray-500 hover:text-gray-900";
+                btnReferral.className = "flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 text-gray-500 hover:text-gray-900";
             }
         }
 

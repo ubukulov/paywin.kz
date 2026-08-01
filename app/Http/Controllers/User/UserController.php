@@ -61,13 +61,19 @@ class UserController extends Controller
         $statusPaid = OrderEnum::PAID->value ?? 'paid';
         $statusCompleted = OrderEnum::COMPLETED->value ?? 'completed';
 
+        $referrals = User::with('userProfile')
+            ->selectRaw('users.*, userProfile.full_name, referrals.created_at')
+            ->join('referrals', 'referrals.agent_id', '=', 'users.id')
+            ->where('referrals.agent_id', $agentId)
+            ->get();
+
         $orders = Order::whereIn('user_id', $referralsIds)
             ->whereIn('status', [$statusPaid, $statusCompleted])
             ->with(['user', 'items'])
             ->latest()
             ->paginate(15);
 
-        return view('user.earn', compact('shares', 'orders'));
+        return view('user.earn', compact('shares', 'orders', 'referrals'));
     }
 
     public function history(Request $request)
