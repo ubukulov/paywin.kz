@@ -61,9 +61,10 @@ class UserController extends Controller
         $statusPaid = OrderEnum::PAID->value ?? 'paid';
         $statusCompleted = OrderEnum::COMPLETED->value ?? 'completed';
 
-        $referrals = User::with('userProfile')
-            ->selectRaw('users.*, userProfile.full_name, referrals.created_at')
+        $referrals = User::where('referrals.agent_id', $agentId)
+            ->selectRaw('users.*, user_profiles.full_name, referrals.created_at')
             ->join('referrals', 'referrals.agent_id', '=', 'users.id')
+            ->join('user_profiles', 'user_profiles.user_id', '=', 'users.id')
             ->where('referrals.agent_id', $agentId)
             ->get();
 
