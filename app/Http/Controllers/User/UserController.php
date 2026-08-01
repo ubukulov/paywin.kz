@@ -63,9 +63,8 @@ class UserController extends Controller
 
         $referrals = User::where('referrals.agent_id', $agentId)
             ->selectRaw('users.*, user_profiles.full_name, referrals.created_at')
-            ->join('referrals', 'referrals.agent_id', '=', 'users.id')
+            ->join('referrals', 'referrals.user_id', '=', 'users.id')
             ->join('user_profiles', 'user_profiles.user_id', '=', 'users.id')
-            ->where('referrals.agent_id', $agentId)
             ->get();
 
         $orders = Order::whereIn('user_id', $referralsIds)
