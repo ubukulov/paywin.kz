@@ -7,13 +7,14 @@ RUN apk add --no-cache \
     curl \
     libpng-dev \
     libxml2-dev \
+    icu-dev \
     zip \
     unzip \
     libzip-dev \
     oniguruma-dev
 
 # Установка расширений PHP для Laravel и MySQL
-RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
+RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip intl sockets
 
 # Копируем Composer из официального образа
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
