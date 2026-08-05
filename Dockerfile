@@ -8,6 +8,7 @@ RUN apk add --no-cache \
     libpng-dev \
     libxml2-dev \
     icu-dev \
+    linux-headers \
     zip \
     unzip \
     libzip-dev \
