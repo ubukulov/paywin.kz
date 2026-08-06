@@ -18,7 +18,7 @@ class IndexController extends BaseController
     {
 //        $categories = Category::all();
 //        return view('home',  compact('categories'));
-        $cityId = Cookie::get('selected_city_id') ?? City::first()->id;
+        $cityId = Cookie::get('selected_city_id') ?? City::query()->value('id');
         $products = Product::query()
             ->select('products.*', 'product_stocks.price', 'product_stocks.quantity', 'product_stocks.is_preorder', 'product_stocks.delivery_days')
             ->join('product_stocks', 'product_stocks.product_id', 'products.id')
