@@ -14,7 +14,7 @@
     <link rel="manifest" href="{{ asset('img/favicons/site.webmanifest') }}">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ asset('css/tailwindcss.css') }}">
     @stack('css')
 </head>
 <body class="registration-1-page">

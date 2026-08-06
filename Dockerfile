@@ -1,3 +1,16 @@
+FROM oven/bun:canary AS frontend
+
+WORKDIR /app
+
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
+
+COPY tailwind.config.js ./
+COPY resources/css ./resources/css
+COPY resources/js ./resources/js
+COPY resources/views ./resources/views
+RUN bun run build:css
+
 FROM php:8.2-fpm-alpine
 
 # Установка Nginx, Supervisor и необходимых системных библиотек
@@ -24,6 +37,9 @@ WORKDIR /var/www/html
 
 # Копируем исходный код Laravel
 COPY . .
+
+COPY --from=frontend /app/public/css/tailwindcss.css /var/www/html/public/css/tailwindcss.css
+
 
 # Установка PHP-зависимостей без dev-пакетов
 RUN composer install --no-dev --optimize-autoloader --no-interaction
