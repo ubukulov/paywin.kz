@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>О партнере</title>
-    <link rel="stylesheet" href="{{ asset('css/tailwindcss.css') }}">
+    <script src="{{ asset('js/tailwindcss.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('css/fix.css') }}">
     @stack('partner_styles')
     <style>
