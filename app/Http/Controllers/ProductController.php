@@ -23,7 +23,7 @@ class ProductController extends BaseController
             ->withAvg('reviews', 'rating')
             ->firstOrFail();
 
-        $gifts = $this->partnerGiftService->getEligiblePrizesForProduct();
+        $gifts = $this->partnerGiftService->getEligiblePrizesForProduct($product->partner_id);
 
         $platformPromotions = \App\Models\Promotion::where('is_active', true)
             ->where('type', 'purchase') // Акции за покупку

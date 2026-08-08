@@ -153,10 +153,13 @@ class PartnerGiftService
             ->values(); // Сбрасываем ключи коллекции для чистого JSON
     }
 
-    public function getEligiblePrizesForProduct()
+    public function getEligiblePrizesForProduct($partnerId = null)
     {
         return Share::where('type', '!=', 'promocode') // Исключаем регистрационные промокоды
-        ->active()
+            ->when($partnerId, function ($query, $partnerId) {
+                $query->where('partner_id', $partnerId);
+            })
+            ->active()
             ->get()
             ->filter(function ($share) {
                 $fromOrder = (float)($share->data['from_order'] ?? 0);

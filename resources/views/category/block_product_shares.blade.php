@@ -17,7 +17,7 @@
             </div>
 
             <span class="text-xs font-black text-orange-600 bg-white border border-orange-200 px-3 py-1.5 rounded-xl shadow-xs shrink-0">
-                при покупке от {{ number_format($gifts->first()->from_order ?? 4000, 0, '.', ' ') }} ₸
+                при покупке от {{ number_format($gifts->first()->data['from_order'] ?? 4000, 0, '.', ' ') }} ₸
             </span>
         </div>
 
