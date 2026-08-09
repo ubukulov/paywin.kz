@@ -95,7 +95,18 @@
                                     </p>
 
                                     <p class="text-xs text-gray-500 mt-1 font-medium">
-                                        Наименование приза: <span class="text-gray-900 font-bold"></span>
+                                        @if($item->gifts && $item->gifts->count() > 0)
+                                            <div class="flex flex-col gap-1">
+                                                Наименование приза:
+                                                @foreach($item->gifts as $gift)
+                                                    <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 font-bold text-[10px] px-2 py-1 rounded-lg border border-purple-100 max-w-max">
+                                                        🎁 {{ $gift->title ?? $gift->name ?? 'Приз' }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 italic text-[11px]">Без приза</span>
+                                        @endif
                                     </p>
                                 </div>
                             </div>

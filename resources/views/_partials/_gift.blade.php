@@ -20,6 +20,12 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm0 0h4m-4 0H8m12 3v10a2 2 0 01-2 2H6a2 2 0 11-2-2V10m16 0H4" />
                 </svg>
+                {{--<img
+                    src="{{ (isset($share->data['image']) && $share->data['image']) ? asset('storage/' . $share->data['image']) : asset('images/no-image.png') }}"
+                    alt="{{ $share->title }}"
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                >--}}
             @endif
         </div>
 
@@ -70,7 +76,7 @@
     <div class="px-5 py-2.5 flex items-center justify-between text-[11px] font-bold {{ $isRaffle ? 'bg-indigo-50/30 text-indigo-500' : 'bg-orange-50/30 text-orange-500' }}">
         <span class="flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full animate-pulse {{ $isRaffle ? 'bg-indigo-500' : 'bg-orange-500' }}"></span>
-            Все билеты доступны в личном кабинете
+            Все призы доступны в личном кабинете
         </span>
 
         @if($gift->valid_until)
