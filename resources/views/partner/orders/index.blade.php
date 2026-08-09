@@ -37,6 +37,8 @@
                                 $order = $item->order;
                                 $buyer = $order->user;
                                 $product = $item->product;
+                                $warehouse = $item->warehouse;
+                                $city = $warehouse->city;
                                 $isPreorder = $order->status === \App\Enums\OrderEnum::PREORDER->value;
                             @endphp
                             <tr class="hover:bg-gray-50/50 transition">
@@ -77,7 +79,7 @@
                                 {{-- Город --}}
                                 <td class="p-4 max-w-xs">
                                     <p class="text-gray-600 break-words line-clamp-2">
-                                        Алматы
+                                        {{ $city->name ?? 'не указано' }}
                                     </p>
                                 </td>
 
@@ -118,9 +120,11 @@
                                 <td class="p-4 max-w-xs">
                                     <p class="text-gray-600 break-words line-clamp-2">
                                         @if($isPreorder)
-                                            до {{ now()->addDays($product->getDeliveryDays($item->warehouse_id))->translatedFormat('d F Y') }}
+                                            до {{ now()->addDays($product->getDeliveryDays($item->warehouse_id))->translatedFormat('d.m.Y') }}
+                                        @elseif($city->id == 1)
+                                            сегодня или завтра
                                         @else
-                                            до {{ now()->addDays(2)->translatedFormat('d F Y') }}
+                                            до {{ now()->addDays(10)->translatedFormat('d.m.Y') }}
                                         @endif
                                     </p>
                                 </td>

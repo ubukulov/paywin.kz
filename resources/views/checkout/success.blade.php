@@ -24,10 +24,6 @@
                     </h2>
                 </div>
 
-                <p class="text-xs text-gray-400 mb-4 -mt-3">
-                    Все призы доступны в вашем личном кабинете
-                </p>
-
                 {{-- Цикл по сгенерированным подаркам --}}
                 <div class="space-y-1">
                     @foreach($gifts as $gift)
