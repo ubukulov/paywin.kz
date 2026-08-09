@@ -177,6 +177,17 @@ class CheckoutController extends BaseController
         DB::beginTransaction();
         try {
             $user = Auth::user();
+
+            if (is_null($user->name)) {
+                $user->name = $request->name;
+            }
+
+            if (is_null($user->phone)) {
+                $user->phone = $request->phone;
+            }
+
+            $user->save();
+
             $checkoutItems = collect();
             $cartTotal = 0;
 
@@ -315,6 +326,10 @@ class CheckoutController extends BaseController
                 'status'           => OrderEnum::PENDING->value,
                 'payment_method'   => $finalCardPayAmount > 0 ? 'card' : 'balance',
                 'shipping_address' => $request->address ?? 'Самовывоз',
+                'data'             => [
+                    'name' => $request->name,
+                    'phone' => $request->phone
+                ]
             ]);
 
             // Привязываем сгенерированные транзакции списания средств к ID заказа

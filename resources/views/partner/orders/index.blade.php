@@ -53,9 +53,9 @@
 
                                 {{-- Данные покупателя --}}
                                 <td class="p-4">
-                                    <span class="font-bold text-gray-900 block">{{ $buyer->name ?? 'Не указано' }}</span>
-                                    <a href="tel:{{ $buyer->phone ?? '' }}" class="text-indigo-600 hover:underline font-medium block mt-0.5">
-                                        {{ $buyer->phone ?? 'Нет телефона' }}
+                                    <span class="font-bold text-gray-900 block">{{ $order->data['name'] ?? 'Не указано' }}</span>
+                                    <a href="tel:{{ $order->data['phone'] ?? '' }}" class="text-indigo-600 hover:underline font-medium block mt-0.5">
+                                        {{ $order->data['phone'] ?? 'Нет телефона' }}
                                     </a>
                                 </td>
 
