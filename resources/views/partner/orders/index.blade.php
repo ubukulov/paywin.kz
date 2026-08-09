@@ -36,6 +36,7 @@
                             @php
                                 $order = $item->order;
                                 $buyer = $order->user;
+                                $product = $item->product;
                                 $isPreorder = $order->status === \App\Enums\OrderEnum::PREORDER->value;
                             @endphp
                             <tr class="hover:bg-gray-50/50 transition">
@@ -116,7 +117,11 @@
                                 {{-- Доставка --}}
                                 <td class="p-4 max-w-xs">
                                     <p class="text-gray-600 break-words line-clamp-2">
-                                        30.08.2026
+                                        @if($isPreorder)
+                                            до {{ now()->addDays($product->getDeliveryDays($item->warehouse_id))->translatedFormat('d F Y') }}
+                                        @else
+                                            до {{ now()->addDays(2)->translatedFormat('d F Y') }}
+                                        @endif
                                     </p>
                                 </td>
                             </tr>

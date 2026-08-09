@@ -99,7 +99,7 @@ class Product extends Model
         return $this->reviews()->count();
     }
 
-// Быстрый подсчет среднего рейтинга
+    // Быстрый подсчет среднего рейтинга
     public function getAverageRatingAttribute()
     {
         return round($this->reviews()->avg('rating'), 1) ?? 0;
@@ -148,6 +148,12 @@ class Product extends Model
                     ]);
             })
             ->exists();
+    }
+
+    public function getDeliveryDays($warehouseId)
+    {
+        $productStock = ProductStock::where(['product_id' => $this->id, 'warehouse_id' => $warehouseId])->first();
+        return $productStock->delivery_days ?? 10;
     }
 
 }
