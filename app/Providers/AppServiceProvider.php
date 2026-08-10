@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\City;
 use App\Models\ProductCategory;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Cart;
 use Illuminate\Support\Facades\View;
@@ -55,6 +56,14 @@ class AppServiceProvider extends ServiceProvider
                 ->get();
             });
             $view->with('categories', $categories);
+        });
+
+        View::composer('*', function ($view) {
+            $categories = Cache::remember('product_categories_all', 2592000, function () {
+                return ProductCategory::all();
+            });
+
+            $view->with('productCategories', $categories);
         });
     }
 }

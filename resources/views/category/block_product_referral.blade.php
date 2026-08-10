@@ -1,9 +1,39 @@
 @if(Auth::check())
+    @php
+        $agentId = Illuminate\Support\Facades\Auth::id();
+
+        // 1. Ищем акции партнера, активные на текущий момент (по датам)
+        $partnerShares = \App\Models\Share::where('partner_id', $product->partner_id)
+            ->where(function ($query) {
+                $query->whereNull('from_date')->orWhere('from_date', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('to_date')->orWhere('to_date', '>=', now());
+            })
+            ->get();
+
+        // 2. Проверяем, есть ли у текущего агента персональный промокод для одной из этих акций
+        $myPromo = \App\Models\Promocode::where('agent_id', $agentId)
+            ->whereIn('share_id', $partnerShares->pluck('id'))
+            ->first();
+
+        if ($myPromo && $myPromo->share) {
+            // Если агент уже создал промокод под эту акцию
+            $agentPercent = $myPromo->share->real_agent_percent;
+            $isExact = true;
+        } else {
+            // Если промокода нет — берем лучшую акцию из доступных по датам
+            $bestShare = $partnerShares->sortByDesc('real_agent_percent')->first();
+            $agentPercent = $bestShare ? $bestShare->real_agent_percent : 4.9;
+            $isExact = false;
+        }
+    @endphp
+
     <div class="mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
         <div class="flex items-center justify-between mb-2">
             <span class="text-sm font-bold text-gray-700">Поделись с друзьями и <br>заработай от покупки</span>
             <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">
-                +{{ number_format(auth()->user()->real_agent_percent ?? 4.9, 1) }}% <br>на карту
+                +{{ $isExact ? '' : 'до ' }}{{ number_format($agentPercent, 1) }}% <br>на карту
             </span>
         </div>
 

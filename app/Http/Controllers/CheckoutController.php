@@ -176,6 +176,10 @@ class CheckoutController extends BaseController
     {
         DB::beginTransaction();
         try {
+            $request->validate([
+                'shipping_method' => 'required|in:almaty_standard,almaty_express,pickup,kazakhstan',
+            ]);
+
             $user = Auth::user();
 
             if (is_null($user->name)) {
@@ -221,6 +225,32 @@ class CheckoutController extends BaseController
                 $cartTotal = $cart->total;
                 $checkoutItems = $cart->items;
             }
+
+            // ========================================================
+            // РАССЧЕТ СТОИМОСТИ ДОСТАВКИ
+            // ========================================================
+            $shippingCost = 0;
+            switch ($request->shipping_method) {
+                case 'almaty_standard':
+                    // Доставка по Алматы 1-2 дня. Бесплатно от 10000 ₸, иначе 1000 ₸
+                    $shippingCost = ($cartTotal >= 10000) ? 0 : 1000;
+                    break;
+                case 'almaty_express':
+                    // Экспресс по Алматы в тот же день - 1000 ₸
+                    $shippingCost = 1000;
+                    break;
+                case 'pickup':
+                    // Самовывоз в Алматы - 0 ₸
+                    $shippingCost = 0;
+                    break;
+                case 'kazakhstan':
+                    // Доставка по Казахстану 2-7 дней - 2500 ₸
+                    $shippingCost = 2500;
+                    break;
+            }
+
+            // Полная стоимость до применения бонусов/скидок (Товары + Доставка)
+            $totalWithShipping = $cartTotal + $shippingCost;
 
             // Массив цен товаров по партнерам для контроля ограничений списания
             $partnerSubtotals = [];
@@ -295,7 +325,7 @@ class CheckoutController extends BaseController
 
             // 3. ПРИМЕНЕНИЕ ГЛОБАЛЬНОГО СВОБОДНОГО БАЛАНСА
             $spentFromGlobalBalance = 0;
-            $remainingPayAmount = max(0, $cartTotal - $totalDiscountAmount - $totalCashbackSpent);
+            $remainingPayAmount = max(0, $totalWithShipping - $totalDiscountAmount - $totalCashbackSpent);
 
             if ($request->input('use_global_balance') == 1 && $remainingPayAmount > 0 && $user->balance > 0) {
                 $spentFromGlobalBalance = min($remainingPayAmount, $user->balance);
@@ -324,6 +354,8 @@ class CheckoutController extends BaseController
                 'discount'         => $totalDiscountAmount + $totalCashbackSpent + $spentFromGlobalBalance,
                 'total'            => $finalCardPayAmount,
                 'status'           => OrderEnum::PENDING->value,
+                'shipping_cost'    => $shippingCost,
+                'shipping_method'  => $request->shipping_method,
                 'payment_method'   => $finalCardPayAmount > 0 ? 'card' : 'balance',
                 'shipping_address' => $request->address ?? 'Самовывоз',
                 'data'             => [
