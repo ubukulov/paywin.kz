@@ -95,14 +95,23 @@
                                     </p>
 
                                     <p class="text-xs text-gray-500 mt-1 font-medium">
-                                        @if($item->gifts && $item->gifts->count() > 0)
-                                            <div class="flex flex-col gap-1">
-                                                Наименование приза:
-                                                @foreach($item->gifts as $gift)
-                                                    <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 font-bold text-[10px] px-2 py-1 rounded-lg border border-purple-100 max-w-max">
-                                                        🎁 {{ $gift->title ?? $gift->name ?? 'Приз' }}
-                                                    </span>
-                                                @endforeach
+                                        @php
+                                            // Ищем подарки, привязанные к заказу (Order)
+                                            $orderGifts = \App\Models\UserGift::where('source_type', \App\Models\Order::class)
+                                                ->where('source_id', $order->id)
+                                                ->get();
+                                        @endphp
+
+                                        @if($orderGifts->isNotEmpty())
+                                            <div class="flex flex-col gap-1 mt-1">
+                                                <span class="text-[10px] text-gray-400 uppercase font-bold">Наименование приза:</span>
+                                                <div class="flex flex-wrap gap-1">
+                                                    @foreach($orderGifts as $gift)
+                                                        <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 font-bold text-[10px] px-2 py-1 rounded-lg border border-purple-100">
+                                                            🎁 {{ $gift->name ?? ($gift->data['prizes'][0]['name'] ?? 'Приз') }}
+                                                        </span>
+                                                    @endforeach
+                                                </div>
                                             </div>
                                         @else
                                             <span class="text-gray-400 italic text-[11px]">Без приза</span>
