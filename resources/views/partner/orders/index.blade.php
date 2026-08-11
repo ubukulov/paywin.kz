@@ -65,7 +65,7 @@
                                 {{-- Товар --}}
                                 <td class="p-4 max-w-xs">
                                     <span class="font-bold text-gray-900 block truncate" title="{{ $item->product->name ?? 'Удален' }}">
-                                        {{ $item->product->name ?? 'Товар удален' }}
+                                        <a target="_blank" href="{{ route('product.show', ['slug' => $item->product->slug]) }}">{{ $item->product->name ?? 'Товар удален' }}</a>
                                     </span>
                                     <span class="text-[10px] text-gray-400 block mt-0.5">ID товара: {{ $item->product_id }}</span>
                                 </td>

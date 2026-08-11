@@ -125,8 +125,8 @@ class Share extends Model
 
         // Чистая комиссия = Partner% - 3%
         $netPercent = max(0, $partnerPercent - $bankFee);
-
-        return $netPercent * $agentShareOfNet;
+        return 15;
+        //return $netPercent * $agentShareOfNet;
     }
 
     /**

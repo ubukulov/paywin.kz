@@ -48,13 +48,13 @@ class AppServiceProvider extends ServiceProvider
             $view->with('currentCity', $currentCity);
         });
 
-        View::composer(['layouts.app', 'home-products'], function($view){
+        View::composer(['layouts.app', 'home-products', 'partner.partner'], function($view){
             $categories = cache()->remember('app_categories', now()->addHour(), function () {
                 return ProductCategory::where('is_active', true) // если есть флаг активности
                 ->orderBy('sort_order') // если есть сортировка
                 ->get();
             });
-            $view->with('categories', $categories);
+            $view->with('productCategories', $categories);
         });
 
     }

@@ -24,7 +24,7 @@
         } else {
             // Если промокода нет — берем лучшую акцию из доступных по датам
             $bestShare = $partnerShares->sortByDesc('real_agent_percent')->first();
-            $agentPercent = $bestShare ? $bestShare->real_agent_percent : 4.9;
+            $agentPercent = $bestShare ? $bestShare->real_agent_percent : 15;
             $isExact = false;
         }
     @endphp
@@ -33,7 +33,7 @@
         <div class="flex items-center justify-between mb-2">
             <span class="text-sm font-bold text-gray-700">Поделись с друзьями и <br>заработай от покупки</span>
             <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">
-                +{{ $isExact ? '' : 'до ' }}{{ number_format($agentPercent, 1) }}% <br>на карту
+                {{ number_format($agentPercent, 1) }}% <br>на карту
             </span>
         </div>
 

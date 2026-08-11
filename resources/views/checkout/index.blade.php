@@ -55,7 +55,7 @@
                 @php
                     $subtotal = $cart->total;
                     $isAlmatyFree = $subtotal >= 10000;
-                    $almatyDeliveryCost = $isAlmatyFree ? 0 : 1000; // Если меньше 10 000 ₸, можно задать базовую стоимость (например 1000 ₸) или 0
+                    $almatyDeliveryCost = $isAlmatyFree ? 0 : 500; // Если меньше 10 000 ₸, можно задать базовую стоимость (например 1000 ₸) или 0
                 @endphp
 
                 <div class="p-4 border border-gray-200 bg-gray-50/50 rounded-2xl space-y-3">
