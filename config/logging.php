@@ -3,6 +3,7 @@
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
+use App\Logging\VictoriaLogsJsonFormatter;
 
 return [
 
@@ -37,20 +38,20 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
-            'ignore_exceptions' => false,
+            'channels' => array_values(array_filter(array_map('trim', explode(',', env('LOG_STACK', 'daily,stderr'))))),
+            'ignore_exceptions' => true,
         ],
 
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
-            'level' => 'debug',
+            'level' => env('LOG_LEVEL', 'debug'),
         ],
 
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
-            'level' => 'debug',
+            'level' => env('LOG_LEVEL', 'debug'),
             'days' => 14,
         ],
 
@@ -75,7 +76,8 @@ return [
         'stderr' => [
             'driver' => 'monolog',
             'handler' => StreamHandler::class,
-            'formatter' => env('LOG_STDERR_FORMATTER'),
+            'formatter' => env('LOG_STDERR_FORMATTER', VictoriaLogsJsonFormatter::class),
+            'level' => env('LOG_LEVEL', 'debug'),
             'with' => [
                 'stream' => 'php://stderr',
             ],
