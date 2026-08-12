@@ -28,7 +28,8 @@ class ProductController extends Controller
     public function create()
     {
         $warehouses = Auth::user()->getWarehouses();
-        return view('partner.product.create', compact('warehouses'));
+        $productCategories = ProductCategory::all();
+        return view('partner.product.create', compact('warehouses', 'productCategories'));
     }
 
     public function store(Request $request)
