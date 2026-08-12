@@ -49,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('currentCity', $currentCity);
         });
 
-        View::composer(['layouts.app', 'home-products', 'partner.partner'], function($view){
+        View::composer('*', function($view){
             $categories = Cache::remember('product_categories_all', 86400, function () {
                 return ProductCategory::all();
             });
