@@ -20,6 +20,8 @@ class RequestLogContext
             $requestId = (string) Str::uuid();
         }
 
+        $request->attributes->set('request_id', $requestId);
+
         Log::withContext([
             'request_id' => $requestId,
             'http_method' => $request->method(),

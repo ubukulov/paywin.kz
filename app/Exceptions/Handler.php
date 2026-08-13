@@ -36,6 +36,8 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
+        $this->writeExceptionToStderr($exception);
+
         try {
             parent::report($exception);
         } catch (Throwable $loggingException) {
@@ -53,6 +55,45 @@ class Handler extends ExceptionHandler
 
             error_log($encodedRecord ?: $fallbackRecord['_msg']);
         }
+    }
+
+    /**
+     * Mirror exceptions directly to the container log. This path deliberately
+     * bypasses Laravel's configured channels and levels: a production
+     * LOG_CHANNEL=null or LOG_LEVEL=emergency must not hide HTTP 500 causes.
+     */
+    private function writeExceptionToStderr(Throwable $exception): void
+    {
+        $context = [
+            'exception' => $this->emergencyExceptionContext($exception),
+        ];
+
+        if ($this->container->bound('request')) {
+            $request = $this->container->make('request');
+            $context += [
+                'request_id' => $request->attributes->get('request_id'),
+                'http_method' => $request->method(),
+                'http_path' => $request->getPathInfo(),
+                'client_ip' => $request->ip(),
+            ];
+        }
+
+        $record = [
+            'message' => $exception->getMessage(),
+            'context' => $context,
+            'level' => 400,
+            'level_name' => 'ERROR',
+            'channel' => 'stderr-exception-mirror',
+            'datetime' => date(DATE_ATOM),
+            '_msg' => $exception->getMessage(),
+        ];
+
+        $encodedRecord = json_encode(
+            $record,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR
+        );
+
+        error_log($encodedRecord ?: 'An application exception could not be encoded.');
     }
 
     /**
