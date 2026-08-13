@@ -50,6 +50,7 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 # Копируем конфиги Nginx, Supervisor и скрипт запуска
 COPY docker/nginx.conf /etc/nginx/http.d/default.conf
+COPY docker/php-fpm-logging.conf /usr/local/etc/php-fpm.d/zz-paywin-logging.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 

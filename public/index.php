@@ -23,6 +23,36 @@ define('LARAVEL_START', microtime(true));
 
 require __DIR__.'/../vendor/autoload.php';
 
+register_shutdown_function(static function (): void {
+    $error = error_get_last();
+    $fatalTypes = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR];
+
+    if (! $error || ! in_array($error['type'], $fatalTypes, true)) {
+        return;
+    }
+
+    $message = sprintf(
+        'PHP fatal error: %s in %s:%d',
+        $error['message'],
+        $error['file'],
+        $error['line']
+    );
+
+    App\Logging\StderrJsonWriter::write([
+        'message' => $message,
+        'context' => [
+            'fatal_error' => $error,
+            'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
+            'http_path' => parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH),
+        ],
+        'level' => 500,
+        'level_name' => 'CRITICAL',
+        'channel' => 'stderr-php-fatal',
+        'datetime' => date(DATE_ATOM),
+        '_msg' => $message,
+    ]);
+});
+
 /*
 |--------------------------------------------------------------------------
 | Turn On The Lights

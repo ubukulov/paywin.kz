@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Logging\StderrJsonWriter;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -33,5 +34,39 @@ class RequestLogContext
         $response->headers->set('X-Request-ID', $requestId);
 
         return $response;
+    }
+
+    /**
+     * Log every final 5xx response, including responses which were generated
+     * without a reportable Laravel exception.
+     */
+    public function terminate(Request $request, $response): void
+    {
+        if ($response->getStatusCode() < 500) {
+            return;
+        }
+
+        $message = sprintf(
+            '%s %s returned HTTP %d',
+            $request->method(),
+            $request->getPathInfo(),
+            $response->getStatusCode()
+        );
+
+        StderrJsonWriter::write([
+            'message' => $message,
+            'context' => [
+                'request_id' => $request->attributes->get('request_id'),
+                'http_method' => $request->method(),
+                'http_path' => $request->getPathInfo(),
+                'status_code' => $response->getStatusCode(),
+                'client_ip' => $request->ip(),
+            ],
+            'level' => 400,
+            'level_name' => 'ERROR',
+            'channel' => 'stderr-http-5xx',
+            'datetime' => date(DATE_ATOM),
+            '_msg' => $message,
+        ]);
     }
 }

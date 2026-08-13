@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use App\Logging\StderrJsonWriter;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -36,7 +38,9 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
-        $this->writeExceptionToStderr($exception);
+        if ($this->shouldMirrorException($exception)) {
+            $this->writeExceptionToStderr($exception);
+        }
 
         try {
             parent::report($exception);
@@ -48,13 +52,17 @@ class Handler extends ExceptionHandler
                 'logging_exception' => $this->emergencyExceptionContext($loggingException),
             ];
 
-            $encodedRecord = json_encode(
-                $fallbackRecord,
-                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR
-            );
-
-            error_log($encodedRecord ?: $fallbackRecord['_msg']);
+            StderrJsonWriter::write($fallbackRecord);
         }
+    }
+
+    private function shouldMirrorException(Throwable $exception): bool
+    {
+        if ($exception instanceof HttpExceptionInterface) {
+            return $exception->getStatusCode() >= 500;
+        }
+
+        return $this->shouldReport($exception);
     }
 
     /**
@@ -88,12 +96,7 @@ class Handler extends ExceptionHandler
             '_msg' => $exception->getMessage(),
         ];
 
-        $encodedRecord = json_encode(
-            $record,
-            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR
-        );
-
-        error_log($encodedRecord ?: 'An application exception could not be encoded.');
+        StderrJsonWriter::write($record);
     }
 
     /**
