@@ -272,7 +272,7 @@
 
 @push('partner_scripts')
     {{-- UNPKG СКРИПТЫ --}}
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/sortablejs@1.14.0/Sortable.min.js"></script>
     <script src="https://unpkg.com/vuedraggable@4.1.0/dist/vuedraggable.umd.js"></script>
@@ -341,7 +341,12 @@
                 });
 
                 onMounted(() => {
-                    const quill = new Quill('#editor-container', {
+                    const editor = document.getElementById('editor-container');
+                    if (!editor) {
+                        return;
+                    }
+
+                    const quill = new Quill(editor, {
                         theme: 'snow',
                         placeholder: 'Описание товара...',
                         modules: { toolbar: [['bold', 'italic'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
