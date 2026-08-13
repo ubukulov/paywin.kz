@@ -193,6 +193,8 @@ class ProductController extends Controller
 
         } catch (\Exception $exception) {
             DB::rollback();
+            report($exception);
+
             return response()->json(['error' => 'Ошибка при сохранении: ' . $exception->getMessage()], 500);
         }
     }

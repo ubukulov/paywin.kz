@@ -39,7 +39,7 @@ return [
         'stack' => [
             'driver' => 'stack',
             'channels' => array_values(array_filter(array_map('trim', explode(',', env('LOG_STACK', 'daily,stderr'))))),
-            'ignore_exceptions' => true,
+            'ignore_exceptions' => false,
         ],
 
         'single' => [

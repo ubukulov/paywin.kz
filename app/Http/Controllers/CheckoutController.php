@@ -439,6 +439,8 @@ class CheckoutController extends BaseController
 
         } catch (\Exception $exception) {
             DB::rollBack();
+            report($exception);
+
             return response()->json(['error' => $exception->getMessage()], 500);
         }
     }

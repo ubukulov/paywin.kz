@@ -58,6 +58,8 @@ class OrderController extends Controller
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
+            report($e);
+
             return response()->json(['error'=>$e->getMessage()],500);
         }
     }

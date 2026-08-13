@@ -36,7 +36,38 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
-        parent::report($exception);
+        try {
+            parent::report($exception);
+        } catch (Throwable $loggingException) {
+            $fallbackRecord = [
+                '_msg' => 'The configured logger failed while reporting an application exception.',
+                'level_name' => 'CRITICAL',
+                'exception' => $this->emergencyExceptionContext($exception),
+                'logging_exception' => $this->emergencyExceptionContext($loggingException),
+            ];
+
+            $encodedRecord = json_encode(
+                $fallbackRecord,
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR
+            );
+
+            error_log($encodedRecord ?: $fallbackRecord['_msg']);
+        }
+    }
+
+    /**
+     * Build a small, serialization-safe exception payload for the emergency
+     * stderr fallback. Do not call the configured logger from this path.
+     */
+    private function emergencyExceptionContext(Throwable $exception): array
+    {
+        return [
+            'class' => get_class($exception),
+            'message' => $exception->getMessage(),
+            'code' => $exception->getCode(),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+        ];
     }
 
     /**
