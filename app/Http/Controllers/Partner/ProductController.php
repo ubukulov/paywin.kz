@@ -33,51 +33,63 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        // Проверка на случай превышения post_max_size на сервере
+        if (empty($request->all())) {
+            return response()->json([
+                'error' => 'Общий размер загружаемых файлов слишком велик. Уменьшите размер фото.'
+            ], 422);
+        }
+
         $data = $request->all();
-        $metaData = json_decode($request->input('meta'), true);
+        $metaData = json_decode($request->input('meta', '{}'), true);
+
         DB::beginTransaction();
         try {
             $product = Product::create([
-                'name' => $data['name'],
-                'description' => $data['description'],
-                'sku' => $data['article'],
+                'name'                => $data['name'],
+                'description'         => $data['description'] ?? '',
+                'sku'                 => $data['article'] ?? null,
                 'product_category_id' => $data['product_category_id'],
-                'partner_id' => Auth::id(),
-                'data' => $metaData
+                'partner_id'          => Auth::id(),
+                'data'                => $metaData
             ]);
 
-            $warehouses = json_decode($request->warehouses, true);
+            $warehouses = json_decode($request->input('warehouses', '{}'), true);
 
-            foreach ($warehouses as $warehouseId => $wData) {
-                $isPreorder = (bool) ($wData['is_preorder'] ?? false);
+            if (!empty($warehouses) && is_array($warehouses)) {
+                foreach ($warehouses as $warehouseId => $wData) {
+                    // Пропускаем склад, если цена не указана
+                    if (!isset($wData['price']) || $wData['price'] === '' || $wData['price'] === null) {
+                        continue;
+                    }
 
-                // Срок доставки при предзаказе
-                $deliveryDays = null;
-                if ($isPreorder && !empty($wData['delivery_days'])) {
-                    $deliveryDays = (int) $wData['delivery_days'];
+                    $isPreorder = (bool) ($wData['is_preorder'] ?? false);
+                    $deliveryDays = ($isPreorder && !empty($wData['delivery_days'])) ? (int) $wData['delivery_days'] : null;
+
+                    ProductStock::create([
+                        'product_id'    => $product->id,
+                        'warehouse_id'  => $warehouseId,
+                        'price'         => (float) $wData['price'],
+                        'quantity'      => (int) ($wData['count'] ?? 0),
+                        'is_preorder'   => $isPreorder,
+                        'delivery_days' => $deliveryDays,
+                    ]);
                 }
-
-                ProductStock::create([
-                    'product_id'     => $product->id,
-                    'warehouse_id'   => $warehouseId,
-                    'price'          => $wData['price'],
-                    'quantity'       => (int) $wData['count'],
-                    'is_preorder'    => $isPreorder,
-                    'delivery_days'  => $deliveryDays,
-                ]);
             }
 
             if ($request->hasFile('photos')) {
                 foreach ($request->file('photos') as $index => $file) {
-                    $folder = 'products/' . date('Y-m');
-                    $path = $file->store($folder, 'public');
+                    if ($file->isValid()) {
+                        $folder = 'products/' . date('Y-m');
+                        $path = $file->store($folder, 'public');
 
-                    $product->images()->create([
-                        'product_id' => $product->id,
-                        'path'     => $path,
-                        'main'     => $index === 0,
-                        'position' => $index,
-                    ]);
+                        $product->images()->create([
+                            'product_id' => $product->id,
+                            'path'       => $path,
+                            'main'       => $index === 0,
+                            'position'   => $index,
+                        ]);
+                    }
                 }
             }
 
@@ -89,7 +101,11 @@ class ProductController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            throw $e;
+            report($e);
+
+            return response()->json([
+                'error' => 'Ошибка при сохранении: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -104,24 +120,24 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
-        $metaData = json_decode($request->input('meta'), true);
+        $metaData = json_decode($request->input('meta', '{}'), true);
 
         DB::beginTransaction();
         try {
             // 1. Обновляем основные поля
             $product->update([
-                'sku' => $request->article,
-                'name' => $request->name,
-                'description' => $request->description,
+                'sku'                 => $request->article,
+                'name'                => $request->name,
+                'description'         => $request->description,
                 'product_category_id' => $request->product_category_id,
-                'data' => $metaData
+                'data'                => $metaData
             ]);
 
-            // 2. Удаляем фото, которые пользователь пометил на удаление
+            // 2. Удаляем фото, помеченные на удаление
             $removedIds = json_decode($request->removed_photos, true);
-            if(!empty($removedIds)) {
+            if (!empty($removedIds)) {
                 $imagesToDelete = ProductImage::whereIn('id', $removedIds)->get();
-                foreach($imagesToDelete as $img) {
+                foreach ($imagesToDelete as $img) {
                     if (Storage::disk('public')->exists($img->path)) {
                         Storage::disk('public')->delete($img->path);
                     }
@@ -134,11 +150,13 @@ class ProductController extends Controller
             if ($request->hasFile('new_photos')) {
                 $folder = 'products/' . date('Y-m');
                 foreach ($request->file('new_photos') as $file) {
-                    $newUploadedPaths[] = $file->store($folder, 'public');
+                    if ($file->isValid()) {
+                        $newUploadedPaths[] = $file->store($folder, 'public');
+                    }
                 }
             }
 
-            // 4. Сохраняем порядок (сортировку)
+            // 4. Сохраняем порядок фотографий
             $imagesOrder = json_decode($request->images_order, true);
 
             if (!empty($imagesOrder)) {
@@ -165,24 +183,24 @@ class ProductController extends Controller
                 }
             }
 
-            // 5. ИСПРАВЛЕНО: Обновляем склады с пересчетом количества дней в дату
+            // 5. Обновляем склады
             $warehousesData = json_decode($request->warehouses, true);
             if (!empty($warehousesData)) {
-                foreach($warehousesData as $wId => $wData) {
-
-                    $isPreorder = (bool) ($wData['is_preorder'] ?? false);
-
-                    // Расчет даты на базе переданных дней
-                    $deliveryDays = null;
-                    if ($isPreorder && !empty($wData['delivery_days'])) {
-                        $deliveryDays = (int) $wData['delivery_days'];
+                foreach ($warehousesData as $wId => $wData) {
+                    if (!isset($wData['price']) || $wData['price'] === '' || $wData['price'] === null) {
+                        continue;
                     }
 
-                    $product->warehouses()->updateExistingPivot($wId, [
-                        'price'        => $wData['price'],
-                        'quantity'     => $wData['count'],
-                        'is_preorder'  => $isPreorder,
-                        'delivery_days' => $deliveryDays,
+                    $isPreorder = (bool) ($wData['is_preorder'] ?? false);
+                    $deliveryDays = ($isPreorder && !empty($wData['delivery_days'])) ? (int) $wData['delivery_days'] : null;
+
+                    $product->warehouses()->syncWithoutDetaching([
+                        $wId => [
+                            'price'         => (float) $wData['price'],
+                            'quantity'      => (int) ($wData['count'] ?? 0),
+                            'is_preorder'   => $isPreorder,
+                            'delivery_days' => $deliveryDays,
+                        ]
                     ]);
                 }
             }
