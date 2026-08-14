@@ -316,7 +316,7 @@
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
     <script>
-        const { createApp, ref, onMounted } = Vue;
+        const { createApp, ref, onMounted, toRaw } = Vue;
         const draggableComp = window.vuedraggable;
 
         const app = createApp({
@@ -327,14 +327,11 @@
                 const product_category_id = ref(0);
                 const name = ref("");
                 const description = ref("");
-
-                // ДОБАВЛЕНО: Реактивное свойство для ссылки на видео
                 const video_url = ref("");
-
                 const features = ref([]);
 
-                const warehouses = {!! json_encode($warehouses) !!};
-                const categories = {!! json_encode($productCategories) !!};
+                const warehouses = {!! json_encode($warehouses ?? []) !!};
+                const categories = {!! json_encode($productCategories ?? []) !!};
                 const points = ref({});
 
                 warehouses.forEach(p => {
@@ -346,7 +343,6 @@
                     };
                 });
 
-                // Инициализация редактора
                 onMounted(() => {
                     const editor = document.getElementById('editor-container');
                     if (!editor) {
@@ -386,8 +382,11 @@
 
                 const handleUpload = (event) => {
                     let selectedFiles = event.target.files;
+                    if (!selectedFiles || selectedFiles.length === 0) return;
+
                     if (images.value.length + selectedFiles.length > 15) {
-                        alert("Максимально 15 фото"); return;
+                        alert("Максимально 15 фото");
+                        return;
                     }
 
                     [...selectedFiles].forEach(file => {
@@ -396,7 +395,7 @@
                             images.value.push({
                                 id: Date.now() + Math.random(),
                                 preview: e.target.result,
-                                file: file
+                                rawFile: file // Сохраняем оригинальный файл
                             });
                         };
                         reader.readAsDataURL(file);
@@ -408,19 +407,18 @@
 
                 const createProduct = () => {
                     if (!name.value || !product_category_id.value || images.value.length === 0) {
-                        alert("Заполните название, категорию и добавьте фото");
+                        alert("Заполните название, категорию и добавьте хотя бы одно фото");
                         return;
                     }
 
                     loading.value = true;
                     let formData = new FormData();
-                    formData.append('article', article.value);
+                    formData.append('article', article.value || '');
                     formData.append('name', name.value);
                     formData.append('product_category_id', product_category_id.value);
-                    formData.append('description', description.value);
+                    formData.append('description', description.value || '');
                     formData.append('warehouses', JSON.stringify(points.value));
 
-                    // ДОБАВЛЕНО: Записываем ссылку на видео внутрь metaObject
                     const metaObject = {};
                     features.value.forEach(item => {
                         if (item.key.trim() !== "" && item.value.trim() !== "") {
@@ -428,37 +426,66 @@
                         }
                     });
 
-                    // Также добавляем скрытый или системный ключ для видео, чтобы бэкенд сохранил его в json-поле data
-                    if (video_url.value.trim() !== "") {
+                    if (video_url.value && video_url.value.trim() !== "") {
                         metaObject['system_video_url'] = video_url.value.trim();
                     }
 
                     formData.append('meta', JSON.stringify(metaObject));
 
+                    // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Используем toRaw(), чтобы браузеры не портили бинарные данные картинки
                     images.value.forEach(img => {
-                        formData.append('photos[]', img.file);
+                        const fileObj = toRaw(img.rawFile || img.file);
+                        if (fileObj) {
+                            formData.append('photos[]', fileObj);
+                        }
                     });
 
+                    // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Явно передаем CSRF-токен для поддержки всех браузеров
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                        || '{{ csrf_token() }}';
+
                     axios.post("/partner/products/store", formData, {
-                        headers: { "Content-Type": "multipart/form-data" }
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                            "X-CSRF-TOKEN": csrfToken,
+                            "X-Requested-With": "XMLHttpRequest"
+                        }
                     })
-                        .then(() => window.location.href = '/partner/products')
+                        .then(res => {
+                            window.location.href = '/partner/products';
+                        })
                         .catch(err => {
-                            console.error(err);
-                            alert("Ошибка при сохранении");
+                            console.error('Save Error:', err);
+
+                            // Детальный отклик ошибки для диагностики
+                            let errorMsg = "Ошибка при сохранении";
+                            if (err.response) {
+                                if (err.response.status === 419) {
+                                    errorMsg = "Сессия истекла (Ошибка 419). Перезагрузите страницу и попробуйте снова.";
+                                } else if (err.response.status === 422) {
+                                    const errors = err.response.data.errors;
+                                    errorMsg = "Ошибка валидации:\n" + Object.values(errors).flat().join("\n");
+                                } else if (err.response.data && err.response.data.message) {
+                                    errorMsg = "Ошибка сервера: " + err.response.data.message;
+                                }
+                            }
+
+                            alert(errorMsg);
                             loading.value = false;
                         });
                 };
 
                 return {
                     loading, images, article, name, description, warehouses, points, categories, product_category_id,
-                    features, addFeature, removeFeature, video_url, // Экспортируем video_url в шаблон
+                    features, addFeature, removeFeature, video_url,
                     triggerUpload, handleUpload, removePhoto, createProduct
                 };
             }
         });
 
-        app.component('draggable', draggableComp);
+        if (window.vuedraggable) {
+            app.component('draggable', draggableComp);
+        }
         app.mount('#createGood');
     </script>
 @endpush

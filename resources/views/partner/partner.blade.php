@@ -7,6 +7,7 @@
     <title>О партнере</title>
     <link rel="stylesheet" href="{{ asset('css/tailwindcss.css') }}">
     <link rel="stylesheet" href="{{ asset('css/fix.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @stack('partner_styles')
     <style>
         .partner__address-upload-btn {
