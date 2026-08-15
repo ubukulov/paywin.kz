@@ -98,7 +98,7 @@
 
                                                 {{-- Сроки доставки --}}
                                                 <div class="mt-2 text-[10px] text-gray-500 font-medium pt-1.5 border-t border-gray-200/60 flex items-center justify-between">
-                                                    <span>Ожидается:</span>
+                                                    <span>Ожидается доставка:</span>
                                                     <strong class="text-gray-900">
                                                         {{ $item->estimated_delivery_at ? $item->estimated_delivery_at->format('d.m.Y') : 'Уточняется' }}
                                                     </strong>
