@@ -308,8 +308,8 @@
                                 <thead>
                                 <tr class="border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-wider">
                                     <th class="pb-3 px-2">ФИО</th>
-                                    <th class="pb-3 px-2">Телефон</th>
-                                    <th class="pb-3 px-2">Email</th>
+                                    {{--<th class="pb-3 px-2">Телефон</th>
+                                    <th class="pb-3 px-2">Email</th>--}}
                                     <th class="pb-3 px-2 text-center">Дата</th>
                                 </tr>
                                 </thead>
@@ -322,14 +322,14 @@
                                         </td>
 
                                         {{-- Телефон --}}
-                                        <td class="py-4 px-2">
+                                        {{--<td class="py-4 px-2">
                                             <div class="text-[10px] text-gray-400 font-medium">{{ $referral->phone ?? '' }}</div>
-                                        </td>
+                                        </td>--}}
 
                                         {{-- Email --}}
-                                        <td class="py-4 px-2 font-black text-gray-900">
+                                        {{--<td class="py-4 px-2 font-black text-gray-900">
                                             <div class="text-[10px] text-gray-400 font-medium">{{ $referral->email ?? '' }}</div>
-                                        </td>
+                                        </td>--}}
 
                                         {{-- Дата --}}
                                         <td class="py-4 px-2 text-right">
