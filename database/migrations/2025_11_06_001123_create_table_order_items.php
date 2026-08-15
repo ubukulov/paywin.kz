@@ -25,6 +25,9 @@ return new class extends Migration
             $table->integer('quantity')->default(1);
             $table->decimal('price', 12, 2); // Цена за 1 шт.
             $table->decimal('total', 12, 2); // Итого по позиции
+            $table->boolean('is_preorder')->default(false);
+            $table->timestamp('estimated_delivery_at')->nullable(); // Ожидаемая дата доставки
+            $table->timestamp('delivered_at')->nullable(); // Фактическая дата вручения
 
             $table->timestamps();
         });

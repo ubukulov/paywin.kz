@@ -21,6 +21,20 @@ class OrderItem extends Model
         'quantity',
         'price',
         'total',
+        'is_preorder',
+        'estimated_delivery_at',
+        'delivered_at',
+    ];
+
+    /**
+     * Автоматическое приведение типов
+     */
+    protected $casts = [
+        'is_preorder'           => 'boolean',
+        'estimated_delivery_at' => 'datetime',
+        'delivered_at'          => 'datetime',
+        'price'                 => 'float',
+        'total'                 => 'float',
     ];
 
     public function partner(): BelongsTo

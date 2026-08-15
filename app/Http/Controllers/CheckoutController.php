@@ -249,35 +249,6 @@ class CheckoutController extends BaseController
                     break;
             }
 
-            // Проверяем, есть ли среди позиций предзаказ и его максимальный срок поставки
-            $isOrderPreorder = false;
-            $maxPreorderDays = 0;
-
-            foreach ($checkoutItems as $chkItem) {
-                $stockItem = ProductStock::where('product_id', $chkItem->product_id)
-                    ->where('warehouse_id', $chkItem->warehouse_id ?? 1)
-                    ->first();
-
-                if ($stockItem && $stockItem->is_preorder) {
-                    $isOrderPreorder = true;
-                    if ($stockItem->delivery_days > $maxPreorderDays) {
-                        $maxPreorderDays = $stockItem->delivery_days;
-                    }
-                }
-            }
-
-            // Фиксация плановой даты доставки
-            if ($isOrderPreorder && $maxPreorderDays > 0) {
-                $estimatedDeliveryAt = now()->addDays($maxPreorderDays)->toDateTimeString();
-            } else {
-                $estimatedDeliveryAt = match ($request->shipping_method) {
-                    'almaty_standard' => now()->addDays(2)->toDateTimeString(),
-                    'almaty_express', 'pickup' => now()->endOfDay()->toDateTimeString(),
-                    'kazakhstan'     => now()->addDays(7)->toDateTimeString(),
-                    default          => null,
-                };
-            }
-
             // Полная стоимость до применения бонусов/скидок (Товары + Доставка)
             $totalWithShipping = $cartTotal + $shippingCost;
 
@@ -375,7 +346,7 @@ class CheckoutController extends BaseController
 
             $finalCardPayAmount = max(0, $remainingPayAmount - $spentFromGlobalBalance);
 
-            // Создаём заказ
+            // Создаём базовый заказ
             $order = Order::create([
                 'user_id'          => $user->id,
                 'user_discount_id' => !empty($appliedDiscountIds) ? $appliedDiscountIds[0] : null,
@@ -387,11 +358,9 @@ class CheckoutController extends BaseController
                 'shipping_method'  => $request->shipping_method,
                 'payment_method'   => $finalCardPayAmount > 0 ? 'card' : 'balance',
                 'shipping_address' => $request->address ?? 'Самовывоз',
-                'estimated_delivery_at' => $estimatedDeliveryAt,
                 'data'             => [
-                    'name' => $request->name,
+                    'name'  => $request->name,
                     'phone' => $request->phone,
-                    'is_preorder'           => $isOrderPreorder
                 ]
             ]);
 
@@ -401,24 +370,52 @@ class CheckoutController extends BaseController
                 ->whereNull('source_id')
                 ->update(['source_id' => $order->id]);
 
+            // Флаг проверки предзаказа для статуса заказа
+            $hasAnyPreorder = false;
+
             foreach ($checkoutItems as $item) {
                 $currentWarehouseId = $item->warehouse_id ?? 1;
 
-                ProductStock::where(['product_id' => $item->product_id, 'warehouse_id' => $currentWarehouseId])
-                    ->decrement('quantity', $item->quantity);
+                $stock = ProductStock::where([
+                    'product_id'   => $item->product_id,
+                    'warehouse_id' => $currentWarehouseId
+                ])->first();
+
+                if ($stock) {
+                    $stock->decrement('quantity', $item->quantity);
+                }
 
                 $product = Product::find($item->product_id);
 
+                // ОПРЕДЕЛЯЕМ ПРЕДЗАКАЗ И СРОКИ ДОСТАВКИ ДЛЯ КОНКРЕТНОЙ ПОЗИЦИИ
+                $isItemPreorder = $stock ? (bool)$stock->is_preorder : false;
+
+                if ($isItemPreorder) {
+                    $hasAnyPreorder = true;
+                    $itemEstimatedDelivery = ($stock && $stock->delivery_days > 0)
+                        ? now()->addDays($stock->delivery_days)
+                        : null;
+                } else {
+                    $itemEstimatedDelivery = match ($request->shipping_method) {
+                        'almaty_standard' => now()->addDays(2),
+                        'almaty_express', 'pickup' => now()->endOfDay(),
+                        'kazakhstan'     => now()->addDays(7),
+                        default          => null,
+                    };
+                }
+
                 OrderItem::create([
-                    'order_id'     => $order->id,
-                    'product_id'   => $item->product_id,
-                    'partner_id'   => $product->partner_id,
-                    'warehouse_id' => $currentWarehouseId,
-                    'product_name' => $product->name,
-                    'product_sku'  => $product->sku,
-                    'quantity'     => $item->quantity,
-                    'price'        => $item->price,
-                    'total'        => $item->total,
+                    'order_id'              => $order->id,
+                    'product_id'            => $item->product_id,
+                    'partner_id'            => $product->partner_id,
+                    'warehouse_id'          => $currentWarehouseId,
+                    'product_name'          => $product->name,
+                    'product_sku'           => $product->sku,
+                    'quantity'              => $item->quantity,
+                    'price'                 => $item->price,
+                    'total'                 => $item->total,
+                    'is_preorder'           => $isItemPreorder,
+                    'estimated_delivery_at' => $itemEstimatedDelivery,
                 ]);
             }
 
@@ -453,13 +450,13 @@ class CheckoutController extends BaseController
                     throw new \Exception('Платеж отклонен банком');
                 }
 
-                $this->finalizeOrder($order, $paymentResponse['Model']);
+                $this->finalizeOrder($order, $paymentResponse['Model'], $hasAnyPreorder);
             } else {
                 // Полная оплата баллами/купонами (0 ₸ по банковской карте)
                 $this->finalizeOrder($order, [
                     'TransactionId' => 'BONUS_INTERNAL_' . time(),
                     'Status' => 'Completed'
-                ]);
+                ], $hasAnyPreorder);
             }
 
             DB::commit();

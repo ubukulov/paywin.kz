@@ -20,11 +20,11 @@
                     <thead>
                     <tr class="border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-wider">
                         <th class="pb-3 px-2">№ Заказа / Дата</th>
-                        <th class="pb-3 px-2">Товар</th>
+                        <th class="p-4">Покупатель</th>
+                        <th class="pb-3 px-2">Товар / доставка</th>
                         <th class="pb-3 px-2">Приз</th>
                         <th class="pb-3 px-2">Сумма покупки</th>
                         <th class="pb-3 px-2 text-center">Статус</th>
-                        <th class="pb-3 px-2 text-center">Доставка</th>
                     </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50 text-xs font-semibold">
@@ -45,10 +45,18 @@
                                 <div class="text-[10px] text-gray-400 font-medium">{{ $order->created_at->format('d.m.Y H:i') }}</div>
                             </td>
 
+                            {{-- Данные покупателя --}}
+                            <td class="p-4">
+                                <span class="font-bold text-gray-900 block">{{ $order->data['name'] ?? 'Не указано' }}</span>
+                                <a href="tel:{{ $order->data['phone'] ?? '' }}" class="text-indigo-600 hover:underline font-medium block mt-0.5">
+                                    {{ $order->data['phone'] ?? 'Нет телефона' }}
+                                </a>
+                            </td>
+
                             {{-- Товар --}}
                             <td class="py-4 px-2">
                                 @foreach($order->items as $orderItem)
-                                    <div class="text-[10px] text-gray-400 font-medium">{{ $orderItem->product_name }}</div>
+                                    <div class="text-[10px] text-gray-400 font-medium">{{ $orderItem->product_name }} | {{ $orderItem->estimated_delivery_at->format('d.m.Y H:i') }}</div>
                                 @endforeach
                             </td>
 
@@ -100,11 +108,6 @@
                                                         {{ $statusValue }}
                                                     </span>
                                 @endif
-                            </td>
-
-                            {{-- Доставка --}}
-                            <td class="py-4 px-2 text-center">
-                                {{ $order->estimated_delivery_at }}
                             </td>
                         </tr>
                     @endforeach
