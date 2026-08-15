@@ -174,6 +174,8 @@
                                 <tr class="border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-wider">
                                     <th class="pb-3 px-2">№ Заказа / Дата</th>
                                     <th class="pb-3 px-2">Клиент (Реферал)</th>
+                                    <th class="pb-3 px-2">Товар</th>
+                                    <th class="pb-3 px-2">Приз</th>
                                     <th class="pb-3 px-2">Сумма покупки</th>
                                     <th class="pb-3 px-2 text-center">Статус</th>
                                     <th class="pb-3 px-2 text-right">Вознаграждение</th>
@@ -200,12 +202,47 @@
                                         {{-- Имя клиента --}}
                                         <td class="py-4 px-2">
                                             <div class="font-bold text-gray-800">{{ $order->user->name ?? 'Клиент #' . $order->user_id }}</div>
-                                            <div class="text-[10px] text-gray-400 font-medium">{{ $order->user->email ?? '' }}</div>
+{{--                                            <div class="text-[10px] text-gray-400 font-medium">{{ $order->user->email ?? '' }}</div>--}}
+                                        </td>
+
+                                        {{-- Товар --}}
+                                        <td class="py-4 px-2">
+                                            @foreach($order->items as $orderItem)
+                                                <div class="text-[10px] text-gray-400 font-medium">{{ $orderItem->product_name }}</div>
+                                            @endforeach
+                                        </td>
+
+                                        {{-- Приз --}}
+                                        <td class="py-4 px-2">
+                                            @php
+                                                // Ищем подарки, привязанные к заказу (Order)
+                                                $orderGifts = \App\Models\UserGift::where('source_type', \App\Models\Order::class)
+                                                    ->where('source_id', $order->id)
+                                                    ->get();
+                                            @endphp
+
+                                            @if($orderGifts->isNotEmpty())
+                                                <div class="flex flex-col gap-1 mt-1">
+                                                    <div class="flex flex-wrap gap-1">
+                                                        @foreach($orderGifts as $gift)
+                                                            <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 font-bold text-[10px] px-2 py-1 rounded-lg border border-purple-100">
+                                                            🎁 {{ $gift->name ?? ($gift->data['prizes'][0]['name'] ?? 'Приз') }}
+                                                        </span>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <span class="text-gray-400 italic text-[11px]">Без приза</span>
+                                            @endif
                                         </td>
 
                                         {{-- Сумма заказа --}}
                                         <td class="py-4 px-2 font-black text-gray-900">
+                                            @if($order->total == 0)
+                                            {{ number_format($order->subtotal, 0, '.', ' ') }} ₸
+                                            @else
                                             {{ number_format($order->total, 0, '.', ' ') }} ₸
+                                            @endif
                                         </td>
 
                                         {{-- Статус заказа --}}
