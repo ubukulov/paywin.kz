@@ -13,12 +13,12 @@
                     Новинка
                 </span>
 
-                <button type="button" aria-label="Добавить в избранное"
+                {{--<button type="button" aria-label="Добавить в избранное"
                         class="absolute top-2 right-2 bg-white/90 backdrop-blur-xs p-2 rounded-full shadow-xs hover:bg-white transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 18.343 3.172 10.83a4 4 0 010-5.657z" />
                     </svg>
-                </button>
+                </button>--}}
             </div>
 
             {{-- Контентная часть карточки --}}
