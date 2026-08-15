@@ -20,7 +20,7 @@
                 <div class="flex items-center gap-2 mb-4">
                     <span class="text-xl">🎁</span>
                     <h2 class="text-lg font-black text-gray-900 uppercase tracking-tight">
-                        Поздравляем, Вы выиграли приз! 🎉
+                        Поздравляем, Вы выиграли! 🎉
                     </h2>
                 </div>
 
