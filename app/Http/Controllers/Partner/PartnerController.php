@@ -177,7 +177,7 @@ class PartnerController extends Controller
                 ->get();
         }
 
-        $ordersId = OrderItem::where('partner_id', $partner->id)->pluck('user_id')->toArray();
+        $ordersId = OrderItem::where('partner_id', $partner->id)->pluck('order_id')->toArray();
 
         $orders = Order::whereIn('id', $ordersId)
             ->with(['user', 'items'])
