@@ -45,6 +45,7 @@
                                 <th class="pb-3 px-2">Приз</th>
                                 <th class="pb-3 px-2">Сумма покупки</th>
                                 <th class="pb-3 px-2 text-center">Статус</th>
+                                <th class="pb-3 px-2 text-center">Доставка</th>
                             </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-50 text-xs font-semibold">
@@ -120,6 +121,11 @@
                                                         {{ $statusValue }}
                                                     </span>
                                         @endif
+                                    </td>
+
+                                    {{-- Доставка --}}
+                                    <td class="py-4 px-2 text-center">
+                                        {{ $order->estimated_delivery_at }}
                                     </td>
                                 </tr>
                             @endforeach

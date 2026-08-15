@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Partner;
 use App\Enums\OrderEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PartnerProfile;
 use App\Models\Payment;
@@ -176,6 +177,13 @@ class PartnerController extends Controller
                 ->get();
         }
 
-        return view('partner.orders.index', compact('partnerOrderItems'));
+        $ordersId = OrderItem::where('partner_id', $partner->id)->pluck('user_id')->toArray();
+
+        $orders = Order::whereIn('id', $ordersId)
+            ->with(['user', 'items'])
+            ->latest()
+            ->paginate(15);
+
+        return view('partner.orders.index', compact('partnerOrderItems', 'orders'));
     }
 }
