@@ -7,7 +7,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
                 <h1 class="text-2xl font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
-                    <span>📦</span> Мои купленные товары
+                    <span>📦</span> Мои заказы
                 </h1>
                 <p class="text-xs text-gray-400 mt-1">
                     История ваших оплаченных покупок и предзаказов на платформе.
@@ -33,58 +33,55 @@
                 </a>
             </div>
         @else
-            {{-- Таблица / Список карточек товаров --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @foreach($purchasedItems as $item)
-                    @php
-                        $product = $item->product;
-                        $order = $item->order;
-                        $isPreorder = $order->status === \App\Enums\OrderEnum::PREORDER->value;
-                    @endphp
+            <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100">
 
-                    <div class="bg-white rounded-2xl border border-gray-100 p-4 flex flex-col justify-between hover:shadow-md transition duration-200 relative overflow-hidden group">
+                @if(isset($orders) && $orders->count() > 0)
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                            <tr class="border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-wider">
+                                <th class="pb-3 px-2">№ Заказа / Дата</th>
+                                <th class="pb-3 px-2">Клиент (Реферал)</th>
+                                <th class="pb-3 px-2">Товар</th>
+                                <th class="pb-3 px-2">Приз</th>
+                                <th class="pb-3 px-2">Сумма покупки</th>
+                                <th class="pb-3 px-2 text-center">Статус</th>
+                                <th class="pb-3 px-2 text-right">Вознаграждение</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50 text-xs font-semibold">
+                            @foreach($orders as $order)
+                                @php
+                                    // 1. Ищем запись реферала для этого пользователя и агента
+                                    $referral = \App\Models\Referral::where('agent_id', auth()->id())
+                                        ->where('user_id', $order->user_id)
+                                        ->first();
 
-                        {{-- Основной блок контента --}}
-                        <div class="flex gap-4">
-                            {{-- Изображение товара --}}
-                            <div class="w-24 h-24 rounded-xl bg-gray-50 border border-gray-100 shrink-0 overflow-hidden relative">
-                                <img
-                                    src="{{ $product->mainImage->url ?? asset('images/no-image.png') }}"
-                                    alt="{{ $product->name ?? 'Товар' }}"
-                                    class="w-full h-full object-contain group-hover:scale-105 transition duration-300"
-                                >
-                            </div>
+                                    // 2. Рассчитываем вознаграждение через метод getEarn() модели Referral (если запись найдена)
+                                    $reward = $referral ? $referral->getReferralEarnInOrder($order) : 0;
+                                @endphp
+                                <tr class="hover:bg-gray-50/50 transition-colors">
+                                    {{-- Номер заказа и дата --}}
+                                    <td class="py-4 px-2">
+                                        <div class="font-black text-gray-900">#{{ $order->id }}</div>
+                                        <div class="text-[10px] text-gray-400 font-medium">{{ $order->created_at->format('d.m.Y H:i') }}</div>
+                                    </td>
 
-                            {{-- Информация о покупке --}}
-                            <div class="flex flex-col justify-between flex-1 min-w-0">
-                                <div>
-                                    <div class="flex items-center justify-between gap-2 mb-1">
-                                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                                            Заказ №{{ $item->order_id }}
-                                        </span>
+                                    {{-- Имя клиента --}}
+                                    <td class="py-4 px-2">
+                                        <div class="font-bold text-gray-800">{{ $order->user->name ?? 'Клиент #' . $order->user_id }}</div>
+                                        {{--                                            <div class="text-[10px] text-gray-400 font-medium">{{ $order->user->email ?? '' }}</div>--}}
+                                    </td>
 
-                                        {{-- Бейдж статуса --}}
-                                        @if($isPreorder)
-                                            <span class="text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md border border-amber-100 animate-pulse">
-                                                ⏳ Предзаказ
-                                            </span>
-                                        @else
-                                            <span class="text-[9px] font-black uppercase tracking-wider bg-green-50 text-green-700 px-2 py-0.5 rounded-md border border-green-100">
-                                                ✅ Оплачено
-                                              </span>
-                                        @endif
-                                    </div>
+                                    {{-- Товар --}}
+                                    <td class="py-4 px-2">
+                                        @foreach($order->items as $orderItem)
+                                            <div class="text-[10px] text-gray-400 font-medium">{{ $orderItem->product_name }}</div>
+                                        @endforeach
+                                    </td>
 
-                                    <h3 class="text-sm font-bold text-gray-900 truncate pr-4">
-                                        {{ $product ? $product->name : 'Товар удален или недоступен' }}
-                                    </h3>
-
-                                    <p class="text-xs text-gray-500 mt-1 font-medium">
-                                        Количество: <span class="text-gray-900 font-bold">{{ $item->quantity }} шт.</span>
-                                        • на сумму <span class="text-gray-900 font-bold">{{ number_format($item->total, 0, '.', ' ') }} ₸</span>
-                                    </p>
-
-                                    <p class="text-xs text-gray-500 mt-1 font-medium">
+                                    {{-- Приз --}}
+                                    <td class="py-4 px-2">
                                         @php
                                             // Ищем подарки, привязанные к заказу (Order)
                                             $orderGifts = \App\Models\UserGift::where('source_type', \App\Models\Order::class)
@@ -94,7 +91,6 @@
 
                                         @if($orderGifts->isNotEmpty())
                                             <div class="flex flex-col gap-1 mt-1">
-                                                <span class="text-[10px] text-gray-400 uppercase font-bold">Наименование приза:</span>
                                                 <div class="flex flex-wrap gap-1">
                                                     @foreach($orderGifts as $gift)
                                                         <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 font-bold text-[10px] px-2 py-1 rounded-lg border border-purple-100">
@@ -106,41 +102,65 @@
                                         @else
                                             <span class="text-gray-400 italic text-[11px]">Без приза</span>
                                         @endif
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                                    </td>
 
-                        {{-- БЛОК ДОСТАВКИ ДЛЯ ПРЕДЗАКАЗА --}}
-                        <div class="mt-3 bg-amber-50/60 border border-amber-100/70 rounded-xl p-2.5 flex items-center gap-2.5">
-                            <div class="text-lg">🚚</div>
-                            <div class="text-left">
-                                <p class="text-[10px] font-bold uppercase text-amber-800 tracking-tight">Ожидаемая дата доставки:</p>
-                                <p class="text-xs font-extrabold text-gray-900 mt-0.5">
-                                    {{ $order->estimated_delivery_at }}
-                                </p>
-                            </div>
-                        </div>
+                                    {{-- Сумма заказа --}}
+                                    <td class="py-4 px-2 font-black text-gray-900">
+                                        @if($order->total == 0)
+                                            {{ number_format($order->subtotal, 0, '.', ' ') }} ₸
+                                        @else
+                                            {{ number_format($order->total, 0, '.', ' ') }} ₸
+                                        @endif
+                                    </td>
 
-                        {{-- Подвал карточки: дата покупки и кнопка перехода --}}
-                        <div class="flex items-center justify-between pt-2 border-t border-gray-50 text-[11px] mt-3">
-                            <span class="text-gray-400 font-medium">
-                                Куплено: {{ $item->created_at->format('d.m.Y в H:i') }}
-                            </span>
+                                    {{-- Статус заказа --}}
+                                    <td class="py-4 px-2 text-center">
+                                        @php
+                                            $statusValue = is_object($order->status) ? $order->status->value : $order->status;
+                                        @endphp
+                                        @if(in_array($statusValue, ['paid', 'completed', 'PAID', 'COMPLETED']))
+                                            <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2.5 py-1 rounded-lg text-[10px] font-black border border-green-200">
+                                                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                                                        {{ $statusValue === 'completed' || $statusValue === 'COMPLETED' ? 'Выполнен' : 'Оплачен' }}
+                                                    </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black bg-gray-100 text-gray-600">
+                                                        {{ $statusValue }}
+                                                    </span>
+                                        @endif
+                                    </td>
 
-                            @if($product)
-                                <a href="{{ route('product.show', ['slug' => $product->slug]) }}" class="text-indigo-600 hover:text-indigo-700 font-bold flex items-center gap-0.5 transition">
-                                    Страница товара <span>→</span>
-                                </a>
-                            @endif
-                        </div>
+                                    {{-- Вознаграждение агента --}}
+                                    <td class="py-4 px-2 text-right">
+                                        @if($reward > 0)
+                                            <span class="text-sm font-black text-green-600">+{{ $reward }} ₸</span>
+                                        @else
+                                            <span class="text-xs font-bold text-gray-300">0 ₸</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
                     </div>
-                @endforeach
-            </div>
 
-            {{-- Пагинация --}}
-            <div class="mt-8">
-                {{ $purchasedItems->links() }}
+                    {{-- Пагинация --}}
+                    @if(method_exists($orders, 'links'))
+                        <div class="mt-4">
+                            {{ $orders->links() }}
+                        </div>
+                    @endif
+                @else
+                    {{-- Пустое состояние --}}
+                    <div class="text-center py-12">
+                        <div class="text-4xl mb-3">🛒</div>
+                        <h4 class="text-base font-bold text-gray-800">Покупок пока нет</h4>
+                        <p class="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+                            Делись своими промокодами. Как только рефералы сделают покупки, они сразу отобразятся в этом списке!
+                        </p>
+                    </div>
+                @endif
+
             </div>
         @endif
 

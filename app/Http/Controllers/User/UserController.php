@@ -189,6 +189,11 @@ class UserController extends Controller
             ->latest()
             ->paginate(10); // Пагинация по 10 товаров
 
-        return view('user.purchased_products', compact('purchasedItems'));
+        $orders = Order::where('user_id', $user->id)
+            ->with(['user', 'items'])
+            ->latest()
+            ->paginate(15);
+
+        return view('user.purchased_products', compact('purchasedItems', 'orders'));
     }
 }

@@ -318,7 +318,7 @@
                                     <tr class="hover:bg-gray-50/50 transition-colors">
                                         {{-- ФИО --}}
                                         <td class="py-4 px-2">
-                                            <div class="font-black text-gray-900">{{ $referral->full_name ?? 'не указан' }}</div>
+                                            <div class="font-black text-gray-900">{{ $referral->name ?? 'не указан' }}</div>
                                         </td>
 
                                         {{-- Телефон --}}
