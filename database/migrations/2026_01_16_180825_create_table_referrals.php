@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('referrals', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('agent_id');
-            $table->unsignedBigInteger('share_id');
+            $table->unsignedBigInteger('share_id')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->decimal('percent', 5, 2);
 
