@@ -41,12 +41,10 @@
                             <thead>
                             <tr class="border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-wider">
                                 <th class="pb-3 px-2">№ Заказа / Дата</th>
-                                <th class="pb-3 px-2">Клиент (Реферал)</th>
                                 <th class="pb-3 px-2">Товар</th>
                                 <th class="pb-3 px-2">Приз</th>
                                 <th class="pb-3 px-2">Сумма покупки</th>
                                 <th class="pb-3 px-2 text-center">Статус</th>
-                                <th class="pb-3 px-2 text-right">Вознаграждение</th>
                             </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-50 text-xs font-semibold">
@@ -65,12 +63,6 @@
                                     <td class="py-4 px-2">
                                         <div class="font-black text-gray-900">#{{ $order->id }}</div>
                                         <div class="text-[10px] text-gray-400 font-medium">{{ $order->created_at->format('d.m.Y H:i') }}</div>
-                                    </td>
-
-                                    {{-- Имя клиента --}}
-                                    <td class="py-4 px-2">
-                                        <div class="font-bold text-gray-800">{{ $order->user->name ?? 'Клиент #' . $order->user_id }}</div>
-                                        {{--                                            <div class="text-[10px] text-gray-400 font-medium">{{ $order->user->email ?? '' }}</div>--}}
                                     </td>
 
                                     {{-- Товар --}}
@@ -127,15 +119,6 @@
                                             <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black bg-gray-100 text-gray-600">
                                                         {{ $statusValue }}
                                                     </span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Вознаграждение агента --}}
-                                    <td class="py-4 px-2 text-right">
-                                        @if($reward > 0)
-                                            <span class="text-sm font-black text-green-600">+{{ $reward }} ₸</span>
-                                        @else
-                                            <span class="text-xs font-bold text-gray-300">0 ₸</span>
                                         @endif
                                     </td>
                                 </tr>
