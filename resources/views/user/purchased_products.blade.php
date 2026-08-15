@@ -117,7 +117,7 @@
                             <div class="text-left">
                                 <p class="text-[10px] font-bold uppercase text-amber-800 tracking-tight">Ожидаемая дата доставки:</p>
                                 <p class="text-xs font-extrabold text-gray-900 mt-0.5">
-                                    {{ $order->estimated_delivery_at }}
+                                    {{ $order->estimated_delivery_at->format('d.m.Y в H:i') }}
                                 </p>
                             </div>
                         </div>
