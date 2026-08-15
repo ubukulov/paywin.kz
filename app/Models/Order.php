@@ -22,6 +22,8 @@ class Order extends Model
         'payment_method',
         'shipping_method',
         'shipping_address',
+        'estimated_delivery_at',
+        'delivered_at',
         'data',
     ];
 

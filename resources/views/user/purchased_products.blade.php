@@ -40,16 +40,6 @@
                         $product = $item->product;
                         $order = $item->order;
                         $isPreorder = $order->status === \App\Enums\OrderEnum::PREORDER->value;
-
-                        // Определяем дату доставки для предзаказа (из данных заказа или из самого товара)
-                        $deliveryDate = null;
-                        if ($isPreorder) {
-                            if (!empty($order->data['delivery_at'])) {
-                                $deliveryDate = \Carbon\Carbon::parse($order->data['delivery_at']);
-                            } elseif (!empty($product->preorder_delivery_date)) {
-                                $deliveryDate = \Carbon\Carbon::parse($product->preorder_delivery_date);
-                            }
-                        }
                     @endphp
 
                     <div class="bg-white rounded-2xl border border-gray-100 p-4 flex flex-col justify-between hover:shadow-md transition duration-200 relative overflow-hidden group">
@@ -122,21 +112,15 @@
                         </div>
 
                         {{-- БЛОК ДОСТАВКИ ДЛЯ ПРЕДЗАКАЗА --}}
-                        @if($isPreorder)
-                            <div class="mt-3 bg-amber-50/60 border border-amber-100/70 rounded-xl p-2.5 flex items-center gap-2.5">
-                                <div class="text-lg">🚚</div>
-                                <div class="text-left">
-                                    <p class="text-[10px] font-bold uppercase text-amber-800 tracking-tight">Ожидаемая дата доставки:</p>
-                                    <p class="text-xs font-extrabold text-gray-900 mt-0.5">
-                                        @if($deliveryDate)
-                                            {{ $deliveryDate->translatedFormat('d F Y') }} г. в {{ $deliveryDate->format('H:i') }}
-                                        @else
-                                            Уточняется менеджером
-                                        @endif
-                                    </p>
-                                </div>
+                        <div class="mt-3 bg-amber-50/60 border border-amber-100/70 rounded-xl p-2.5 flex items-center gap-2.5">
+                            <div class="text-lg">🚚</div>
+                            <div class="text-left">
+                                <p class="text-[10px] font-bold uppercase text-amber-800 tracking-tight">Ожидаемая дата доставки:</p>
+                                <p class="text-xs font-extrabold text-gray-900 mt-0.5">
+                                    {{ $order->estimated_delivery_at->translatedFormat('d F Y') }} г. в {{ $order->estimated_delivery_at->format('H:i') }}
+                                </p>
                             </div>
-                        @endif
+                        </div>
 
                         {{-- Подвал карточки: дата покупки и кнопка перехода --}}
                         <div class="flex items-center justify-between pt-2 border-t border-gray-50 text-[11px] mt-3">

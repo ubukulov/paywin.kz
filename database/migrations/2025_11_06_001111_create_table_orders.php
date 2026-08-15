@@ -30,6 +30,8 @@ return new class extends Migration
             $table->string('payment_method')->nullable();
             $table->string('shipping_method')->nullable();
             $table->text('shipping_address')->nullable();
+            $table->timestamp('estimated_delivery_at')->nullable(); // Ожидаемая дата доставки
+            $table->timestamp('delivered_at')->nullable(); // Фактическая дата вручения
 
             $table->json('data')->nullable(); // Здесь можно хранить коммент к заказу или данные курьера
             $table->timestamps();

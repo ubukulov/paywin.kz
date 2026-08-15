@@ -249,6 +249,35 @@ class CheckoutController extends BaseController
                     break;
             }
 
+            // Проверяем, есть ли среди позиций предзаказ и его максимальный срок поставки
+            $isOrderPreorder = false;
+            $maxPreorderDays = 0;
+
+            foreach ($checkoutItems as $chkItem) {
+                $stockItem = ProductStock::where('product_id', $chkItem->product_id)
+                    ->where('warehouse_id', $chkItem->warehouse_id ?? 1)
+                    ->first();
+
+                if ($stockItem && $stockItem->is_preorder) {
+                    $isOrderPreorder = true;
+                    if ($stockItem->delivery_days > $maxPreorderDays) {
+                        $maxPreorderDays = $stockItem->delivery_days;
+                    }
+                }
+            }
+
+            // Фиксация плановой даты доставки
+            if ($isOrderPreorder && $maxPreorderDays > 0) {
+                $estimatedDeliveryAt = now()->addDays($maxPreorderDays)->toDateTimeString();
+            } else {
+                $estimatedDeliveryAt = match ($request->shipping_method) {
+                    'almaty_standard' => now()->addDays(2)->toDateTimeString(),
+                    'almaty_express', 'pickup' => now()->endOfDay()->toDateTimeString(),
+                    'kazakhstan'     => now()->addDays(7)->toDateTimeString(),
+                    default          => null,
+                };
+            }
+
             // Полная стоимость до применения бонусов/скидок (Товары + Доставка)
             $totalWithShipping = $cartTotal + $shippingCost;
 
@@ -358,9 +387,11 @@ class CheckoutController extends BaseController
                 'shipping_method'  => $request->shipping_method,
                 'payment_method'   => $finalCardPayAmount > 0 ? 'card' : 'balance',
                 'shipping_address' => $request->address ?? 'Самовывоз',
+                'estimated_delivery_at' => $estimatedDeliveryAt,
                 'data'             => [
                     'name' => $request->name,
-                    'phone' => $request->phone
+                    'phone' => $request->phone,
+                    'is_preorder'           => $isOrderPreorder
                 ]
             ]);
 
