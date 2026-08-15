@@ -332,5 +332,45 @@
                     });
             }
         </script>
+
+        <script>
+            function copyReferralLink() {
+                const input = document.getElementById('refLinkInput');
+                const message = document.getElementById('copyMessage');
+
+                if (!input) return;
+
+                // Используем современный Clipboard API с фолбеком для старых браузеров
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(input.value).then(() => {
+                        showCopySuccess(message);
+                    }).catch(() => {
+                        fallbackCopy(input, message);
+                    });
+                } else {
+                    fallbackCopy(input, message);
+                }
+            }
+
+            function fallbackCopy(input, message) {
+                input.select();
+                input.setSelectionRange(0, 99999); // Для мобильных устройств
+                try {
+                    document.execCommand('copy');
+                    showCopySuccess(message);
+                } catch (err) {
+                    console.error('Не удалось скопировать ссылку', err);
+                }
+            }
+
+            function showCopySuccess(messageElement) {
+                if (!messageElement) return;
+
+                messageElement.classList.remove('hidden');
+                setTimeout(() => {
+                    messageElement.classList.add('hidden');
+                }, 2500);
+            }
+        </script>
     </div>
 @endsection
