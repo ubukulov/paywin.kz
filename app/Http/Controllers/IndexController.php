@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\TransactionEnum;
 use App\Models\City;
 use App\Models\Product;
+use App\Models\ProductStock;
 use App\Models\Share;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -16,19 +17,40 @@ class IndexController extends BaseController
 {
     public function home()
     {
-//        $categories = Category::all();
-//        return view('home',  compact('categories'));
         $cityId = Cookie::get('selected_city_id') ?? City::query()->value('id');
-        $products = Product::query()
-            ->select('products.*', 'product_stocks.price', 'product_stocks.quantity', 'product_stocks.is_preorder', 'product_stocks.delivery_days')
-            ->join('product_stocks', 'product_stocks.product_id', 'products.id')
+        // Подзапрос для получения наиболее подходящей записи остатка на складе
+        $stockSubquery = ProductStock::query()
+            ->select([
+                'product_stocks.product_id',
+                'product_stocks.price',
+                'product_stocks.quantity',
+                'product_stocks.is_preorder',
+                'product_stocks.delivery_days',
+            ])
             ->join('partner_warehouses', 'partner_warehouses.id', '=', 'product_stocks.warehouse_id')
-            ->where('products.is_active', true)
             ->where('partner_warehouses.city_id', $cityId)
+            ->where(function ($q) {
+                $q->where('product_stocks.quantity', '>', 0)
+                    ->orWhere('product_stocks.is_preorder', true);
+            })
+            // Сортируем: сначала позиции в наличии (quantity > 0), затем предзаказы
+            ->orderByRaw('CASE WHEN product_stocks.quantity > 0 THEN 0 ELSE 1 END')
+            ->orderBy('product_stocks.price', 'asc');
+
+        $products = Product::query()
+            ->where('products.is_active', true)
+            // Присоединяем только 1 лучший склад для каждого товара через Lateral Join (MySQL 8.0+)
+            // или Subquery
+            ->joinSub($stockSubquery, 'best_stock', function ($join) {
+                $join->on('products.id', '=', 'best_stock.product_id');
+            })
+            ->select('products.*', 'best_stock.price', 'best_stock.quantity', 'best_stock.is_preorder', 'best_stock.delivery_days')
+            ->distinct()
             ->with('mainImage')
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
             ->paginate(12);
+
         return view('home-products',  compact('products'));
     }
 

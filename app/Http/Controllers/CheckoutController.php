@@ -383,6 +383,19 @@ class CheckoutController extends BaseController
 
                 if ($stock) {
                     $stock->decrement('quantity', $item->quantity);
+
+                    // Перезагружаем модель для проверки обновленного остатка
+                    $stock->refresh();
+
+                    // Если остаток обнулился или ушел в минус — переводим товар в Предзаказ
+                    if ($stock->quantity <= 0) {
+                        $stock->update([
+                            'quantity'      => 0,
+                            'is_preorder'   => true,
+                            // Если срок поставки не был указан, ставим дефолтный (например, 10 дней)
+                            'delivery_days' => $stock->delivery_days > 0 ? $stock->delivery_days : 10,
+                        ]);
+                    }
                 }
 
                 $product = Product::find($item->product_id);
