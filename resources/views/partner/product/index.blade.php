@@ -80,7 +80,7 @@
                                             @method('DELETE')
                                             <button type="submit"
                                                     title="Удалить"
-                                                    class="flex items-center justify-center w-8 h-8 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-all shadow-2xs">
+                                                    class="flex items-center justify-center w-8 h-8 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 transition-all shadow-2xs">
                                                 <i class="fas fa-trash-alt text-xs"></i>
                                             </button>
                                         </form>
