@@ -18,10 +18,13 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::where(['partner_id' => Auth::id()])
+        $products = Product::where('partner_id', Auth::id())
             ->selectRaw('products.*, product_stocks.price, product_stocks.quantity')
             ->join('product_stocks', 'products.id', '=', 'product_stocks.product_id')
-            ->get();
+            ->with('mainImage')
+            ->latest('products.id')
+            ->paginate(50);
+
         return view('partner.product.index', compact('products'));
     }
 
@@ -214,5 +217,24 @@ class ProductController extends Controller
 
             return response()->json(['error' => 'Ошибка при сохранении: ' . $exception->getMessage()], 500);
         }
+    }
+
+    public function destroy($id)
+    {
+        $product = Product::where('partner_id', Auth::id())->findOrFail($id);
+
+        // Удаляем изображения с диска
+        foreach ($product->images as $img) {
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($img->path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($img->path);
+            }
+        }
+
+        // Удаляем привязанные склады и сам товар
+        $product->stocks()->delete();
+        $product->images()->delete();
+        $product->delete();
+
+        return redirect()->back()->with('success', 'Товар успешно удален');
     }
 }

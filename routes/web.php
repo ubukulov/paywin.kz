@@ -92,6 +92,7 @@ Route::group(['middleware' => 'auth'], function(){
             Route::post('store', [PartnerProductController::class, 'store'])->name('product.store');
             Route::get('{id}/edit', [PartnerProductController::class, 'edit'])->name('product.edit');
             Route::post('{id}/update', [PartnerProductController::class, 'update'])->name('product.update');
+            Route::delete('{id}/destroy', [ProductController::class, 'destroy'])->name('partner.product.destroy');
         });
 
         # Подарки и правилы
