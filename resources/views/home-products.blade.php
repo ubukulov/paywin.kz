@@ -123,6 +123,11 @@
                     @include('_partials._products')
                 </div>
 
+                {{-- Пагинация на 50 товаров --}}
+                <div class="mt-8">
+                    {{ $products->links() }}
+                </div>
+
             </section>
 
         </div>
