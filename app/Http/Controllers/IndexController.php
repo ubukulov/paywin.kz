@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\TransactionEnum;
 use App\Models\City;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\ProductStock;
 use App\Models\Share;
 use App\Models\User;
@@ -19,6 +20,12 @@ class IndexController extends BaseController
     {
         $cityId = Cookie::get('selected_city_id') ?? City::query()->value('id');
 
+        // 1. Получаем категории, содержащие активные товары
+        $categories = ProductCategory::whereHas('products', function ($q) {
+            $q->where('is_active', true);
+        })->get();
+
+        // 2. Подзапрос складов
         $stockSubquery = ProductStock::query()
             ->select([
                 'product_stocks.product_id',
@@ -47,6 +54,11 @@ class IndexController extends BaseController
             ->withAvg('reviews', 'rating')
             ->withCount('reviews');
 
+        // ФИЛЬТР ПО КАТЕГОРИИ
+        if ($request->filled('category_id')) {
+            $query->where('products.product_category_id', $request->input('category_id'));
+        }
+
         // ФИЛЬТР ПОИСКА
         if ($request->filled('search')) {
             $search = trim($request->input('search'));
@@ -56,7 +68,17 @@ class IndexController extends BaseController
             });
         }
 
-        // appends(request()->all()) важен, чтобы параметры поиска сохранялись при постраничном скролле!
+        // СОРТИРОВКА
+        if ($request->filled('sort')) {
+            match ($request->input('sort')) {
+                'price_asc'  => $query->orderBy('best_stock.price', 'asc'),
+                'price_desc' => $query->orderBy('best_stock.price', 'desc'),
+                default      => $query->latest('products.id'),
+            };
+        } else {
+            $query->latest('products.id');
+        }
+
         $products = $query->paginate(12)->appends($request->all());
 
         if ($request->ajax()) {
@@ -66,7 +88,7 @@ class IndexController extends BaseController
             ]);
         }
 
-        return view('home-products', compact('products'));
+        return view('home-products', compact('products', 'categories'));
     }
 
     public function paymentPage($slug, $id)
