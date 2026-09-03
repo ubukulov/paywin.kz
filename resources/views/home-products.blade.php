@@ -38,8 +38,8 @@
                     <div id="category-pills" class="flex flex-wrap items-center gap-2 pt-3 border-t border-gray-100">
                         <button type="button"
                                 data-category-id=""
-                                class="category-btn active inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all duration-200 bg-orange-500 text-white shadow-xs hover:bg-orange-600 active:scale-95">
-                            <span>Все товары</span>
+                                class="category-btn active inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 bg-orange-500 text-white shadow-xs hover:bg-orange-600 active:scale-95">
+                            <span>Все</span>
                         </button>
 
                         @foreach($categories as $cat)
