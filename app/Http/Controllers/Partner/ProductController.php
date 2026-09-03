@@ -16,14 +16,25 @@ use Carbon\Carbon;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::where('partner_id', Auth::id())
+        $query = Product::where('partner_id', Auth::id())
             ->selectRaw('products.*, product_stocks.price, product_stocks.quantity')
             ->join('product_stocks', 'products.id', '=', 'product_stocks.product_id')
             ->with('mainImage')
-            ->latest('products.id')
-            ->paginate(50);
+            ->latest('products.id');
+
+        // Поиск по названию товара или SKU (артикулу)
+        if ($request->filled('search')) {
+            $search = trim($request->input('search'));
+            $query->where(function ($q) use ($search) {
+                $q->where('products.name', 'LIKE', "%{$search}%")
+                    ->orWhere('products.sku', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // appends(request()->all()) сохраняет поисковую строку при переходе по страницам пагинатора
+        $products = $query->paginate(50)->appends($request->all());
 
         return view('partner.product.index', compact('products'));
     }

@@ -23,6 +23,30 @@
             </a>
         </div>
 
+        {{-- Панель поиска --}}
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-xs">
+            <form action="{{ route('partner.product.index') }}" method="GET" class="relative w-full sm:w-96 flex items-center">
+                <input type="text"
+                       name="search"
+                       value="{{ request('search') }}"
+                       placeholder="Поиск по названию или SKU..."
+                       class="w-full pl-10 pr-10 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:bg-white transition font-medium" />
+
+                <i class="fas fa-search text-gray-400 absolute left-3.5 text-xs pointer-events-none"></i>
+
+                {{-- Кнопка сброса поиска --}}
+                @if(request()->filled('search'))
+                    <a href="{{ route('partner.product.index') }}" class="absolute right-3 text-gray-400 hover:text-rose-500 transition" title="Сбросить поиск">
+                        <i class="fas fa-times text-xs"></i>
+                    </a>
+                @endif
+            </form>
+
+            <div class="text-xs text-gray-400 font-semibold self-end sm:self-center">
+                Всего товаров: <strong class="text-gray-800">{{ $products->total() }}</strong>
+            </div>
+        </div>
+
         @if(session('success'))
             <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-bold">
                 {{ session('success') }}
