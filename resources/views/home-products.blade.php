@@ -16,10 +16,11 @@
                     <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
                         <div class="flex items-center gap-2 w-full sm:w-auto">
                             <span class="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1">Сортировка:</span>
+                            {{-- Селект сортировки с сохранённым значением при первой загрузке --}}
                             <select id="product-sort-select" class="px-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-400 transition cursor-pointer font-bold text-gray-700 w-full sm:w-auto">
-                                <option value="popular">По популярности</option>
-                                <option value="price_asc">Сначала дешевые</option>
-                                <option value="price_desc">Сначала дорогие</option>
+                                <option value="popular" {{ request('sort') == 'popular' ? 'selected' : '' }}>По популярности</option>
+                                <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Сначала дешевые</option>
+                                <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Сначала дорогие</option>
                             </select>
                         </div>
 
@@ -33,19 +34,24 @@
                         </div>
                     </div>
 
-                    {{-- Строка 2: Категории (Чипсы с горизонтальным скроллом) --}}
-                    <div id="category-pills" class="flex items-center gap-2 overflow-x-auto pb-1 pt-2 border-t border-gray-50 scrollbar-none">
+                    {{-- Строка 2: Категории (Красивая гибкая сетка в несколько строк) --}}
+                    <div id="category-pills" class="flex flex-wrap items-center gap-2 pt-3 border-t border-gray-100">
                         <button type="button"
                                 data-category-id=""
-                                class="category-btn active px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-orange-500 text-white shadow-xs">
-                            Все товары
+                                class="category-btn active inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all duration-200 bg-orange-500 text-white shadow-xs hover:bg-orange-600 active:scale-95">
+                            <span>Все товары</span>
                         </button>
 
                         @foreach($categories as $cat)
                             <button type="button"
                                     data-category-id="{{ $cat->id }}"
-                                    class="category-btn px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-gray-50 text-gray-600 hover:bg-gray-100">
-                                {{ $cat->name }}
+                                    class="category-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 bg-gray-50 text-gray-600 border border-gray-100 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 active:scale-95">
+                                <span>{{ $cat->name }}</span>
+                                @if(isset($cat->products_count))
+                                    <span class="text-[10px] opacity-70 bg-gray-200/60 px-1.5 py-0.2 rounded-md font-extrabold group-hover:bg-orange-100">
+                                        {{ $cat->products_count }}
+                                    </span>
+                                @endif
                             </button>
                         @endforeach
                     </div>
@@ -109,7 +115,6 @@
 
             const fetchUrl = new URL(url, window.location.origin);
 
-            // Прокидываем параметры поиска, категории и сортировки
             if (searchInput && searchInput.value.trim() !== '') {
                 fetchUrl.searchParams.set('search', searchInput.value.trim());
             }
@@ -161,10 +166,10 @@
             btn.addEventListener('click', function () {
                 categoryBtns.forEach(b => {
                     b.classList.remove('bg-orange-500', 'text-white', 'shadow-xs');
-                    b.classList.add('bg-gray-50', 'text-gray-600');
+                    b.classList.add('bg-gray-50', 'text-gray-600', 'border', 'border-gray-100');
                 });
 
-                this.classList.remove('bg-gray-50', 'text-gray-600');
+                this.classList.remove('bg-gray-50', 'text-gray-600', 'border', 'border-gray-100');
                 this.classList.add('bg-orange-500', 'text-white', 'shadow-xs');
 
                 activeCategoryId = this.getAttribute('data-category-id');

@@ -20,12 +20,16 @@ class IndexController extends BaseController
     {
         $cityId = Cookie::get('selected_city_id') ?? City::query()->value('id');
 
-        // 1. Получаем категории, содержащие активные товары
+        // 1. Категории с подсчетом активных товаров
         $categories = ProductCategory::whereHas('products', function ($q) {
             $q->where('is_active', true);
-        })->get();
+        })
+            ->withCount(['products' => function ($q) {
+                $q->where('is_active', true);
+            }])
+            ->get();
 
-        // 2. Подзапрос складов
+        // 2. Подзапрос актуального склада для текущего города
         $stockSubquery = ProductStock::query()
             ->select([
                 'product_stocks.product_id',
@@ -69,14 +73,25 @@ class IndexController extends BaseController
         }
 
         // СОРТИРОВКА
-        if ($request->filled('sort')) {
-            match ($request->input('sort')) {
-                'price_asc'  => $query->orderBy('best_stock.price', 'asc'),
-                'price_desc' => $query->orderBy('best_stock.price', 'desc'),
-                default      => $query->latest('products.id'),
-            };
-        } else {
-            $query->latest('products.id');
+        $sort = $request->input('sort', 'popular');
+        switch ($sort) {
+            case 'price_asc':
+                // Сначала дешевые (но товары в наличии приоритетнее)
+                $query->orderBy('best_stock.price', 'asc');
+                break;
+
+            case 'price_desc':
+                // Сначала дорогие
+                $query->orderBy('best_stock.price', 'desc');
+                break;
+
+            case 'popular':
+            default:
+                // По популярности: количество отзывов -> средний рейтинг -> новые
+                $query->orderBy('reviews_count', 'desc')
+                    ->orderBy('reviews_avg_rating', 'desc')
+                    ->orderBy('products.id', 'desc');
+                break;
         }
 
         $products = $query->paginate(12)->appends($request->all());
