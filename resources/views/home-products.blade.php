@@ -45,7 +45,7 @@
                         @foreach($categories as $cat)
                             <button type="button"
                                     data-category-id="{{ $cat->id }}"
-                                    class="category-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 bg-gray-50 text-gray-600 border border-gray-100 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 active:scale-95">
+                                    class="category-btn inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-gray-50 text-gray-600 border border-gray-100 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 active:scale-95">
                                 <span>{{ $cat->name }}</span>
                                 @if(isset($cat->products_count))
                                     <span class="text-[10px] opacity-70 bg-gray-200/60 px-1.5 py-0.2 rounded-md font-extrabold group-hover:bg-orange-100">
