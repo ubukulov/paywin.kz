@@ -90,6 +90,17 @@
                                 <div class="flex items-center justify-between pt-2.5 border-t border-gray-100 text-[10px]">
                                     <div class="text-gray-500 italic">Склад: <span class="font-bold text-gray-800 not-italic">{{ $product->quantity }} шт</span></div>
                                     <div class="text-gray-400 font-mono">#{{ $product->sku }}</div>
+                                    <div>
+                                        @if($product->is_active)
+                                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
+                                                ● Активен
+                                            </span>
+                                        @else
+                                            <span class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded">
+                                                ○ Скрыт
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>

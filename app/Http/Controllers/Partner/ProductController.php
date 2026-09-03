@@ -133,6 +133,7 @@ class ProductController extends Controller
                 'name'                => $request->name,
                 'description'         => $request->description,
                 'product_category_id' => $request->product_category_id,
+                'is_active'           => $request->boolean('is_active'),
                 'data'                => $metaData
             ]);
 

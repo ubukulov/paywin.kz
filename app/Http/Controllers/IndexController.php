@@ -15,10 +15,10 @@ use Illuminate\Support\Facades\Cookie;
 
 class IndexController extends BaseController
 {
-    public function home()
+    public function home(Request $request)
     {
         $cityId = Cookie::get('selected_city_id') ?? City::query()->value('id');
-        // Подзапрос для получения наиболее подходящей записи остатка на складе
+
         $stockSubquery = ProductStock::query()
             ->select([
                 'product_stocks.product_id',
@@ -33,14 +33,11 @@ class IndexController extends BaseController
                 $q->where('product_stocks.quantity', '>', 0)
                     ->orWhere('product_stocks.is_preorder', true);
             })
-            // Сортируем: сначала позиции в наличии (quantity > 0), затем предзаказы
             ->orderByRaw('CASE WHEN product_stocks.quantity > 0 THEN 0 ELSE 1 END')
             ->orderBy('product_stocks.price', 'asc');
 
-        $products = Product::query()
+        $query = Product::query()
             ->where('products.is_active', true)
-            // Присоединяем только 1 лучший склад для каждого товара через Lateral Join (MySQL 8.0+)
-            // или Subquery
             ->joinSub($stockSubquery, 'best_stock', function ($join) {
                 $join->on('products.id', '=', 'best_stock.product_id');
             })
@@ -48,10 +45,28 @@ class IndexController extends BaseController
             ->distinct()
             ->with('mainImage')
             ->withAvg('reviews', 'rating')
-            ->withCount('reviews')
-            ->paginate(12);
+            ->withCount('reviews');
 
-        return view('home-products',  compact('products'));
+        // ФИЛЬТР ПОИСКА
+        if ($request->filled('search')) {
+            $search = trim($request->input('search'));
+            $query->where(function ($q) use ($search) {
+                $q->where('products.name', 'LIKE', "%{$search}%")
+                    ->orWhere('products.sku', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // appends(request()->all()) важен, чтобы параметры поиска сохранялись при постраничном скролле!
+        $products = $query->paginate(12)->appends($request->all());
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html'      => view('_partials._products', compact('products'))->render(),
+                'next_page' => $products->nextPageUrl(),
+            ]);
+        }
+
+        return view('home-products', compact('products'));
     }
 
     public function paymentPage($slug, $id)

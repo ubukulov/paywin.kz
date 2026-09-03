@@ -195,6 +195,22 @@
                         <p class="text-[10px] text-slate-400 mt-1">Вы можете обновить или вставить новую прямую ссылку на видео.</p>
                     </div>
 
+                    {{-- ПЕРЕКЛЮЧАТЕЛЬ АКТИВНОСТИ ТОВАРА --}}
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                            <label class="m-0 font-bold text-slate-800 text-sm">Статус отображения товара</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-bold" :class="is_active ? 'text-indigo-600' : 'text-slate-400'">
+                                @{{ is_active ? 'Активен' : 'Скрыт' }}
+                            </span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" v-model="is_active" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                    </div>
+
                     {{-- Блок характеристик товара --}}
                     <div class="pt-4 border-t border-slate-100">
                         <label class="mb-4">Характеристики товара (Опционально)</label>
@@ -285,7 +301,7 @@
             setup() {
                 const loading = ref(false);
                 const product_id = {{ $product->id }};
-
+                const is_active = ref({{ $product->is_active ? 'true' : 'false' }});
                 const article = ref("{{ $product->sku }}");
                 const name = ref("{{ $product->name }}");
                 const description = ref("");
@@ -416,6 +432,7 @@
                     formData.append('product_category_id', product_category_id.value);
                     formData.append('description', description.value);
                     formData.append('warehouses', JSON.stringify(points.value));
+                    formData.append('is_active', is_active.value ? 1 : 0);
 
                     const metaObject = {};
                     features.value.forEach(item => {
@@ -457,7 +474,7 @@
                 return {
                     loading, product_id, images, article, name, description,
                     warehouses, points, categories, product_category_id,
-                    features, addFeature, removeFeature, video_url, // Экспортируем video_url в шаблон
+                    features, addFeature, removeFeature, video_url, is_active, // Экспортируем video_url в шаблон
                     triggerUpload, handleUpload, removePhoto, updateProduct
                 };
             }
