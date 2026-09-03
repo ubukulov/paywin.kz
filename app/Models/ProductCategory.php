@@ -24,6 +24,11 @@ class ProductCategory extends Model
 
     protected $dates = ['created_at', 'updated_at'];
 
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class, 'product_category_id');
+    }
+
     public function parent() : BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'parent_id');
