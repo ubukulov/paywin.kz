@@ -6,6 +6,7 @@ use App\Enums\TransactionEnum;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +27,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'phone', 'password', 'user_type', 'balance'
+        'name', 'email', 'phone', 'password', 'user_type', 'balance', 'city_id'
     ];
 
     /**
@@ -47,6 +48,11 @@ class User extends Authenticatable
     public function address() : HasMany
     {
         return $this->hasMany(PartnerAddress::class, 'partner_id');
+    }
+
+    public function city() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(City::class);
     }
 
     public function images() : HasMany

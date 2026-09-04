@@ -62,6 +62,24 @@
                            outline-none transition">
                 </div>
 
+                {{-- ВЫБОР ГОРОДА --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">
+                        Ваш город
+                    </label>
+
+                    <select name="city_id" required class="w-full rounded-xl border border-gray-300 px-4 py-3 bg-white
+                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           outline-none transition cursor-pointer text-gray-700">
+                        <option value="" disabled selected>Выберите город</option>
+                        @foreach($cities as $city)
+                            <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>
+                                {{ $city->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 {{--<div>
                     <label class="block text-sm font-medium text-gray-600 mb-2">
                         Телефон

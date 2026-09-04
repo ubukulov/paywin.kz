@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Classes\SendPulse;
 use App\Enums\TransactionEnum;
 use App\Http\Controllers\Controller;
+use App\Models\City;
 use App\Models\Promotion;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -35,7 +36,9 @@ class AuthController extends Controller
             ->where('end_at', '>=', now())
             ->first();
 
-        return view('register', compact('promo'));
+        $cities = City::orderBy('name', 'asc')->get();
+
+        return view('register', compact('promo', 'cities'));
     }
 
     public function login()
@@ -75,7 +78,8 @@ class AuthController extends Controller
                 'email' => $email,
                 //'phone' => $phone,
                 'password' => Hash::make($password),
-                'user_type' => $user_type
+                'user_type' => $user_type,
+                'city_id'   => $request->city_id
             ]);
 
             $user->createProfile();

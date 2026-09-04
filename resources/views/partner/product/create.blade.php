@@ -189,11 +189,65 @@
 
                     <div class="space-y-6">
                         <div>
-                            <label>Категория товара</label>
+                            {{--<label>Категория товара</label>
                             <select v-model="product_category_id">
                                 <option value="0" disabled>Выберите из списка...</option>
                                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">@{{ cat.name }}</option>
-                            </select>
+                            </select>--}}
+
+                            {{-- УДОБНЫЙ ВЫБОР КАТЕГОРИИ С АВТОКОМПЛИТОМ --}}
+                            <div class="relative" ref="categoryDropdownRef">
+                                <label>Категория товара <span class="text-rose-500">*</span></label>
+
+                                {{-- Поле ввода для поиска и отображения выбранной категории --}}
+                                <div class="relative">
+                                    <input type="text"
+                                           v-model="categorySearch"
+                                           @focus="isCategoryDropdownOpen = true"
+                                           @input="isCategoryDropdownOpen = true"
+                                           placeholder="Начните вводить название категории..."
+                                           class="!py-3.5 !px-11 !text-sm cursor-pointer transition rounded-2xl border-slate-200"
+                                           :class="{'!border-indigo-500 !bg-white shadow-sm': isCategoryDropdownOpen}">
+
+                                    <i class="fas fa-folder text-indigo-500 absolute left-4 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
+
+                                    {{-- Очистить / Сбросить выбор --}}
+                                    <button type="button"
+                                            v-if="selectedCategoryName || categorySearch"
+                                            @click="clearCategorySelection"
+                                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-500 text-xs transition">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+
+                                {{-- Выпадающий список категорий --}}
+                                <div v-if="isCategoryDropdownOpen"
+                                     class="absolute z-50 left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 max-h-64 overflow-y-auto p-2 animate__animated animate__fadeIn">
+
+                                    <div v-if="filteredCategories.length === 0" class="p-4 text-center text-xs text-slate-400 font-medium">
+                                        Категория «@{{ categorySearch }}» не найдена
+                                    </div>
+
+                                    <div v-else class="space-y-1">
+                                        <div v-for="cat in filteredCategories"
+                                             :key="cat.id"
+                                             @click="selectCategory(cat)"
+                                             class="flex items-center justify-between p-3 rounded-xl cursor-pointer transition text-xs font-bold"
+                                             :class="product_category_id === cat.id ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-slate-50 text-slate-700'">
+
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas" :class="product_category_id === cat.id ? 'fa-check-circle text-indigo-600' : 'fa-folder-open text-slate-300'"></i>
+                                                <span>@{{ cat.name }}</span>
+                                            </div>
+
+                                            {{-- Если есть родительская категория, показываем подсказку --}}
+                                            <span v-if="cat.parent" class="text-[10px] text-slate-400 font-normal italic">
+                    @{{ cat.parent.name }}
+                </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -316,7 +370,7 @@
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
     <script>
-        const { createApp, ref, onMounted, toRaw } = Vue;
+        const { createApp, ref, computed, onMounted, onUnmounted, toRaw } = Vue;
         const draggableComp = window.vuedraggable;
 
         const app = createApp({
@@ -324,15 +378,60 @@
                 const loading = ref(false);
                 const images = ref([]);
                 const article = ref("");
-                const product_category_id = ref(0);
+                //const product_category_id = ref(0);
                 const name = ref("");
                 const description = ref("");
                 const video_url = ref("");
                 const features = ref([]);
 
+                // Категории
+                const product_category_id = ref(0);
+                const categorySearch = ref("");
+                const isCategoryDropdownOpen = ref(false);
+                const categoryDropdownRef = ref(null);
+
                 const warehouses = {!! json_encode($warehouses ?? []) !!};
                 const categories = {!! json_encode($productCategories ?? []) !!};
                 const points = ref({});
+
+                // Вычисляемое название выбранной категории
+                const selectedCategoryName = computed(() => {
+                    const found = categories.find(c => c.id === product_category_id.value);
+                    return found ? found.name : '';
+                });
+
+                // Фильтрация категорий по поисковой строке
+                const filteredCategories = computed(() => {
+                    if (!categorySearch.value.trim() || categorySearch.value === selectedCategoryName.value) {
+                        return categories;
+                    }
+                    const query = categorySearch.value.toLowerCase().trim();
+                    return categories.filter(c => c.name.toLowerCase().includes(query));
+                });
+
+                // Выбор категории
+                const selectCategory = (cat) => {
+                    product_category_id.value = cat.id;
+                    categorySearch.value = cat.name;
+                    isCategoryDropdownOpen.value = false;
+                };
+
+                // Очистка выбора
+                const clearCategorySelection = () => {
+                    product_category_id.value = 0;
+                    categorySearch.value = "";
+                    isCategoryDropdownOpen.value = true;
+                };
+
+                // Закрытие выпадающего списка при клике вне компонента
+                const handleClickOutside = (event) => {
+                    if (categoryDropdownRef.value && !categoryDropdownRef.value.contains(event.target)) {
+                        isCategoryDropdownOpen.value = false;
+                        if (product_category_id.value > 0) {
+                            categorySearch.value = selectedCategoryName.value;
+                        }
+                    }
+                };
 
                 warehouses.forEach(p => {
                     points.value[p.id] = {
@@ -344,6 +443,7 @@
                 });
 
                 onMounted(() => {
+                    document.addEventListener('click', handleClickOutside);
                     const editor = document.getElementById('editor-container');
                     if (!editor) {
                         return;
@@ -364,6 +464,10 @@
                     quill.on('text-change', () => {
                         description.value = quill.root.innerHTML;
                     });
+                });
+
+                onUnmounted(() => {
+                    document.removeEventListener('click', handleClickOutside);
                 });
 
                 const addFeature = () => {
@@ -476,7 +580,9 @@
                 };
 
                 return {
-                    loading, images, article, name, description, warehouses, points, categories, product_category_id,
+                    loading, images, article, name, description, warehouses, points, categories,
+                    product_category_id, categorySearch, isCategoryDropdownOpen, categoryDropdownRef,
+                    filteredCategories, selectedCategoryName, selectCategory, clearCategorySelection,
                     features, addFeature, removeFeature, video_url,
                     triggerUpload, handleUpload, removePhoto, createProduct
                 };
