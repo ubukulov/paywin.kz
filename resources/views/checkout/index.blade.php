@@ -276,7 +276,7 @@
                 </div>
 
                 {{-- ИНФОРМАЦИЯ О БЕЗОПАСНОСТИ ТРАНЗАКЦИЙ --}}
-                <div class="mb-5 p-4 rounded-xl bg-white border border-gray-200 shadow-2xs space-y-2">
+                <div class="mt-5 mb-5 p-4 rounded-xl bg-gray-50 border border-gray-200 shadow-2xs space-y-2">
                     <div class="flex items-center gap-2 text-indigo-700 font-black text-xs uppercase tracking-wider">
                         <span>🔒 Безопасная оплата</span>
                         <span class="text-gray-300">|</span>
