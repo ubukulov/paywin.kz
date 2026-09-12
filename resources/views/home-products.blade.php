@@ -34,18 +34,18 @@
                         </div>
                     </div>
 
-                    {{-- Строка 2: Категории (Ровно 3 горизонтальных ряда с прокруткой влево-вправо) --}}
-                    <div id="category-pills" class="flex flex-col flex-wrap gap-2 pt-3 border-t border-gray-100 h-[126px] overflow-x-auto overflow-y-hidden custom-pills-x-scroll pb-2">
+                    {{-- Строка 2: Категории (CSS Grid: ровно 3 строки с горизонтальным скроллом) --}}
+                    <div id="category-pills" class="grid grid-rows-3 grid-flow-col gap-2 pt-3 border-t border-gray-100 overflow-x-auto overflow-y-hidden custom-pills-x-scroll pb-2 max-w-full">
                         <button type="button"
                                 data-category-id=""
-                                class="category-btn active inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all duration-200 bg-orange-500 text-white shadow-xs hover:bg-orange-600 active:scale-95 whitespace-nowrap">
+                                class="category-btn active inline-flex items-center justify-between gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 bg-orange-500 text-white shadow-xs hover:bg-orange-600 active:scale-95 whitespace-nowrap w-max">
                             <span>Все</span>
                         </button>
 
                         @foreach($categories as $cat)
                             <button type="button"
                                     data-category-id="{{ $cat->id }}"
-                                    class="category-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 bg-gray-50 text-gray-600 border border-gray-100 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 active:scale-95 whitespace-nowrap">
+                                    class="category-btn inline-flex items-center justify-between gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-gray-50 text-gray-600 border border-gray-100 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 active:scale-95 whitespace-nowrap w-max">
                                 <span>{{ $cat->name }}</span>
                                 @if(isset($cat->products_count))
                                     <span class="text-[10px] opacity-70 bg-gray-200/60 px-1.5 py-0.2 rounded-md font-extrabold group-hover:bg-orange-100">
