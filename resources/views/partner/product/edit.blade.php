@@ -166,11 +166,58 @@
                 </div>
                 <div class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label>Категория</label>
-                            <select v-model="product_category_id">
-                                <option v-for="cat in categories" :key="cat.id" :value="cat.id">@{{ cat.name }}</option>
-                            </select>
+                        {{-- УДОБНЫЙ ВЫБОР КАТЕГОРИИ С АВТОКОМПЛИТОМ --}}
+                        <div class="relative" ref="categoryDropdownRef">
+                            <label>Категория товара <span class="text-rose-500">*</span></label>
+
+                            {{-- Поле ввода для поиска и отображения выбранной категории --}}
+                            <div class="relative">
+                                <input type="text"
+                                       v-model="categorySearch"
+                                       @focus="isCategoryDropdownOpen = true"
+                                       @input="isCategoryDropdownOpen = true"
+                                       placeholder="Начните вводить название категории..."
+                                       class="!py-3.5 !px-11 !text-sm cursor-pointer transition rounded-2xl border-slate-200"
+                                       :class="{'!border-indigo-500 !bg-white shadow-sm': isCategoryDropdownOpen}">
+
+                                <i class="fas fa-folder text-indigo-500 absolute left-4 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
+
+                                {{-- Очистить / Сбросить выбор --}}
+                                <button type="button"
+                                        v-if="selectedCategoryName || categorySearch"
+                                        @click="clearCategorySelection"
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-500 text-xs transition">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            {{-- Выпадающий список категорий --}}
+                            <div v-if="isCategoryDropdownOpen"
+                                 class="absolute z-50 left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 max-h-64 overflow-y-auto p-2 animate__animated animate__fadeIn">
+
+                                <div v-if="filteredCategories.length === 0" class="p-4 text-center text-xs text-slate-400 font-medium">
+                                    Категория «@{{ categorySearch }}» не найдена
+                                </div>
+
+                                <div v-else class="space-y-1">
+                                    <div v-for="cat in filteredCategories"
+                                         :key="cat.id"
+                                         @click="selectCategory(cat)"
+                                         class="flex items-center justify-between p-3 rounded-xl cursor-pointer transition text-xs font-bold"
+                                         :class="product_category_id === cat.id ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-slate-50 text-slate-700'">
+
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas" :class="product_category_id === cat.id ? 'fa-check-circle text-indigo-600' : 'fa-folder-open text-slate-300'"></i>
+                                            <span>@{{ cat.name }}</span>
+                                        </div>
+
+                                        {{-- Подсказка родительской категории --}}
+                                        <span v-if="cat.parent" class="text-[10px] text-slate-400 font-normal italic">
+                    @{{ cat.parent.name }}
+                </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div>
                             <label>Артикул (SKU)</label>
@@ -295,7 +342,7 @@
     <script src="https://unpkg.com/quill@1.3.6/dist/quill.js"></script>
 
     <script>
-        const { createApp, ref, onMounted } = Vue;
+        const { createApp, ref, computed, onMounted, onUnmounted } = Vue;
 
         const app = createApp({
             setup() {
@@ -307,21 +354,21 @@
                 const description = ref("");
                 const product_category_id = ref({{ $product->product_category_id }});
 
-                // ДОБАВЛЕНО: Реактивная переменная для ссылки на видео
-                const video_url = ref("");
+                // КАСТОМНЫЙ АВТОКОМПЛИТ КАТЕГОРИИ
+                const categorySearch = ref("");
+                const isCategoryDropdownOpen = ref(false);
+                const categoryDropdownRef = ref(null);
 
+                const video_url = ref("");
                 const rawMeta = {!! json_encode($product->meta ?? $product->data ?? []) !!};
                 const features = ref([]);
 
-                // Наполнение характеристик с исключением ключа видео
                 if (rawMeta && typeof rawMeta === 'object') {
-                    // Сначала вытаскиваем ссылку, если она существует в базе
                     if (rawMeta['system_video_url']) {
                         video_url.value = rawMeta['system_video_url'];
                     }
 
                     Object.keys(rawMeta).forEach(key => {
-                        // ИСПРАВЛЕНО: Не добавляем системную ссылку на видео в общую таблицу характеристик
                         if (key !== 'system_video_url') {
                             features.value.push({
                                 id: 'meta-' + Math.random(),
@@ -339,12 +386,49 @@
                 ]);
 
                 const removedExistingIds = ref([]);
-
                 const warehouses = {!! json_encode($warehouses) !!};
                 const categories = {!! json_encode($productCategories) !!};
                 const points = ref({});
-
                 const stocks = {!! json_encode($product->stocks->keyBy('warehouse_id')) !!};
+
+                // Вычисляемое название выбранной категории
+                const selectedCategoryName = computed(() => {
+                    const found = categories.find(c => c.id === product_category_id.value);
+                    return found ? found.name : '';
+                });
+
+                // Фильтрация категорий
+                const filteredCategories = computed(() => {
+                    if (!categorySearch.value.trim() || categorySearch.value === selectedCategoryName.value) {
+                        return categories;
+                    }
+                    const query = categorySearch.value.toLowerCase().trim();
+                    return categories.filter(c => c.name.toLowerCase().includes(query));
+                });
+
+                // Выбор категории
+                const selectCategory = (cat) => {
+                    product_category_id.value = cat.id;
+                    categorySearch.value = cat.name;
+                    isCategoryDropdownOpen.value = false;
+                };
+
+                // Очистка выбора
+                const clearCategorySelection = () => {
+                    product_category_id.value = 0;
+                    categorySearch.value = "";
+                    isCategoryDropdownOpen.value = true;
+                };
+
+                // Закрытие выпадающего списка при клике вне элемента
+                const handleClickOutside = (event) => {
+                    if (categoryDropdownRef.value && !categoryDropdownRef.value.contains(event.target)) {
+                        isCategoryDropdownOpen.value = false;
+                        if (product_category_id.value > 0) {
+                            categorySearch.value = selectedCategoryName.value;
+                        }
+                    }
+                };
 
                 warehouses.forEach(p => {
                     const stock = stocks[p.id] || null;
@@ -357,10 +441,15 @@
                 });
 
                 onMounted(() => {
-                    const editor = document.getElementById('editor-container');
-                    if (!editor) {
-                        return;
+                    document.addEventListener('click', handleClickOutside);
+
+                    // Устанавливаем текущее название категории в инпут поиска при загрузке
+                    if (selectedCategoryName.value) {
+                        categorySearch.value = selectedCategoryName.value;
                     }
+
+                    const editor = document.getElementById('editor-container');
+                    if (!editor) return;
 
                     const quill = new Quill(editor, {
                         theme: 'snow',
@@ -368,13 +457,16 @@
                         modules: { toolbar: [['bold', 'italic'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
                     });
 
-                    // Безопасная инициализация текста без разрывов строк JS
                     quill.root.innerHTML = `{!! addslashes($product->description) !!}`;
                     description.value = quill.root.innerHTML;
 
                     quill.on('text-change', () => {
                         description.value = quill.root.innerHTML;
                     });
+                });
+
+                onUnmounted(() => {
+                    document.removeEventListener('click', handleClickOutside);
                 });
 
                 const addFeature = () => {
@@ -421,8 +513,8 @@
                 };
 
                 const updateProduct = () => {
-                    if (!name.value || images.value.length === 0) {
-                        alert("Название и фото обязательны"); return;
+                    if (!name.value || !product_category_id.value || images.value.length === 0) {
+                        alert("Заполните название, категорию и добавьте хотя бы одно фото"); return;
                     }
 
                     loading.value = true;
@@ -441,13 +533,11 @@
                         }
                     });
 
-                    // ДОБАВЛЕНО: Дописываем обновленную ссылку на видео в metaObject перед отправкой
                     if (video_url.value.trim() !== "") {
                         metaObject['system_video_url'] = video_url.value.trim();
                     }
 
                     formData.append('meta', JSON.stringify(metaObject));
-
                     formData.append('removed_photos', JSON.stringify(removedExistingIds.value));
 
                     const finalOrder = images.value.map(img => ({
@@ -474,7 +564,9 @@
                 return {
                     loading, product_id, images, article, name, description,
                     warehouses, points, categories, product_category_id,
-                    features, addFeature, removeFeature, video_url, is_active, // Экспортируем video_url в шаблон
+                    categorySearch, isCategoryDropdownOpen, categoryDropdownRef,
+                    filteredCategories, selectedCategoryName, selectCategory, clearCategorySelection,
+                    features, addFeature, removeFeature, video_url, is_active,
                     triggerUpload, handleUpload, removePhoto, updateProduct
                 };
             }
