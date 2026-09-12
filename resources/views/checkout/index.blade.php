@@ -44,6 +44,21 @@
                         <input type="text" name="phone" value="{{ auth()->user()->phone }}" required
                                class="w-full border rounded-lg p-3 mt-1 focus:ring-indigo-500 focus:border-indigo-500">
                     </label>
+
+                    {{-- ПОЛЕ ВЫБОРА ГОРОДА --}}
+                    <label class="block mb-4" id="cityFieldContainer">
+                        <span class="text-sm font-medium text-gray-700">Город</span>
+                        <select id="cityInput" name="city_id" required
+                                class="w-full border rounded-lg p-3 mt-1 bg-white focus:ring-indigo-500 focus:border-indigo-500 text-gray-700 font-medium cursor-pointer">
+                            @foreach($cities as $city)
+                                <option value="{{ $city->id }}"
+                                    {{ (auth()->user()->city_id == $city->id || Cookie::get('selected_city_id') == $city->id) ? 'selected' : '' }}>
+                                    {{ $city->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </label>
+
                     <label class="block mb-4" id="addressFieldContainer">
                         <span class="text-sm font-medium text-gray-700">Адрес доставки</span>
                         <textarea id="addressInput" name="address" rows="3" required
