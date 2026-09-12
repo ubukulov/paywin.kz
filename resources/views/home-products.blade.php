@@ -34,18 +34,18 @@
                         </div>
                     </div>
 
-                    {{-- Строка 2: Категории (Красивая гибкая сетка в несколько строк) --}}
-                    <div id="category-pills" class="flex flex-wrap items-center gap-2 pt-3 border-t border-gray-100">
+                    {{-- Строка 2: Категории (Ровно 3 горизонтальных ряда с прокруткой влево-вправо) --}}
+                    <div id="category-pills" class="flex flex-col flex-wrap gap-2 pt-3 border-t border-gray-100 h-[126px] overflow-x-auto overflow-y-hidden custom-pills-x-scroll pb-2">
                         <button type="button"
                                 data-category-id=""
-                                class="category-btn active inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 bg-orange-500 text-white shadow-xs hover:bg-orange-600 active:scale-95">
+                                class="category-btn active inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all duration-200 bg-orange-500 text-white shadow-xs hover:bg-orange-600 active:scale-95 whitespace-nowrap">
                             <span>Все</span>
                         </button>
 
                         @foreach($categories as $cat)
                             <button type="button"
                                     data-category-id="{{ $cat->id }}"
-                                    class="category-btn inline-flex items-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-gray-50 text-gray-600 border border-gray-100 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 active:scale-95">
+                                    class="category-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 bg-gray-50 text-gray-600 border border-gray-100 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 active:scale-95 whitespace-nowrap">
                                 <span>{{ $cat->name }}</span>
                                 @if(isset($cat->products_count))
                                     <span class="text-[10px] opacity-70 bg-gray-200/60 px-1.5 py-0.2 rounded-md font-extrabold group-hover:bg-orange-100">
@@ -79,6 +79,23 @@
         </div>
     </main>
 @stop
+<style>
+    /* Настройка горизонтального скроллбара */
+    .custom-pills-x-scroll::-webkit-scrollbar {
+        height: 4px;
+    }
+    .custom-pills-x-scroll::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 8px;
+    }
+    .custom-pills-x-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 8px;
+    }
+    .custom-pills-x-scroll::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
