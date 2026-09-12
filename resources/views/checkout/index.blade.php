@@ -445,6 +445,7 @@
                     body: JSON.stringify({
                         name: fd.get('name'),
                         phone: fd.get('phone'),
+                        city_id: document.getElementById('cityInput').value,
                         address: fd.get('address') || 'Самовывоз',
                         shipping_method: shippingMethod,
                         cryptogram: cryptogram,

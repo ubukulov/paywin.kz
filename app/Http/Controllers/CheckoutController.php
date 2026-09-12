@@ -178,6 +178,7 @@ class CheckoutController extends BaseController
         try {
             $request->validate([
                 'shipping_method' => 'required|in:almaty_standard,almaty_express,pickup,kazakhstan',
+                'city_id'         => 'required|exists:cities,id',
             ]);
 
             $user = Auth::user();
@@ -349,6 +350,7 @@ class CheckoutController extends BaseController
             // Создаём базовый заказ
             $order = Order::create([
                 'user_id'          => $user->id,
+                'city_id'         => $request->input('city_id'),
                 'user_discount_id' => !empty($appliedDiscountIds) ? $appliedDiscountIds[0] : null,
                 'subtotal'         => $cartTotal,
                 'discount'         => $totalDiscountAmount + $totalCashbackSpent + $spentFromGlobalBalance,

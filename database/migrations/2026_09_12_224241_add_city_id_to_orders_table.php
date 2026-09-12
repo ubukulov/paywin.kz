@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('city_id')->nullable()->after('remember_token')->constrained('cities')->nullOnDelete();
+        Schema::table('orders', function (Blueprint $table) {
+            $table->foreignId('city_id')
+                ->nullable()
+                ->after('user_id')
+                ->constrained('cities')
+                ->nullOnDelete();
         });
     }
 
@@ -21,8 +25,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign('users_city_id_foreign');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropForeign(['city_id']);
             $table->dropColumn('city_id');
         });
     }

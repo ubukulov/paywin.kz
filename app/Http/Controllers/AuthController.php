@@ -79,7 +79,6 @@ class AuthController extends Controller
                 //'phone' => $phone,
                 'password' => Hash::make($password),
                 'user_type' => $user_type,
-                'city_id'   => $request->city_id
             ]);
 
             $user->createProfile();

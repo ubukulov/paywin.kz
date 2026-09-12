@@ -27,7 +27,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'phone', 'password', 'user_type', 'balance', 'city_id'
+        'name', 'email', 'phone', 'password', 'user_type', 'balance'
     ];
 
     /**
@@ -48,11 +48,6 @@ class User extends Authenticatable
     public function address() : HasMany
     {
         return $this->hasMany(PartnerAddress::class, 'partner_id');
-    }
-
-    public function city() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(City::class);
     }
 
     public function images() : HasMany
