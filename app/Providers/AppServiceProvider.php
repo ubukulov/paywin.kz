@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        View::composer(['layouts.app', 'category.product'], function ($view) {
+        View::composer(['layouts.app', 'category.product', 'checkout.index'], function ($view) {
             $cartCount = 0;
             if (auth()->check()) {
                 $cart = Cart::where('user_id', auth()->id())->first();
