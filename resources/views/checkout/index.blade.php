@@ -273,20 +273,20 @@
                             <input id="cardHolder" type="text" placeholder="IVAN IVANOV" class="w-full border rounded-lg p-3 uppercase focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                     </div>
+                </div>
 
-                    {{-- ИНФОРМАЦИЯ О БЕЗОПАСНОСТИ ТРАНЗАКЦИЙ --}}
-                    <div class="mb-5 p-4 rounded-xl bg-white border border-gray-200 shadow-2xs space-y-2">
-                        <div class="flex items-center gap-2 text-indigo-700 font-black text-xs uppercase tracking-wider">
-                            <span>🔒 Безопасная оплата</span>
-                            <span class="text-gray-300">|</span>
-                            <span class="text-gray-700 font-bold">Visa</span>
-                            <span class="text-gray-300">|</span>
-                            <span class="text-gray-700 font-bold">Mastercard</span>
-                        </div>
-                        <p class="text-xs text-gray-500 leading-normal">
-                            Все транзакции защищены по стандарту PCI DSS и шифруются по протоколу SSL. Ваши данные в полной безопасности.
-                        </p>
+                {{-- ИНФОРМАЦИЯ О БЕЗОПАСНОСТИ ТРАНЗАКЦИЙ --}}
+                <div class="mb-5 p-4 rounded-xl bg-white border border-gray-200 shadow-2xs space-y-2">
+                    <div class="flex items-center gap-2 text-indigo-700 font-black text-xs uppercase tracking-wider">
+                        <span>🔒 Безопасная оплата</span>
+                        <span class="text-gray-300">|</span>
+                        <span class="text-gray-700 font-bold">Visa</span>
+                        <span class="text-gray-300">|</span>
+                        <span class="text-gray-700 font-bold">Mastercard</span>
                     </div>
+                    <p class="text-xs text-gray-500 leading-normal">
+                        Все транзакции защищены по стандарту PCI DSS и шифруются по протоколу SSL. Ваши данные в полной безопасности.
+                    </p>
                 </div>
 
                 <button type="submit" id="confirmOrder" class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl text-lg font-bold shadow-lg transition-all active:scale-95">
