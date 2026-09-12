@@ -248,20 +248,6 @@
                 </div>
 
                 <div id="cardDetailsContainer" class="p-6 border rounded-2xl bg-gray-50 transition-all duration-300">
-                    {{-- ИНФОРМАЦИЯ О БЕЗОПАСНОСТИ ТРАНЗАКЦИЙ --}}
-                    <div class="mb-5 p-4 rounded-xl bg-white border border-gray-200 shadow-2xs space-y-2">
-                        <div class="flex items-center gap-2 text-indigo-700 font-black text-xs uppercase tracking-wider">
-                            <span>🔒 Безопасная оплата TipTopPay</span>
-                            <span class="text-gray-300">|</span>
-                            <span class="text-gray-700 font-bold">Visa</span>
-                            <span class="text-gray-300">|</span>
-                            <span class="text-gray-700 font-bold">Mastercard</span>
-                        </div>
-                        <p class="text-xs text-gray-500 leading-normal">
-                            Все транзакции защищены по стандарту PCI DSS и шифруются по протоколу SSL. Ваши данные в полной безопасности.
-                        </p>
-                    </div>
-
                     <h3 class="text-lg font-semibold mb-4 text-gray-800">Данные карты</h3>
                     <div class="space-y-4">
                         <div>
@@ -286,6 +272,20 @@
                             <label class="text-sm text-gray-600">Имя держателя</label>
                             <input id="cardHolder" type="text" placeholder="IVAN IVANOV" class="w-full border rounded-lg p-3 uppercase focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
+                    </div>
+
+                    {{-- ИНФОРМАЦИЯ О БЕЗОПАСНОСТИ ТРАНЗАКЦИЙ --}}
+                    <div class="mb-5 p-4 rounded-xl bg-white border border-gray-200 shadow-2xs space-y-2">
+                        <div class="flex items-center gap-2 text-indigo-700 font-black text-xs uppercase tracking-wider">
+                            <span>🔒 Безопасная оплата</span>
+                            <span class="text-gray-300">|</span>
+                            <span class="text-gray-700 font-bold">Visa</span>
+                            <span class="text-gray-300">|</span>
+                            <span class="text-gray-700 font-bold">Mastercard</span>
+                        </div>
+                        <p class="text-xs text-gray-500 leading-normal">
+                            Все транзакции защищены по стандарту PCI DSS и шифруются по протоколу SSL. Ваши данные в полной безопасности.
+                        </p>
                     </div>
                 </div>
 
