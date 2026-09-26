@@ -712,71 +712,79 @@ class CheckoutController extends BaseController
      */
     public function tolepayCallback(Request $request)
     {
-        // 1. Логируем все входящие заголовки и тело для точной диагностики
+        // 1. Логируем входящие данные
         Log::info('TolePay Webhook Headers:', $request->headers->all());
         Log::info('TolePay Webhook Body:', $request->all());
 
-        // 2. Ищем заголовок подписи (TolePay может передавать X-Signature или X-Tole-Signature)
-        $signature = $request->header('X-Signature') ?? $request->header('X-Tole-Signature');
+        // 2. Проверка подписи
+        $signature = $request->header('webhook-signature') ?? $request->header('X-Signature');
         $secretKey = config('services.tolepay.secret_key');
 
         if ($secretKey && $signature) {
-            $computedSignature = hash_hmac('sha256', $request->getContent(), $secretKey);
+            $expectedHash = $signature;
+            if (str_contains($signature, 'v1=')) {
+                $expectedHash = explode('v1=', $signature)[1] ?? $signature;
+            }
 
-            if (!hash_equals($computedSignature, (string)$signature)) {
+            $computedHash = hash_hmac('sha256', $request->getContent(), $secretKey);
+
+            if (!hash_equals($computedHash, (string)$expectedHash)) {
                 Log::warning('TolePay Webhook: Неверная подпись', [
                     'received' => $signature,
-                    'computed' => $computedSignature
+                    'computed' => $computedHash
                 ]);
-
-                // ВРЕМЕННО: Пропускаем для проверки финализации заказа, если подпись расходится
-                // return response()->json(['error' => 'Invalid signature'], 400);
             }
         }
 
-        // 3. Получаем данные инвойса
+        // 3. Извлекаем paymentIntentId прямо из request->input('data')
         $data = $request->input('data', []);
-        $invoiceId = $data['id'] ?? $request->input('id');
-        $status = $data['status'] ?? $request->input('status');
+        $paymentIntentId = $data['paymentIntentId'] ?? $request->input('id');
+        $eventType = $request->input('type'); // 'payment.paid', 'payment.created' и т.д.
 
-        if (!$invoiceId) {
-            Log::error("TolePay Webhook: Invoice ID отсутствует в запросе");
-            return response()->json(['error' => 'Invoice ID is missing'], 422);
+        if (!$paymentIntentId) {
+            Log::error("TolePay Webhook: paymentIntentId отсутствует в запросе");
+            return response()->json(['error' => 'Payment Intent ID is missing'], 422);
         }
 
-        // 4. Поиск заказа по сохраненному transaction_id
-        $order = Order::where('data->transaction_id', $invoiceId)->first();
+        // 4. Поиск заказа по JSON-полю data->transaction_id
+        $order = Order::with(['items.product.partner', 'user'])
+            ->where('data->transaction_id', $paymentIntentId)
+            ->first();
 
         if (!$order) {
-            Log::error("TolePay Webhook: Заказ с transaction_id={$invoiceId} не найден");
+            Log::error("TolePay Webhook: Заказ с data->transaction_id={$paymentIntentId} не найден");
             return response()->json(['error' => 'Order not found'], 404);
         }
 
-        if ($order->status === OrderEnum::PAID->value) {
+        // Идемпотентность — если уже обработан
+        if (in_array($order->status, [OrderEnum::PAID->value, OrderEnum::PREORDER->value])) {
             return response()->json(['status' => 'already_processed']);
         }
 
-        // 5. Финализация оплаты при успешном статусе
-        if ($status === 'paid' || $request->input('event') === 'invoice.paid') {
+        // 5. Финализация при успешном типе события
+        if (in_array($eventType, ['payment.paid', 'payment.succeeded', 'invoice.paid'])) {
             DB::beginTransaction();
             try {
+                $hasPreorder = $order->items->contains('is_preorder', true);
+
                 $this->finalizeOrder($order, [
-                    'TransactionId' => $invoiceId,
+                    'TransactionId' => $paymentIntentId,
                     'Provider'      => 'TolePay',
                     'Status'        => 'Completed'
-                ]);
+                ], $hasPreorder);
 
                 DB::commit();
                 Log::info("Order #{$order->id} successfully paid via TolePay Webhook!");
                 return response()->json(['status' => 'success']);
+
             } catch (\Exception $e) {
                 DB::rollBack();
-                Log::error("TolePay Finalize Error: " . $e->getMessage());
+                Log::error("TolePay Finalize Error Order #{$order->id}: " . $e->getMessage());
                 return response()->json(['error' => $e->getMessage()], 500);
             }
         }
 
-        if (in_array($status, ['cancelled', 'failed'])) {
+        if (in_array($eventType, ['payment.failed', 'invoice.cancelled'])) {
             $order->update(['status' => OrderEnum::CANCELLED->value ?? 'cancelled']);
         }
 
