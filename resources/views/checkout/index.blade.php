@@ -201,6 +201,29 @@
                         </div>
                     </div>
                 @endif
+
+                {{-- ВЫБОР СПОСОБА ОПЛАТЫ --}}
+                <div class="p-4 border border-gray-200 bg-gray-50/50 rounded-2xl space-y-3 mb-6">
+                    <h2 class="text-lg font-bold text-gray-800 mb-2">Способ оплаты</h2>
+
+                    <div class="space-y-2">
+                        {{-- TipTopPay --}}
+                        <label class="flex items-center justify-between p-3.5 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-indigo-400 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="payment_provider" value="tiptoppay" checked class="payment-provider-radio w-5 h-5 accent-indigo-600">
+                                <span class="font-bold text-gray-900 text-sm">Оплата картой (TipTopPay)</span>
+                            </div>
+                        </label>
+
+                        {{-- TolePay --}}
+                        <label class="flex items-center justify-between p-3.5 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-indigo-400 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="payment_provider" value="tolepay" class="payment-provider-radio w-5 h-5 accent-indigo-600">
+                                <span class="font-bold text-gray-900 text-sm">Оплата через Kaspi/TolePay</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
             </div>
 
             {{-- Правая колонка --}}
@@ -311,6 +334,20 @@
         const cashbackCbs = document.querySelectorAll('.partner-cashback-checkbox');
         const globalBalanceCb = document.getElementById('use_global_balance');
         const addressInput = document.getElementById('addressInput');
+
+        const paymentRadios = document.querySelectorAll('.payment-provider-radio');
+        const paymentProvider = document.querySelector('.payment-provider-radio:checked').value;
+
+        paymentRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                const provider = document.querySelector('.payment-provider-radio:checked').value;
+                if (provider === 'tolepay') {
+                    cardDetailsContainer.style.display = 'none';
+                } else {
+                    cardDetailsContainer.style.display = 'block';
+                }
+            });
+        });
 
         // Подписчики на изменения
         shippingRadios.forEach(radio => radio.addEventListener('change', calculateTotals));
@@ -454,6 +491,11 @@
                 let appliedDiscountIds = []; discountCbs.forEach(cb => { if (cb.checked) appliedDiscountIds.push(cb.value); });
                 let usedPartnerCashbackIds = []; cashbackCbs.forEach(cb => { if (cb.checked) usedPartnerCashbackIds.push(cb.value); });
 
+                if (paymentProvider === 'tolepay') {
+                    // Для TolePay карточные данные на фронтенде не собираем, криптограмма не нужна
+                    cryptogram = null;
+                }
+
                 const response = await fetch(this.action, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
@@ -463,6 +505,7 @@
                         city_id: document.getElementById('cityInput').value,
                         address: fd.get('address') || 'Самовывоз',
                         shipping_method: shippingMethod,
+                        payment_provider: paymentProvider,
                         cryptogram: cryptogram,
                         applied_discounts: appliedDiscountIds,
                         use_partner_cashbacks: usedPartnerCashbackIds,
@@ -471,6 +514,13 @@
                 });
 
                 const data = await response.json();
+
+                // Если выбран TolePay и сервер вернул URL для редиректа на страницу оплаты TolePay
+                if (data.payment_url) {
+                    window.location.href = data.payment_url;
+                    return;
+                }
+
                 if (data.status === '3ds_required') { show3DSForm(data.acs_url, data.pareq, data.transaction_id); return; }
                 if (data.success || response.ok) { window.location.href = '/checkout/success'; } else { throw new Error(data.error || data.message || 'Ошибка оформления.'); }
 

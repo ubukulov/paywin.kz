@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\PartnerGiftService;
 use App\Services\TipTopPayService;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CheckoutController extends BaseController
 {
@@ -178,6 +180,7 @@ class CheckoutController extends BaseController
         try {
             $request->validate([
                 'shipping_method' => 'required|in:almaty_standard,almaty_express,pickup,kazakhstan',
+                'payment_provider' => 'required|in:tiptoppay,tolepay',
                 'city_id'         => 'required|exists:cities,id',
             ]);
 
@@ -434,6 +437,30 @@ class CheckoutController extends BaseController
                 ]);
             }
 
+            // 2. Обработка оплаты через TolePay
+            if ($request->payment_provider === 'tolepay' && $finalCardPayAmount > 0) {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . config('services.tolepay.api_key'),
+                    'Content-Type'  => 'application/json',
+                ])->post('https://api.tolepay.kz/v1/payments/create', [
+                    'amount'       => $order->total,
+                    'currency'     => 'KZT',
+                    'order_id'     => (string) $order->id,
+                    'description'  => "Оплата заказа #{$order->id} на Paywin",
+                    'back_url'     => route('checkout.success'),
+                    'callback_url' => route('tolepay.callback'),
+                ]);
+
+                if ($response->successful() && isset($response->json()['payment_url'])) {
+                    return response()->json([
+                        'success'     => true,
+                        'payment_url' => $response->json()['payment_url'],
+                    ]);
+                }
+
+                return response()->json(['error' => 'Ошибка инициализации платежа TolePay'], 422);
+            }
+
             // 4. ОБРАБОТКА ОПЛАТЫ
             if ($finalCardPayAmount > 0) {
                 $paymentResponse = $this->tipTopPayService->payment([
@@ -664,5 +691,74 @@ class CheckoutController extends BaseController
             'success' => true,
             'redirect_url' => route('checkout.index')
         ]);
+    }
+
+    /**
+     * Обработка Webhook-уведомления от TolePay
+     */
+    public function tolepayCallback(Request $request)
+    {
+        // 1. Логируем входящий запрос для отладки
+        Log::info('TolePay Webhook Received:', $request->all());
+
+        // 2. Проверка безопасности (X-Signature)
+        $signature = $request->header('X-Signature');
+        $secretKey = config('services.tolepay.secret_key');
+
+        // Формируем подпись из тела запроса
+        $computedSignature = hash_hmac('sha256', $request->getContent(), $secretKey);
+
+        if (!hash_equals($computedSignature, (string)$signature)) {
+            Log::warning('TolePay Webhook: Неверная подпись');
+            return response()->json(['error' => 'Invalid signature'], 400);
+        }
+
+        // 3. Получаем данные события
+        $data = $request->input('data', []);
+        $orderId = $data['order_id'] ?? null;
+        $status = $data['status'] ?? null; // 'paid', 'cancelled', 'failed'
+
+        if (!$orderId) {
+            return response()->json(['error' => 'Order ID is missing'], 422);
+        }
+
+        // 4. Находим заказ
+        $order = Order::find($orderId);
+
+        if (!$order) {
+            Log::error("TolePay Webhook: Заказ #{$orderId} не найден");
+            return response()->json(['error' => 'Order not found'], 444);
+        }
+
+        // Защита от повторной обработки (Идемпотентность)
+        if ($order->status === 'paid') {
+            return response()->json(['status' => 'already_processed']);
+        }
+
+        // 5. Обрабатываем успешную оплату
+        if ($status === 'paid' || $request->input('event') === 'invoice.paid') {
+            $order->update([
+                'status'           => 'paid',
+                'payment_provider' => 'tolepay',
+                'paid_at'          => now(),
+                'transaction_id'   => $data['id'] ?? null,
+            ]);
+
+            // Здесь вызывать логику списания бонусов/купонов, если она не списывалась заранее:
+            // $this->processOrderBonusesAndDiscounts($order);
+
+            Log::info("Order #{$order->id} successfully paid via TolePay");
+
+            return response()->json(['status' => 'success']);
+        }
+
+        // 6. Если оплата отменена или завершилась ошибкой
+        if (in_array($status, ['cancelled', 'failed'])) {
+            $order->update([
+                'status' => 'cancelled',
+            ]);
+        }
+
+        return response()->json(['status' => 'ignored']);
     }
 }
