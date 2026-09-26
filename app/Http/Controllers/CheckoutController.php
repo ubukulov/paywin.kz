@@ -441,9 +441,11 @@ class CheckoutController extends BaseController
             if ($request->payment_provider === 'tolepay' && $finalCardPayAmount > 0) {
                 $response = Http::withHeaders([
                     'Authorization' => 'Bearer ' . config('services.tolepay.api_key'),
+                    'Idempotency-Key' => "Order" . $order->id,
                     'Content-Type'  => 'application/json',
-                ])->post('https://api.tolepay.kz/v1/payments/create', [
+                ])->post('https://api.tolepay.kz/v1/invoices', [
                     'amount'       => $order->total,
+                    'phoneNumber'  => $request->phone,
                     'currency'     => 'KZT',
                     'order_id'     => (string) $order->id,
                     'description'  => "Оплата заказа #{$order->id} на Paywin",
