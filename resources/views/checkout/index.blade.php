@@ -523,9 +523,10 @@
 
                 const data = await response.json();
 
-                // Если выбран TolePay и сервер вернул URL для редиректа
-                if (data.payment_url) {
-                    window.location.href = data.payment_url;
+                // Если оплата прошла через TolePay (выставлен счет в Kaspi)
+                if (data.is_tolepay) {
+                    alert('Счет на сумму заказа отправлен в ваше приложение Kaspi. Пожалуйста, подтвердите оплату в Kaspi!');
+                    window.location.href = '/checkout/success';
                     return;
                 }
 

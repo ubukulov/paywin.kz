@@ -441,26 +441,36 @@ class CheckoutController extends BaseController
             if ($request->payment_provider === 'tolepay' && $finalCardPayAmount > 0) {
                 $response = Http::withHeaders([
                     'Authorization' => 'Bearer ' . config('services.tolepay.api_key'),
-                    'Idempotency-Key' => "Order" . $order->id,
+                    'Idempotency-Key' => "Order_" . $order->id . "_" . time(),
                     'Content-Type'  => 'application/json',
                 ])->post('https://api.tolepay.kz/v1/invoices', [
                     'amount'       => $order->total,
                     'phoneNumber'  => $request->phone,
-                    'currency'     => 'KZT',
-                    'order_id'     => (string) $order->id,
-                    'description'  => "Оплата заказа #{$order->id} на Paywin",
-                    'back_url'     => route('checkout.success'),
-                    'callback_url' => route('tolepay.callback'),
+                    'comment'     => "Оплата заказа #{$order->id} на Paywin",
                 ]);
 
-                if ($response->successful() && isset($response->json()['payment_url'])) {
+                $responseData = $response->json();
+
+                if ($response->successful() && isset($responseData['ok']) && $responseData['ok'] === true) {
+                    // Сохраняем ID счета TolePay в заказе
+                    $order->update([
+                        'transaction_id' => $responseData['data']['id'] ?? null
+                    ]);
+
+                    DB::commit();
+
                     return response()->json([
                         'success'     => true,
-                        'payment_url' => $response->json()['payment_url'],
+                        'is_tolepay'  => true,
+                        'invoice_id'  => $responseData['data']['id'] ?? null,
+                        'message'     => 'Счет на оплату успешно выставлен в приложении Kaspi!'
                     ]);
                 }
 
-                return response()->json(['error' => 'Ошибка инициализации платежа TolePay'], 422);
+                DB::rollBack();
+                return response()->json([
+                    'error' => $responseData['message'] ?? 'Ошибка выставления счета в Kaspi через TolePay'
+                ], 422);
             }
 
             // 4. ОБРАБОТКА ОПЛАТЫ
@@ -700,65 +710,57 @@ class CheckoutController extends BaseController
      */
     public function tolepayCallback(Request $request)
     {
-        // 1. Логируем входящий запрос для отладки
         Log::info('TolePay Webhook Received:', $request->all());
 
-        // 2. Проверка безопасности (X-Signature)
         $signature = $request->header('X-Signature');
         $secretKey = config('services.tolepay.secret_key');
 
-        // Формируем подпись из тела запроса
-        $computedSignature = hash_hmac('sha256', $request->getContent(), $secretKey);
-
-        if (!hash_equals($computedSignature, (string)$signature)) {
-            Log::warning('TolePay Webhook: Неверная подпись');
-            return response()->json(['error' => 'Invalid signature'], 400);
+        if ($secretKey) {
+            $computedSignature = hash_hmac('sha256', $request->getContent(), $secretKey);
+            if (!hash_equals($computedSignature, (string)$signature)) {
+                Log::warning('TolePay Webhook: Неверная подпись');
+                return response()->json(['error' => 'Invalid signature'], 400);
+            }
         }
 
-        // 3. Получаем данные события
         $data = $request->input('data', []);
-        $orderId = $data['order_id'] ?? null;
-        $status = $data['status'] ?? null; // 'paid', 'cancelled', 'failed'
+        $invoiceId = $data['id'] ?? null;
+        $status = $data['status'] ?? null;
 
-        if (!$orderId) {
-            return response()->json(['error' => 'Order ID is missing'], 422);
-        }
-
-        // 4. Находим заказ
-        $order = Order::find($orderId);
+        // Ищем заказ по сохраненному transaction_id (ID инвойса TolePay)
+        $order = Order::where('transaction_id', $invoiceId)->first();
 
         if (!$order) {
-            Log::error("TolePay Webhook: Заказ #{$orderId} не найден");
-            return response()->json(['error' => 'Order not found'], 444);
+            Log::error("TolePay Webhook: Заказ с транзакцией #{$invoiceId} не найден");
+            return response()->json(['error' => 'Order not found'], 404);
         }
 
-        // Защита от повторной обработки (Идемпотентность)
-        if ($order->status === 'paid') {
+        if ($order->status === OrderEnum::PAID->value) {
             return response()->json(['status' => 'already_processed']);
         }
 
-        // 5. Обрабатываем успешную оплату
         if ($status === 'paid' || $request->input('event') === 'invoice.paid') {
-            $order->update([
-                'status'           => 'paid',
-                'payment_provider' => 'tolepay',
-                'paid_at'          => now(),
-                'transaction_id'   => $data['id'] ?? null,
-            ]);
+            DB::beginTransaction();
+            try {
+                // Вызываем распределение средств и начисление бонусов
+                $this->finalizeOrder($order, [
+                    'TransactionId' => $invoiceId,
+                    'Provider'      => 'TolePay',
+                    'Status'        => 'Completed'
+                ]);
 
-            // Здесь вызывать логику списания бонусов/купонов, если она не списывалась заранее:
-            // $this->processOrderBonusesAndDiscounts($order);
-
-            Log::info("Order #{$order->id} successfully paid via TolePay");
-
-            return response()->json(['status' => 'success']);
+                DB::commit();
+                Log::info("Order #{$order->id} successfully finalized via TolePay");
+                return response()->json(['status' => 'success']);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error("TolePay Finalize Error: " . $e->getMessage());
+                return response()->json(['error' => 'Internal server error'], 500);
+            }
         }
 
-        // 6. Если оплата отменена или завершилась ошибкой
         if (in_array($status, ['cancelled', 'failed'])) {
-            $order->update([
-                'status' => 'cancelled',
-            ]);
+            $order->update(['status' => OrderEnum::CANCELLED->value ?? 'cancelled']);
         }
 
         return response()->json(['status' => 'ignored']);
