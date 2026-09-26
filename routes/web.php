@@ -162,7 +162,6 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
-    Route::post('/payments/tolepay/callback', [CheckoutController::class, 'tolepayCallback'])->name('tolepay.callback');
 
     # купить в 1 клик
     Route::post('/checkout/instant', [CheckoutController::class, 'instant'])->name('checkout.instant');
@@ -186,3 +185,6 @@ Route::get('/ref/{agent_id}/p/{slug}', [ReferralController::class, 'handleProduc
     ->where('agent_id', '[0-9]+')->name('user.referral.product');
 
 Route::post('/checkout/3ds-callback', [CheckoutController::class, 'handle3DS'])->name('checkout.3ds.callback');
+
+// Webhook
+Route::post('/payments/tolepay/callback', [CheckoutController::class, 'tolepayCallback'])->name('tolepay.callback');
