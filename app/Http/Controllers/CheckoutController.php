@@ -454,7 +454,9 @@ class CheckoutController extends BaseController
                 if ($response->successful() && isset($responseData['ok']) && $responseData['ok'] === true) {
                     // Сохраняем ID счета TolePay в заказе
                     $order->update([
-                        'transaction_id' => $responseData['data']['id'] ?? null
+                        'data' => array_merge($order->data ?? [], [
+                            'transaction_id' => $responseData['data']['id'] ?? null
+                        ])
                     ]);
 
                     DB::commit();
@@ -743,7 +745,7 @@ class CheckoutController extends BaseController
         }
 
         // 4. Поиск заказа по сохраненному transaction_id
-        $order = Order::where('transaction_id', $invoiceId)->first();
+        $order = Order::where('data->transaction_id', $invoiceId)->first();
 
         if (!$order) {
             Log::error("TolePay Webhook: Заказ с transaction_id={$invoiceId} не найден");
