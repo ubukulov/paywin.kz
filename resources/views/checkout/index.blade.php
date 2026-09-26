@@ -461,6 +461,10 @@
             confirmOrder.innerText = 'Обрабатываем платеж...';
 
             try {
+                // Динамически получаем выбранный способ оплаты в момент клика
+                const selectedPaymentRadio = document.querySelector('.payment-provider-radio:checked');
+                const currentPaymentProvider = selectedPaymentRadio ? selectedPaymentRadio.value : 'tiptoppay';
+
                 const selectedShippingRadio = document.querySelector('.shipping-method-radio:checked');
                 const shippingMethod = selectedShippingRadio ? selectedShippingRadio.value : 'almaty_standard';
                 const shippingCost = selectedShippingRadio ? parseInt(selectedShippingRadio.dataset.cost) : 0;
@@ -476,25 +480,29 @@
                 const finalPayAmount = totalWithShipping - couponsTotal - cashbackTotal - globalSpent;
                 let cryptogram = null;
 
-                if (finalPayAmount > 0) {
+                // ПРОВЕРКА КАРТЫ: Только если остаток > 0 И выбран метод TipTopPay
+                if (finalPayAmount > 0 && currentPaymentProvider === 'tiptoppay') {
                     const cardValue = cardInput.value.replace(/\s+/g, '');
                     const month = document.getElementById('expMonth').value;
                     const year = document.getElementById('expYear').value;
                     const cvv = document.getElementById('cvv').value;
                     const holder = document.getElementById('cardHolder').value || 'CARDHOLDER';
 
-                    if (!cardValue || !month || !year || !cvv) throw new Error("Заполните данные карты.");
-                    cryptogram = await checkout.createPaymentCryptogram({ cardNumber: cardValue, cvv: cvv, expDateMonth: month, expDateYear: year, cardHolderName: holder });
+                    if (!cardValue || !month || !year || !cvv) {
+                        throw new Error("Заполните данные карты.");
+                    }
+                    cryptogram = await checkout.createPaymentCryptogram({
+                        cardNumber: cardValue,
+                        cvv: cvv,
+                        expDateMonth: month,
+                        expDateYear: year,
+                        cardHolderName: holder
+                    });
                 }
 
                 const fd = new FormData(this);
                 let appliedDiscountIds = []; discountCbs.forEach(cb => { if (cb.checked) appliedDiscountIds.push(cb.value); });
                 let usedPartnerCashbackIds = []; cashbackCbs.forEach(cb => { if (cb.checked) usedPartnerCashbackIds.push(cb.value); });
-
-                if (paymentProvider === 'tolepay') {
-                    // Для TolePay карточные данные на фронтенде не собираем, криптограмма не нужна
-                    cryptogram = null;
-                }
 
                 const response = await fetch(this.action, {
                     method: 'POST',
@@ -505,7 +513,7 @@
                         city_id: document.getElementById('cityInput').value,
                         address: fd.get('address') || 'Самовывоз',
                         shipping_method: shippingMethod,
-                        payment_provider: paymentProvider,
+                        payment_provider: currentPaymentProvider, // Передаем актуальный провайдер
                         cryptogram: cryptogram,
                         applied_discounts: appliedDiscountIds,
                         use_partner_cashbacks: usedPartnerCashbackIds,
@@ -515,7 +523,7 @@
 
                 const data = await response.json();
 
-                // Если выбран TolePay и сервер вернул URL для редиректа на страницу оплаты TolePay
+                // Если выбран TolePay и сервер вернул URL для редиректа
                 if (data.payment_url) {
                     window.location.href = data.payment_url;
                     return;
