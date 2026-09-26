@@ -712,11 +712,9 @@ class CheckoutController extends BaseController
      */
     public function tolepayCallback(Request $request)
     {
-        // 1. Логируем входящие данные
-        Log::info('TolePay Webhook Headers:', $request->headers->all());
-        Log::info('TolePay Webhook Body:', $request->all());
+        Log::info('TolePay Webhook Received:', $request->all());
 
-        // 2. Проверка подписи
+        // 1. Проверка подписи
         $signature = $request->header('webhook-signature') ?? $request->header('X-Signature');
         $secretKey = config('services.tolepay.secret_key');
 
@@ -736,17 +734,17 @@ class CheckoutController extends BaseController
             }
         }
 
-        // 3. Извлекаем paymentIntentId прямо из request->input('data')
+        // 2. Извлекаем paymentIntentId
         $data = $request->input('data', []);
         $paymentIntentId = $data['paymentIntentId'] ?? $request->input('id');
-        $eventType = $request->input('type'); // 'payment.paid', 'payment.created' и т.д.
+        $eventType = $request->input('type');
 
         if (!$paymentIntentId) {
             Log::error("TolePay Webhook: paymentIntentId отсутствует в запросе");
             return response()->json(['error' => 'Payment Intent ID is missing'], 422);
         }
 
-        // 4. Поиск заказа по JSON-полю data->transaction_id
+        // 3. Поиск заказа по data->transaction_id
         $order = Order::with(['items.product.partner', 'user'])
             ->where('data->transaction_id', $paymentIntentId)
             ->first();
@@ -756,13 +754,12 @@ class CheckoutController extends BaseController
             return response()->json(['error' => 'Order not found'], 404);
         }
 
-        // Идемпотентность — если уже обработан
-        if (in_array($order->status, [OrderEnum::PAID->value, OrderEnum::PREORDER->value])) {
-            return response()->json(['status' => 'already_processed']);
-        }
-
-        // 5. Финализация при успешном типе события
+        // 4. ОБРАБОТКА УСПЕШНОЙ ОПЛАТЫ
         if (in_array($eventType, ['payment.paid', 'payment.succeeded', 'invoice.paid'])) {
+            if (in_array($order->status, [OrderEnum::PAID->value, OrderEnum::PREORDER->value])) {
+                return response()->json(['status' => 'already_processed']);
+            }
+
             DB::beginTransaction();
             try {
                 $hasPreorder = $order->items->contains('is_preorder', true);
@@ -784,8 +781,28 @@ class CheckoutController extends BaseController
             }
         }
 
+        // 5. ОБРАБОТКА ВОЗВРАТА СРЕДСТВ (Refund)
+        if (in_array($eventType, ['payment.refunded', 'refund.succeeded', 'refund.reserved'])) {
+            Log::info("TolePay Webhook: Обработка возврата для заказа #{$order->id}");
+
+            // Меняем статус заказа на CANCELLED (или OrderEnum::REFUNDED->value, если есть)
+            $order->update([
+                'status' => OrderEnum::CANCELLED->value ?? 'cancelled'
+            ]);
+
+            // Если при возврате нужно откатить списанные балансы/бонусы пользователя или комиссии партнера,
+            // вызовите вашу внутреннюю логику отмены заказа здесь:
+            // $this->revertOrderBalances($order);
+
+            return response()->json(['status' => 'refund_processed']);
+        }
+
+        // 6. ОБРАБОТКА ОТМЕНЫ/ОШИБКИ
         if (in_array($eventType, ['payment.failed', 'invoice.cancelled'])) {
-            $order->update(['status' => OrderEnum::CANCELLED->value ?? 'cancelled']);
+            $order->update([
+                'status' => OrderEnum::CANCELLED->value ?? 'cancelled'
+            ]);
+            return response()->json(['status' => 'cancelled_processed']);
         }
 
         return response()->json(['status' => 'ignored']);
