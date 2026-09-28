@@ -526,7 +526,7 @@
                 // Если оплата прошла через TolePay (выставлен счет в Kaspi)
                 if (data.is_tolepay) {
                     alert('Счет на сумму заказа отправлен в ваше приложение Kaspi. Пожалуйста, подтвердите оплату в Kaspi!');
-                    window.location.href = '/checkout/success';
+                    window.location.href = '/checkout/success?paymentType=tolepay';
                     return;
                 }
 

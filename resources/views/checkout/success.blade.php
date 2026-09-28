@@ -10,7 +10,11 @@
             </div>
             <h1 class="text-3xl font-black mb-2 text-gray-900">Спасибо за заказ!</h1>
             <p class="text-gray-500 text-sm max-w-md mx-auto">
-                Ваш платеж успешно прошёл и заказ уже принят в обработку партнерами.
+                @if(request()->has('paymentType') && request()->get('paymentType') == 'tolepay')
+                    Для успешного завершения покупки, нужно подтвердить оплату в приложении Kaspi.kz
+                @else
+                    Ваш платеж успешно прошёл и заказ уже принят в обработку партнерами.
+                @endif
             </p>
         </div>
 
