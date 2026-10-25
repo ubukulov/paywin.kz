@@ -34,4 +34,8 @@ return [
         'api_key'     => env('TOLEPAY_API_KEY'),
         'secret_key'  => env('TOLEPAY_SECRET_KEY'),
     ],
+    'kaspi' => [
+        'id' => env('KASPI_ID'),
+        'token' => env('KASPI_TOKEN'),
+    ]
 ];
