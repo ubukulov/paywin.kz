@@ -9,6 +9,7 @@ use App\Models\Cart;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Cache;
+use App\Services\CityService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,9 +28,9 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(CityService $cityService)
     {
-        View::composer(['layouts.app', 'category.product', 'checkout.index'], function ($view) {
+        View::composer(['layouts.app', 'category.product', 'checkout.index'], function ($view) use ($cityService) {
             $cartCount = 0;
             if (auth()->check()) {
                 $cart = Cart::where('user_id', auth()->id())->first();
@@ -37,16 +38,8 @@ class AppServiceProvider extends ServiceProvider
             }
             $view->with('cartCount', $cartCount);
 
-            $cities = cache()->remember('app_cities', now()->addDay(), function () {
-                return City::all();
-            });
-            $view->with('cities', $cities);
-
-            $cityId = Cookie::get('selected_city_id');
-            $currentCity = $cityId
-                ? $cities->firstWhere('id', $cityId) // firstWhere ищет в коллекции $cities, а не в БД
-                : $cities->first();
-            $view->with('currentCity', $currentCity);
+            $view->with('cities', $cityService->getCities());
+            $view->with('currentCity', $cityService->getCurrentCity());
         });
 
         View::composer(['layouts.app', 'partner.partner', 'partner.product.create', 'partner.product.edit'], function($view){

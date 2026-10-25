@@ -6,14 +6,16 @@ use App\Models\City;
 use App\Models\Product;
 use App\Services\PartnerGiftService;
 use Illuminate\Support\Facades\Cookie;
+use App\Services\CityService;
 
 class ProductController extends BaseController
 {
     protected PartnerGiftService  $partnerGiftService;
-
-    public function __construct(PartnerGiftService $partnerGiftService)
+    protected CityService $cityService;
+    public function __construct(PartnerGiftService $partnerGiftService, CityService $cityService)
     {
         $this->partnerGiftService = $partnerGiftService;
+        $this->cityService = $cityService;
     }
 
     public function show($slug)
@@ -27,7 +29,7 @@ class ProductController extends BaseController
 
         $gifts = $this->partnerGiftService->getEligiblePrizesForProduct($product->partner_id);
 
-        $city = City::findOrFail(Cookie::get('selected_city_id'));
+        $currentCity = $this->cityService->getCurrentCity();
 
         $platformPromotions = \App\Models\Promotion::where('is_active', true)
             ->where('type', 'purchase') // Акции за покупку
@@ -35,6 +37,6 @@ class ProductController extends BaseController
             ->where('end_at', '>=', now())
             ->get();
 
-        return view('category.product', compact('product', 'gifts', 'platformPromotions', 'city'));
+        return view('category.product', compact('product', 'gifts', 'platformPromotions', 'currentCity'));
     }
 }
