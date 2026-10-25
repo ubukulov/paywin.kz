@@ -151,6 +151,9 @@
                                 <a class="px-6 py-2.5 bg-orange-500 text-white font-black rounded-xl hover:bg-orange-600 transition text-center shadow-sm" href="{{ route('login') }}">Купить</a>
                                 <a class="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition text-center shadow-sm" href="{{ route('login') }}">В корзину</a>
                             @endif
+
+                            <!-- it's a placeholder for dynamic example -->
+                            <div id="dynamic"></div>
                         </form>
 
                         {{-- Блок предзаказа --}}
@@ -371,6 +374,15 @@
                     messageElement.classList.add('hidden');
                 }, 2500);
             }
+        </script>
+
+        <!-- Example: adding another button placeholder dynamically after 1sec -->
+        <script>
+            setTimeout(function () {
+                document.getElementById('dynamic').innerHTML = '<div class="ks-widget" data-template="button" data-merchant-sku="{{ $product->sku }}" data-merchant-code="{{ env('KASPI_ID') }}" data-city="{{ $city->code }}" ></div>'
+                // you should run this method to recheck buttons in DOM:
+                ksWidgetInitializer.reinit()
+            }, 1000)
         </script>
     </div>
 @endsection

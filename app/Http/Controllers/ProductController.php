@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\City;
 use App\Models\Product;
 use App\Services\PartnerGiftService;
+use Illuminate\Support\Facades\Cookie;
 
 class ProductController extends BaseController
 {
@@ -25,12 +27,14 @@ class ProductController extends BaseController
 
         $gifts = $this->partnerGiftService->getEligiblePrizesForProduct($product->partner_id);
 
+        $city = City::findOrFail(Cookie::get('selected_city_id'));
+
         $platformPromotions = \App\Models\Promotion::where('is_active', true)
             ->where('type', 'purchase') // Акции за покупку
             ->where('start_at', '<=', now())
             ->where('end_at', '>=', now())
             ->get();
 
-        return view('category.product', compact('product', 'gifts', 'platformPromotions'));
+        return view('category.product', compact('product', 'gifts', 'platformPromotions', 'city'));
     }
 }
