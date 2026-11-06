@@ -172,11 +172,10 @@
                             </div>
                         @endif
 
-                        @include('category.block_product_shares')
-
                         {{-- Добавлен блок привязки заказа Kaspi над бонусами --}}
                         @include('category.block_product_kaspi_claim')
 
+                        @include('category.block_product_shares')
                         @include('category.block_product_paywin_bonus')
                         @include('category.block_product_delivery')
                         @include('category.block_product_referral')
