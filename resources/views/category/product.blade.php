@@ -147,13 +147,12 @@
                                 <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-sm">
                                     В корзину
                                 </button>
+                                <!-- it's a placeholder for dynamic example -->
+                                <div id="dynamic"></div>
                             @else
                                 <a class="px-6 py-2.5 bg-orange-500 text-white font-black rounded-xl hover:bg-orange-600 transition text-center shadow-sm" href="{{ route('login') }}">Купить</a>
                                 <a class="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition text-center shadow-sm" href="{{ route('login') }}">В корзину</a>
                             @endif
-
-                            <!-- it's a placeholder for dynamic example -->
-                            <div id="dynamic"></div>
                         </form>
 
                         {{-- Блок предзаказа --}}
@@ -174,6 +173,10 @@
                         @endif
 
                         @include('category.block_product_shares')
+
+                        {{-- Добавлен блок привязки заказа Kaspi над бонусами --}}
+                        @include('category.block_product_kaspi_claim')
+
                         @include('category.block_product_paywin_bonus')
                         @include('category.block_product_delivery')
                         @include('category.block_product_referral')
