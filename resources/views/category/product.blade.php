@@ -131,28 +131,31 @@
                         </div>
 
                         {{-- Форма корзины и быстрого заказа --}}
-                        <form action="{{ route('cart.add') }}" method="POST" class="mt-6 flex gap-3 items-center" id="add-to-cart-form">
+                        <form action="{{ route('cart.add') }}" method="POST" class="mt-6 flex flex-wrap gap-3 items-center" id="add-to-cart-form">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+
+                            {{-- Счетчик количества --}}
+                            <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-gray-50 shrink-0">
                                 <button type="button" onclick="decrementQty()" class="px-3 py-2 font-bold text-gray-500 hover:bg-gray-100 transition">−</button>
                                 <input id="cart-qty" name="quantity" value="1" min="1" max="{{ max(1, $product->quantity) }}" type="number" class="w-12 text-center bg-transparent font-bold text-gray-800 outline-none p-2"/>
                                 <button type="button" onclick="incrementQty()" class="px-3 py-2 font-bold text-gray-500 hover:bg-gray-100 transition">＋</button>
                             </div>
 
                             @if(Auth::check())
-                                <button type="button" onclick="quickPurchase()" class="px-6 py-2.5 bg-orange-500 text-white font-black rounded-xl hover:bg-orange-600 transition shadow-sm">
+                                <button type="button" onclick="quickPurchase()" class="flex-1 sm:flex-none px-6 py-2.5 bg-orange-500 text-white font-black rounded-xl hover:bg-orange-600 transition shadow-sm text-center">
                                     Купить
                                 </button>
-                                <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-sm">
+                                <button type="submit" class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-sm text-center">
                                     В корзину
                                 </button>
-                                <!-- it's a placeholder for dynamic example -->
-                                <div id="dynamic"></div>
                             @else
-                                <a class="px-6 py-2.5 bg-orange-500 text-white font-black rounded-xl hover:bg-orange-600 transition text-center shadow-sm" href="{{ route('login') }}">Купить</a>
-                                <a class="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition text-center shadow-sm" href="{{ route('login') }}">В корзину</a>
+                                <a class="flex-1 sm:flex-none px-6 py-2.5 bg-orange-500 text-white font-black rounded-xl hover:bg-orange-600 transition text-center shadow-sm" href="{{ route('login') }}">Купить</a>
+                                <a class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition text-center shadow-sm" href="{{ route('login') }}">В корзину</a>
                             @endif
+
+                            {{-- Контейнер для виджета Kaspi (выносится на новую строку на мобилках) --}}
+                            <div id="dynamic" class="w-full mt-1 sm:mt-0 sm:w-auto overflow-hidden"></div>
                         </form>
 
                         {{-- Блок предзаказа --}}
