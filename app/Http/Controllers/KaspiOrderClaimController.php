@@ -26,8 +26,7 @@ class KaspiOrderClaimController extends Controller
         $user = $request->user();
 
         // 1. Проверяем дубликат заказа
-        $alreadyExists = Order::where('kaspi_code', $kaspiCode)
-            ->orWhere('data->kaspi_code', $kaspiCode)
+        $alreadyExists = Order::where('data->kaspi_code', $kaspiCode)
             ->exists();
 
         if ($alreadyExists) {
