@@ -170,6 +170,9 @@ Route::group(['middleware' => 'auth'], function(){
     Route::post('/product/review/store', [ProductReviewController::class, 'store'])->name('product.review.store');
     Route::post('/product/review/{review}/reply', [ProductReviewController::class, 'reply'])->name('review.reply');
 
+    # Kaspi
+    Route::post('/orders/claim-kaspi', [KaspiOrderClaimController::class, 'claimOrder'])->name('orders.claim-kaspi');
+
 });
 
 // Переход просто по ID агента
