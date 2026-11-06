@@ -19,6 +19,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PayoutController;
 use App\Http\Controllers\User\PromoController;
 use App\Http\Controllers\ProductReviewController;
+use App\Http\Controllers\KaspiOrderClaimController;
 
 /*
 |--------------------------------------------------------------------------

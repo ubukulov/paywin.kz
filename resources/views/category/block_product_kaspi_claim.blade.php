@@ -5,7 +5,7 @@
                 <span class="w-6 h-6 rounded-full bg-red-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">K</span>
                 <h4 class="font-semibold text-gray-900 text-sm">Уже купили этот товар в Kaspi?</h4>
             </div>
-            <span class="text-[11px] text-red-600 font-medium bg-red-100 px-2 py-0.5 rounded-full">Для бонуса</span>
+            <span class="text-[11px] text-red-600 text-center font-medium bg-red-100 px-2 py-0.5 rounded-full">Для бонуса</span>
         </div>
 
         <p class="text-xs text-gray-600 mb-3">
