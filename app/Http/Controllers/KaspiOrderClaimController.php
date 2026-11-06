@@ -6,6 +6,7 @@ use App\Enums\OrderEnum;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductStock;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -21,6 +22,9 @@ class KaspiOrderClaimController extends Controller
         $request->validate([
             'kaspi_code' => 'required|string',
         ]);
+
+        $currentCity = app(\App\Services\CityService::class)->getCurrentCity();
+        $cityId = $currentCity?->id;
 
         $kaspiCode = trim($request->input('kaspi_code'));
         $user = $request->user();
@@ -96,12 +100,12 @@ class KaspiOrderClaimController extends Controller
 
         // 4. Транзакция записи заказа и финансовой транзакции
         try {
-            DB::transaction(function () use ($user, $kaspiOrder, $kaspiCode, $entries, $totalPrice) {
+            DB::transaction(function () use ($user, $kaspiOrder, $kaspiCode, $entries, $totalPrice, $cityId) {
 
                 // А. Создаем заказ
                 $order = Order::create([
                     'user_id'          => $user->id,
-                    'city_id'          => $user->city_id ?? null,
+                    'city_id'          => $cityId,
                     'subtotal'         => $totalPrice,
                     'discount'         => 0,
                     'shipping_cost'    => 0,
@@ -113,26 +117,29 @@ class KaspiOrderClaimController extends Controller
                     'data'             => [
                         'kaspi_id'       => $kaspiOrder['id'],
                         'kaspi_code'     => $kaspiCode,
-                        'customer_name'  => $kaspiOrder['attributes']['customer']['name'] ?? $user->name,
-                        'customer_phone' => $kaspiOrder['attributes']['customer']['cellPhone'] ?? null,
+                        'name'  => $kaspiOrder['attributes']['customer']['name'] ?? $user->name,
+                        'phone' => $user->phone,
+                        //'phone' => $kaspiOrder['attributes']['customer']['cellPhone'] ?? null,
                     ]
                 ]);
 
                 // Б. Создаем позиции заказа (order_items)
                 foreach ($entries as $entry) {
-                    $offerId   = $entry['attributes']['offerId'] ?? null;
+                    $offerSku   = $entry['attributes']['offer']['code'] ?? null;
                     $quantity  = $entry['attributes']['quantity'] ?? 1;
                     $price     = $entry['attributes']['basePrice'] ?? 0;
                     $itemTotal = $price * $quantity;
 
-                    $product = Product::where('sku', $offerId)->first();
+                    $product = Product::where('sku', $offerSku)->first();
+                    $productStock = ProductStock::where('product_id', $product->id)->first();
 
                     OrderItem::create([
                         'order_id'     => $order->id,
                         'product_id'   => $product?->id,
                         'partner_id'   => $product?->partner_id,
-                        'product_name' => $product?->name ?? "Товар Kaspi (#{$offerId})",
-                        'product_sku'  => $offerId,
+                        'warehouse_id'   => $productStock->warehouse_id,
+                        'product_name' => $product?->name ?? "Товар Kaspi (#{$offerSku})",
+                        'product_sku'  => $offerSku,
                         'quantity'     => $quantity,
                         'price'        => $price,
                         'total'        => $itemTotal,
