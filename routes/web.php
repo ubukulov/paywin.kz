@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LandingQuickAuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\Partner\PartnerController;
