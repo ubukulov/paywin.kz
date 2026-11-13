@@ -27,6 +27,7 @@
                                                 'almaty_express'  => 'Экспресс Алматы',
                                                 'pickup'          => 'Самовывоз',
                                                 'kazakhstan'      => 'По Казахстану',
+                                                'kaspi_delivery'  => 'Kaspi доставка',
                                                 default           => $order->shipping_method
                                             } }}
                                         </span>

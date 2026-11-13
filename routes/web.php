@@ -19,6 +19,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PayoutController;
 use App\Http\Controllers\User\PromoController;
 use App\Http\Controllers\ProductReviewController;
+use App\Http\Controllers\KaspiOrderClaimController;
 
 /*
 |--------------------------------------------------------------------------
@@ -176,6 +177,9 @@ Route::group(['middleware' => 'auth'], function(){
     # Product reviews
     Route::post('/product/review/store', [ProductReviewController::class, 'store'])->name('product.review.store');
     Route::post('/product/review/{review}/reply', [ProductReviewController::class, 'reply'])->name('review.reply');
+
+    # Kaspi
+    Route::post('/orders/claim-kaspi', [KaspiOrderClaimController::class, 'claimOrder'])->name('orders.claim-kaspi');
 
 });
 
