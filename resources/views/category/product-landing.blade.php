@@ -21,6 +21,12 @@
                 $embedUrl = "https://www.youtube.com/embed/" . $youtubeId . "?enablejsapi=1&origin=" . urlencode(url('/'));
             }
         }
+
+        // Прямая ссылка на товар в Kaspi по его SKU (артикулу)
+        $merchantId = config('services.kaspi.id', '30364524');
+        $directKaspiUrl = !empty($product->sku)
+            ? "https://kaspi.kz/shop/p/-{$product->sku}/?ksWidget=true&m={$merchantId}&merchantID={$merchantId}"
+            : "https://kaspi.kz/shop/search/?text=" . urlencode($product->name) . "&ksWidget=true&m={$merchantId}&merchantID={$merchantId}";
     @endphp
 
     <div class="product-page">
@@ -104,7 +110,7 @@
                     </div>
                 </div>
 
-                {{-- ПРАВАЯ КОЛОНКА: Информация и форма допуска к Kaspi --}}
+                {{-- ПРАВАЯ КОЛОНКА: Информация и переход к покупке в Kaspi --}}
                 <div class="space-y-6">
                     <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm">
                         <h1 class="text-2xl font-semibold text-gray-900 leading-tight">{{ $product->name }}</h1>
@@ -122,7 +128,7 @@
                             @endif
                         </div>
 
-                        {{-- БЛОК 1: Форма быстрой регистрации для доступа к кнопке Kaspi --}}
+                        {{-- БЛОК 1: Для гостей — форма регистрации + переход в Kaspi --}}
                         @guest
                             <div id="landing-auth-box" class="mt-6 p-4 bg-orange-50/70 border border-orange-200 rounded-2xl">
                                 <div class="flex items-center gap-2 mb-1.5">
@@ -130,7 +136,7 @@
                                     <h3 class="font-bold text-gray-900 text-sm">Укажите данные для получения приза</h3>
                                 </div>
                                 <p class="text-xs text-gray-600 mb-3">
-                                    Введите имя и почту — мы откроем кнопку покупки в Kaspi и закрепим за вами гарантированный бонус.
+                                    Введите имя и почту — мы закрепим за вами гарантированный бонус и откроем страницу товара в Kaspi.
                                 </p>
 
                                 <form id="landing-quick-auth-form" class="space-y-3">
@@ -157,26 +163,30 @@
                                     <button
                                         type="submit"
                                         id="landing-auth-submit"
-                                        class="w-full py-2.5 px-4 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm rounded-xl transition shadow-xs cursor-pointer"
+                                        class="w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-xl transition shadow-xs flex items-center justify-center gap-2 cursor-pointer"
                                     >
-                                        Перейти к покупке в Kaspi
+                                        <span>Перейти к покупке в Kaspi</span>
+                                        <span>→</span>
                                     </button>
                                 </form>
                                 <div id="landing-auth-error" class="mt-2 text-xs text-red-600 hidden"></div>
                             </div>
                         @endguest
 
-                        {{-- БЛОК 2: Контейнер виджета Kaspi (сразу виден для @auth, открывается после формы для @guest) --}}
-                        <div id="kaspi-action-wrapper" class="mt-6 {{ Auth::check() ? '' : 'hidden' }}">
-                            <div class="p-3.5 bg-gray-50 border border-gray-200 rounded-2xl">
-                                <div class="text-xs font-medium text-gray-600 mb-2">
-                                    <span class="text-green-600 font-bold">✓ Доступ открыт</span>
-                                    <span id="landing-welcome-name">{{ Auth::check() ? '(' . Auth::user()->email . ')' : '' }}</span> — оформите заказ через Kaspi:
-                                </div>
-                                {{-- Placeholder для динамической кнопки Kaspi --}}
-                                <div id="dynamic" class="w-full overflow-hidden"></div>
+                        {{-- БЛОК 2: Для авторизованных — прямая кнопка-ссылка в Kaspi --}}
+                        @auth
+                            <div class="mt-6">
+                                <a
+                                    href="{{ $directKaspiUrl }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="w-full py-3.5 px-5 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-xl transition shadow-sm flex items-center justify-center gap-2"
+                                >
+                                    <span>Перейти к покупке в Kaspi</span>
+                                    <span>→</span>
+                                </a>
                             </div>
-                        </div>
+                        @endauth
 
                         {{-- Блок предзаказа --}}
                         @if($product->is_preorder && $product->delivery_days)
@@ -194,6 +204,9 @@
                                 </div>
                             </div>
                         @endif
+
+                        {{-- Блок привязки номера заказа после покупки в Kaspi --}}
+                        @include('category.block_product_kaspi_claim')
 
                         @include('category.block_product_shares')
                         @include('category.block_product_paywin_bonus')
@@ -216,7 +229,7 @@
             @endif
         </div>
 
-        {{-- Скрипты галереи и реферальной ссылки --}}
+        {{-- Скрипты галереи, реферальной ссылки и быстрого перехода в Kaspi --}}
         <script>
             const productImages = [
                 @foreach($product->images as $img)
@@ -310,49 +323,9 @@
                 setTimeout(() => messageElement.classList.add('hidden'), 2500);
             }
 
-            // Функция инициализации виджета Kaspi
-            function initKaspiButton() {
-                const container = document.getElementById('dynamic');
-                if (!container) return;
-
-                // 1. Вставляем разметку виджета, если её ещё нет
-                if (!container.querySelector('.ks-widget')) {
-                    container.innerHTML = `<div class="ks-widget" data-template="button" data-merchant-sku="{{ $product->sku }}" data-merchant-code="{{ config('services.kaspi.id') }}" data-city="{{ $currentCity->code ?? '750000000' }}"></div>`;
-                }
-
-                // 2. Если скрипт Kaspi уже загружен — переинициализируем
-                if (typeof window.ksWidgetInitializer !== 'undefined') {
-                    window.ksWidgetInitializer.reinit();
-                    return;
-                }
-
-                // 3. Если скрипта нет на странице — подключаем его динамически
-                if (!document.getElementById('kaspi-widget-script')) {
-                    const script = document.createElement('script');
-                    script.id = 'kaspi-widget-script';
-                    script.src = 'https://kaspi.kz/kaspibutton/widget/ks-wi_ext.js';
-                    script.async = true;
-                    script.onload = () => {
-                        if (typeof window.ksWidgetInitializer !== 'undefined') {
-                            window.ksWidgetInitializer.reinit();
-                        }
-                    };
-                    document.body.appendChild(script);
-                } else {
-                    // Скрипт уже в процессе загрузки — ждём 300 мс и пробуем снова
-                    setTimeout(initKaspiButton, 300);
-                }
-            }
-
             document.addEventListener('DOMContentLoaded', () => {
                 selectImage(currentIndex);
 
-                // Если пользователь уже авторизован — запускаем кнопку Kaspi сразу
-                @auth
-                setTimeout(initKaspiButton, 500);
-                @endauth
-
-                // Обработка формы фоновой регистрации для гостей
                 const authForm = document.getElementById('landing-quick-auth-form');
                 if (authForm) {
                     authForm.addEventListener('submit', async function (e) {
@@ -365,7 +338,7 @@
 
                         errorBox.classList.add('hidden');
                         submitBtn.disabled = true;
-                        submitBtn.innerText = 'Проверка...';
+                        submitBtn.innerHTML = '<span>Перенаправление в Kaspi...</span>';
 
                         try {
                             const response = await fetch("{{ route('landing.quick-auth') }}", {
@@ -377,42 +350,28 @@
                                 },
                                 body: JSON.stringify({
                                     name: nameVal,
-                                    email: emailVal
+                                    email: emailVal,
+                                    product_id: {{ $product->id }}
                                 })
                             });
 
                             const data = await response.json();
 
                             if (response.ok && data.success) {
-                                // Обновляем CSRF токен на странице для последующих запросов (например, привязки заказа)
-                                if (data.csrf_token) {
-                                    document.querySelectorAll('input[name="_token"]').forEach(el => el.value = data.csrf_token);
-                                    const metaCsrf = document.querySelector('meta[name="csrf-token"]');
-                                    if (metaCsrf) metaCsrf.setAttribute('content', data.csrf_token);
-                                }
-
-                                // Скрываем форму и показываем блок с кнопкой Kaspi
-                                document.getElementById('landing-auth-box').classList.add('hidden');
-                                document.getElementById('landing-welcome-name').innerText = `(${emailVal})`;
-                                document.getElementById('kaspi-action-wrapper').classList.remove('hidden');
-
-                                // Инициализируем виджет Kaspi
-                                initKaspiButton();
-
-                                if (typeof window.showToast === 'function') {
-                                    window.showToast(data.message);
-                                }
+                                // Сразу открываем товар в Kaspi (на мобилке откроет приложение Kaspi.kz)
+                                window.location.href = data.kaspi_url || "{!! $directKaspiUrl !!}";
                             } else {
                                 const firstError = data.errors ? Object.values(data.errors)[0][0] : (data.message || 'Ошибка регистрации');
                                 errorBox.innerText = firstError;
                                 errorBox.classList.remove('hidden');
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = '<span>Перейти к покупке в Kaspi</span><span>→</span>';
                             }
                         } catch (err) {
                             errorBox.innerText = 'Ошибка соединения с сервером. Попробуйте еще раз.';
                             errorBox.classList.remove('hidden');
-                        } finally {
                             submitBtn.disabled = false;
-                            submitBtn.innerText = 'Перейти к покупке в Kaspi';
+                            submitBtn.innerHTML = '<span>Перейти к покупке в Kaspi</span><span>→</span>';
                         }
                     });
                 }

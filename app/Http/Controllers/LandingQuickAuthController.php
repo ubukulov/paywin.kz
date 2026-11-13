@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,8 +15,9 @@ class LandingQuickAuthController extends Controller
     public function authenticate(Request $request)
     {
         $validated = $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            'name'       => 'required|string|max:255',
+            'email'      => 'required|email|max:255',
+            'product_id' => 'nullable|integer|exists:products,id',
         ], [
             'name.required'  => 'Укажите ваше имя',
             'email.required' => 'Укажите ваш Email',
@@ -25,7 +27,6 @@ class LandingQuickAuthController extends Controller
         $email = strtolower(trim($validated['email']));
         $name  = trim($validated['name']);
 
-        // Ищем существующего пользователя или создаем нового в фоне
         $user = User::firstWhere('email', $email);
         $isNew = false;
 
@@ -38,18 +39,27 @@ class LandingQuickAuthController extends Controller
             $isNew = true;
         }
 
-        // Авторизуем пользователя в текущей сессии
         Auth::login($user, true);
         $request->session()->regenerate();
+
+        // Формируем прямую ссылку на товар в Kaspi
+        $merchantId = config('services.kaspi.id', '30364524');
+        $kaspiUrl = "https://kaspi.kz/shop/";
+        if (!empty($validated['product_id'])) {
+            $product = Product::find($validated['product_id']);
+            if ($product) {
+                $kaspiUrl = !empty($product->sku)
+                    ? "https://kaspi.kz/shop/p/-{$product->sku}/?ksWidget=true&m={$merchantId}&merchantID={$merchantId}"
+                    : "https://kaspi.kz/shop/search/?text=" . urlencode($product->name) . "&ksWidget=true&m={$merchantId}&merchantID={$merchantId}";
+            }
+        }
 
         return response()->json([
             'success'    => true,
             'is_new'     => $isNew,
-            'user_name'  => $user->name,
+            'kaspi_url'  => $kaspiUrl,
             'csrf_token' => csrf_token(),
-            'message'    => $isNew
-                ? 'Вы успешно зарегистрированы! Теперь доступна покупка через Kaspi.'
-                : 'С возвращением, ' . $user->name . '! Кнопка Kaspi открыта.',
+            'message'    => 'Готово! Перенаправляем в Kaspi...',
         ]);
     }
 }
