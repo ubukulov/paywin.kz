@@ -30,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(CityService $cityService)
     {
-        View::composer(['layouts.app', 'category.product', 'checkout.index'], function ($view) use ($cityService) {
+        View::composer(['layouts.app', 'category.product', 'category.product-landing', 'checkout.index'], function ($view) use ($cityService) {
             $cartCount = 0;
             if (auth()->check()) {
                 $cart = Cart::where('user_id', auth()->id())->first();

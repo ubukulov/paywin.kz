@@ -39,4 +39,26 @@ class ProductController extends BaseController
 
         return view('category.product', compact('product', 'gifts', 'platformPromotions', 'currentCity'));
     }
+
+    public function showPageForKaspi($slug)
+    {
+        $product = Product::with('images')
+            ->select('products.*', 'product_stocks.quantity', 'product_stocks.price', 'product_stocks.is_preorder', 'product_stocks.delivery_days')
+            ->join('product_stocks', 'product_stocks.product_id', '=', 'products.id')
+            ->whereSlug($slug)
+            ->withAvg('reviews', 'rating')
+            ->firstOrFail();
+
+        $gifts = $this->partnerGiftService->getEligiblePrizesForProduct($product->partner_id);
+
+        $currentCity = $this->cityService->getCurrentCity();
+
+        $platformPromotions = \App\Models\Promotion::where('is_active', true)
+            ->where('type', 'purchase') // Акции за покупку
+            ->where('start_at', '<=', now())
+            ->where('end_at', '>=', now())
+            ->get();
+
+        return view('category.product-landing', compact('product', 'gifts', 'platformPromotions', 'currentCity'));
+    }
 }
