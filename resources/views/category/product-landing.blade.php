@@ -315,10 +315,32 @@
                 const container = document.getElementById('dynamic');
                 if (!container) return;
 
-                container.innerHTML = '<div class="ks-widget" data-template="button" data-merchant-sku="{{ $product->sku }}" data-merchant-code="{{ config('services.kaspi.id') }}" data-city="{{ $currentCity->code }}"></div>';
+                // 1. Вставляем разметку виджета, если её ещё нет
+                if (!container.querySelector('.ks-widget')) {
+                    container.innerHTML = `<div class="ks-widget" data-template="button" data-merchant-sku="{{ $product->sku }}" data-merchant-code="{{ config('services.kaspi.id') }}" data-city="{{ $currentCity->code ?? '750000000' }}"></div>`;
+                }
 
-                if (typeof ksWidgetInitializer !== 'undefined') {
-                    ksWidgetInitializer.reinit();
+                // 2. Если скрипт Kaspi уже загружен — переинициализируем
+                if (typeof window.ksWidgetInitializer !== 'undefined') {
+                    window.ksWidgetInitializer.reinit();
+                    return;
+                }
+
+                // 3. Если скрипта нет на странице — подключаем его динамически
+                if (!document.getElementById('kaspi-widget-script')) {
+                    const script = document.createElement('script');
+                    script.id = 'kaspi-widget-script';
+                    script.src = 'https://kaspi.kz/kaspibutton/widget/ks-wi_ext.js';
+                    script.async = true;
+                    script.onload = () => {
+                        if (typeof window.ksWidgetInitializer !== 'undefined') {
+                            window.ksWidgetInitializer.reinit();
+                        }
+                    };
+                    document.body.appendChild(script);
+                } else {
+                    // Скрипт уже в процессе загрузки — ждём 300 мс и пробуем снова
+                    setTimeout(initKaspiButton, 300);
                 }
             }
 
