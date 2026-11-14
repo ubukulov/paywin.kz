@@ -204,7 +204,7 @@
                         @endif
 
                         {{-- Блок привязки номера заказа после покупки в Kaspi --}}
-                        @include('category.block_product_kaspi_claim')
+                        @include('category.block_product_kaspi_claim2')
 
                         @include('category.block_product_shares')
                         @include('category.block_product_paywin_bonus')

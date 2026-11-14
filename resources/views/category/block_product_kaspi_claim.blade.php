@@ -43,7 +43,7 @@
             <h4 class="font-semibold text-gray-800 text-sm">Купили этот товар в Kaspi?</h4>
         </div>
         <p class="text-xs text-gray-600">
-            <a href="{{ route('login') }}" class="text-orange-600 font-bold hover:underline">Авторизуйтесь</a>, чтобы ввести номер заказа из Kaspi и получить гарантированный бонус!
+            <a href="{{ route('login') }}" class="text-orange-600 font-bold hover:underline cursor-pointer">Авторизуйтесь</a> либо <a href="{{ route('register') }}" class="text-orange-600 font-bold hover:underline cursor-pointer">Зарегистрируйтесь</a> чтобы привести номер заказа из Kaspi и получить гарантированный бонус!
         </p>
     </div>
 @endguest

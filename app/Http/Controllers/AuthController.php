@@ -43,6 +43,18 @@ class AuthController extends Controller
 
     public function login()
     {
+        $previousUrl = url()->previous();
+        $loginUrl = route('login');
+
+        if (
+            $previousUrl &&
+            $previousUrl !== $loginUrl &&
+            str_starts_with($previousUrl, config('app.url')) &&
+            !str_contains($previousUrl, '/register')
+        ) {
+            session()->put('url.intended', $previousUrl);
+        }
+
         return view('login');
     }
 
@@ -92,7 +104,7 @@ class AuthController extends Controller
 
             app(PlatformPromotionService::class)->checkAndGiveGifts($user, 'registration', $user);
 
-            return redirect()->route('home');
+            return redirect()->intended(route('home'));
         });
     }
 
@@ -105,8 +117,9 @@ class AuthController extends Controller
     public function authenticate(Request $request)
     {
         if(Auth::attempt(['email' => $request->input('email'), 'password' => $request->input('password')])) {
+            $request->session()->regenerate();
             $this->applyReferral(Auth::user());
-            return redirect()->route('home');
+            return redirect()->intended(route('home'));
         }
 
         return redirect()->back()->withErrors(['login' => 'Неверный логин или пароль']);
