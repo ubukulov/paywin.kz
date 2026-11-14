@@ -12,7 +12,7 @@
                     </svg>
                 </div>
                 <h4 class="text-sm font-black text-orange-900 uppercase tracking-wider">
-                    Рандомный бонус
+                    Рандомный подарок
                 </h4>
             </div>
 
