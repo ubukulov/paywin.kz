@@ -162,7 +162,7 @@
                                  data-merchant-sku="{{ $product->sku }}"
                                  data-merchant-code="{{ config('services.kaspi.id') }}"
                                  data-city="{{ $currentCity->code }}"
-                                 data-style="mobile"
+                                 data-style="small"
                             ></div>
                         </form>
 
