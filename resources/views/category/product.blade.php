@@ -156,14 +156,6 @@
 
                             {{-- Контейнер для виджета Kaspi (выносится на новую строку на мобилках) --}}
                             <div id="dynamic" class="w-full mt-1 sm:mt-0 sm:w-auto overflow-hidden"></div>
-                            <!-- main way to add button on page  -->
-                            <div class="ks-widget"
-                                 data-template="flatButton"
-                                 data-merchant-sku="{{ $product->sku }}"
-                                 data-merchant-code="{{ config('services.kaspi.id') }}"
-                                 data-city="{{ $currentCity->code }}"
-                                 data-style="small"
-                            ></div>
                         </form>
 
                         {{-- Блок предзаказа --}}
