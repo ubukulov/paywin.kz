@@ -9,9 +9,11 @@
 
             {{-- Лого --}}
             <div class="flex justify-center mb-6">
-                <img src="{{ asset('images/logo_bg_white.jpg') }}"
-                     class="logo"
-                     alt="Logo">
+                <a href="{{ route('home') }}">
+                    <img src="{{ asset('images/logo_bg_white.jpg') }}"
+                         class="logo"
+                         alt="Logo">
+                </a>
             </div>
 
             <h1 class="text-2xl font-bold text-gray-800 text-center mb-2">

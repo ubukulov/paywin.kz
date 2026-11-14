@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Classes\SendPulse;
 
 class LandingQuickAuthController extends Controller
 {
@@ -31,12 +32,15 @@ class LandingQuickAuthController extends Controller
         $isNew = false;
 
         if (!$user) {
+            $password = rand(1000, 9999);
+
             $user = User::create([
                 'name'     => $name,
                 'email'    => $email,
                 'password' => Hash::make(Str::random(16)),
             ]);
             $isNew = true;
+            SendPulse::sendEmail("Регистрация прошло успешно", 1962207, $user, ['password' => $password]);
         }
 
         Auth::login($user, true);

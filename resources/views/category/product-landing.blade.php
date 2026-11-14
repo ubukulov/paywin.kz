@@ -22,7 +22,6 @@
             }
         }
 
-        // Прямая ссылка на товар в Kaspi по его SKU (артикулу)
         $merchantId = config('services.kaspi.id', '30364524');
         $directKaspiUrl = !empty($product->sku)
             ? "https://kaspi.kz/shop/p/-{$product->sku}/?ksWidget=true&m={$merchantId}&merchantID={$merchantId}"
@@ -173,20 +172,19 @@
                             </div>
                         @endguest
 
-                        {{-- БЛОК 2: Для авторизованных — прямая кнопка-ссылка в Kaspi --}}
-                        @auth
-                            <div class="mt-6">
-                                <a
-                                    href="{{ $directKaspiUrl }}"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="w-full py-3.5 px-5 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-xl transition shadow-sm flex items-center justify-center gap-2"
-                                >
-                                    <span>Перейти к покупке в Kaspi</span>
-                                    <span>→</span>
-                                </a>
-                            </div>
-                        @endauth
+                        {{-- БЛОК 2: Прямая кнопка-ссылка в Kaspi (видна сразу для @auth, открывается для @guest после формы) --}}
+                        <div id="landing-kaspi-link-box" class="mt-6 {{ Auth::check() ? '' : 'hidden' }}">
+                            <a
+                                id="landing-kaspi-direct-link"
+                                href="{{ $directKaspiUrl }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="w-full py-3.5 px-5 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-xl transition shadow-sm flex items-center justify-center gap-2"
+                            >
+                                <span>Перейти к покупке в Kaspi</span>
+                                <span>→</span>
+                            </a>
+                        </div>
 
                         {{-- Блок предзаказа --}}
                         @if($product->is_preorder && $product->delivery_days)
@@ -358,8 +356,35 @@
                             const data = await response.json();
 
                             if (response.ok && data.success) {
-                                // Сразу открываем товар в Kaspi (на мобилке откроет приложение Kaspi.kz)
-                                window.location.href = data.kaspi_url || "{!! $directKaspiUrl !!}";
+                                // 1. Обновляем CSRF токен на странице для новой сессии
+                                if (data.csrf_token) {
+                                    document.querySelectorAll('input[name="_token"]').forEach(el => el.value = data.csrf_token);
+                                    const metaCsrf = document.querySelector('meta[name="csrf-token"]');
+                                    if (metaCsrf) metaCsrf.setAttribute('content', data.csrf_token);
+                                }
+
+                                // 2. Переключаем блок регистрации на прямую кнопку Kaspi
+                                const authBox = document.getElementById('landing-auth-box');
+                                const linkBox = document.getElementById('landing-kaspi-link-box');
+                                const directLink = document.getElementById('landing-kaspi-direct-link');
+                                const targetUrl = data.kaspi_url || "{!! $directKaspiUrl !!}";
+
+                                if (directLink) directLink.href = targetUrl;
+                                if (authBox) authBox.classList.add('hidden');
+                                if (linkBox) linkBox.classList.remove('hidden');
+
+                                // 3. Показываем форму ввода номера заказа Kaspi вместо гостевой заглушки
+                                const claimGuestBlock = document.getElementById('kaspi-claim-guest-block');
+                                const claimAuthBlock = document.getElementById('kaspi-claim-auth-block');
+                                if (claimGuestBlock) claimGuestBlock.classList.add('hidden');
+                                if (claimAuthBlock) claimAuthBlock.classList.remove('hidden');
+
+                                if (typeof window.showToast === 'function' && data.message) {
+                                    window.showToast(data.message);
+                                }
+
+                                // 4. Открываем карточку товара в Kaspi в новой вкладке
+                                window.open(targetUrl, '_blank', 'noopener,noreferrer');
                             } else {
                                 const firstError = data.errors ? Object.values(data.errors)[0][0] : (data.message || 'Ошибка регистрации');
                                 errorBox.innerText = firstError;
