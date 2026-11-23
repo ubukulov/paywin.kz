@@ -44,6 +44,11 @@ class LandingQuickAuthController extends Controller
         }
 
         Auth::login($user, true);
+        $currentCity = app(\App\Services\CityService::class)->getCurrentCity();
+        if ($currentCity && !$user->city_id) {
+            $user->city_id = $currentCity->id;
+        }
+        $user->touch(); // Обновляет updated_at, чтобы пользователь попал в окно последних 48 часов
         $request->session()->regenerate();
 
         // Формируем прямую ссылку на товар в Kaspi
