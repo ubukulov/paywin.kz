@@ -27,7 +27,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('kaspi:sync-orders --hours=24')
             ->everyFiveMinutes()
-            ->withoutOverlapping();
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/kaspi-sync.log'));
     }
 
     /**
